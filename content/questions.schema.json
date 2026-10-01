@@ -1,0 +1,179 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "questions.schema.json",
+  "title": "Question set",
+  "description": "The demo lesson: 10 questions, grouped by language in file order (3 Latin-based, 4 Chinese radicals, 3 Sanskrit/South Asian). Each question has a type; a question with no type is a drag question. Image paths are relative to /assets/questions/.",
+  "type": "array",
+  "items": {
+    "oneOf": [
+      { "$ref": "#/$defs/drag" },
+      { "$ref": "#/$defs/choice" },
+      { "$ref": "#/$defs/match" },
+      { "$ref": "#/$defs/order" }
+    ]
+  },
+  "$defs": {
+    "language": {
+      "type": "string",
+      "description": "Language this question belongs to. Questions with the same value form one language set."
+    },
+    "prompt": {
+      "type": "string",
+      "description": "Instruction shown to the player."
+    },
+    "image": {
+      "type": "string",
+      "description": "Image file name in /assets/questions/."
+    },
+    "drag": {
+      "type": "object",
+      "description": "Drag parts onto the root. The picture moves from rootImage through stageImages to completeImage as correct parts are dropped.",
+      "required": ["language", "prompt", "root", "parts", "answerMeaning"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "drag" },
+        "language": { "$ref": "#/$defs/language" },
+        "prompt": { "$ref": "#/$defs/prompt" },
+        "root": {
+          "type": "string",
+          "description": "The root (or radical) that parts are dropped onto."
+        },
+        "parts": {
+          "type": "array",
+          "description": "Draggable word parts, including distractors.",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/part" }
+        },
+        "answerMeaning": {
+          "type": "string",
+          "description": "Meaning of the finished word when the correct parts are combined with the root."
+        },
+        "rootImage": {
+          "$ref": "#/$defs/image",
+          "description": "Picture shown before any part is dropped (e.g. the 女 radical pictured as a woman)."
+        },
+        "stageImages": {
+          "type": "array",
+          "description": "Optional in-between pictures. stageImages[0] shows after the first correct drop, and so on.",
+          "items": { "$ref": "#/$defs/image" }
+        },
+        "completeImage": {
+          "$ref": "#/$defs/image",
+          "description": "Full picture shown when the word is complete (e.g. 媽 pictured as a mom)."
+        },
+        "animationId": {
+          "type": "string",
+          "description": "Optional id of the animation to play on correct assembly. File: /assets/animations/<animationId>.riv"
+        }
+      }
+    },
+    "part": {
+      "type": "object",
+      "required": ["text", "meaning", "isCorrect"],
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "type": "string",
+          "description": "The part as written."
+        },
+        "meaning": {
+          "type": "string",
+          "description": "What the part means on its own."
+        },
+        "isCorrect": {
+          "type": "boolean",
+          "description": "True if this part belongs in the answer; false for distractors."
+        }
+      }
+    },
+    "choice": {
+      "type": "object",
+      "description": "Multiple choice: tap the right meaning for a word or part.",
+      "required": ["type", "language", "prompt", "word", "options"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "choice" },
+        "language": { "$ref": "#/$defs/language" },
+        "prompt": { "$ref": "#/$defs/prompt" },
+        "word": {
+          "type": "string",
+          "description": "The word or part being asked about."
+        },
+        "image": { "$ref": "#/$defs/image" },
+        "options": {
+          "type": "array",
+          "description": "Answer options, shown in this order.",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "required": ["text", "isCorrect"],
+            "additionalProperties": false,
+            "properties": {
+              "text": { "type": "string" },
+              "isCorrect": { "type": "boolean" }
+            }
+          }
+        },
+        "animationId": { "type": "string" }
+      }
+    },
+    "match": {
+      "type": "object",
+      "description": "Match each part to its meaning. Meanings are shuffled on screen.",
+      "required": ["type", "language", "prompt", "pairs"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "match" },
+        "language": { "$ref": "#/$defs/language" },
+        "prompt": { "$ref": "#/$defs/prompt" },
+        "pairs": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "required": ["part", "meaning"],
+            "additionalProperties": false,
+            "properties": {
+              "part": { "type": "string" },
+              "meaning": { "type": "string" }
+            }
+          }
+        },
+        "animationId": { "type": "string" }
+      }
+    },
+    "order": {
+      "type": "object",
+      "description": "Tap parts into slots in the right order. Tiles are shuffled on screen.",
+      "required": ["type", "language", "prompt", "parts"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "order" },
+        "language": { "$ref": "#/$defs/language" },
+        "prompt": { "$ref": "#/$defs/prompt" },
+        "parts": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "required": ["text", "order"],
+            "additionalProperties": false,
+            "properties": {
+              "text": { "type": "string" },
+              "meaning": { "type": "string" },
+              "order": {
+                "type": ["integer", "null"],
+                "description": "Position in the finished word (1, 2, 3…). null for distractors."
+              }
+            }
+          }
+        },
+        "answerMeaning": {
+          "type": "string",
+          "description": "Optional meaning of the finished word, shown on success."
+        },
+        "animationId": { "type": "string" }
+      }
+    }
+  }
+}
