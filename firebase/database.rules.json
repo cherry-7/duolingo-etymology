@@ -1,0 +1,19 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "scores": {
+      ".read": true,
+      "$id": {
+        ".write": "!data.exists() && newData.exists()",
+        ".validate": "newData.hasChildren(['name', 'avatar', 'score', 'mistakes', 'ts'])",
+        "name": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 20" },
+        "avatar": { ".validate": "newData.isString() && newData.val().matches(/^[a-z]{1,20}$/)" },
+        "score": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10" },
+        "mistakes": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000" },
+        "ts": { ".validate": "newData.isNumber() && newData.val() <= now" },
+        "$other": { ".validate": false }
+      }
+    }
+  }
+}

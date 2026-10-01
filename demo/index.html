@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#ffffff">
+  <title>Demo</title>
+  <link rel="stylesheet" href="../assets/fonts/fonts.css">
+  <link rel="stylesheet" href="demo.css">
+  <script src="../shared/firebase-config.js"></script>
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <div id="app">
+    <p id="banner" class="banner" hidden></p>
+
+    <section id="screen-nickname" class="screen" hidden>
+      <form id="nick-form" class="nick-form" autocomplete="off">
+        <h1 id="nick-title" class="title"></h1>
+        <label id="nick-label" for="nick-input" class="muted"></label>
+        <input id="nick-input" class="text-input" type="text" name="nickname"
+               autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" required>
+        <div class="footer"><button id="nick-start" class="btn" type="submit"></button></div>
+      </form>
+      <div id="nick-reveal" class="nick-reveal" hidden></div>
+      <div class="footer"><button id="nick-continue" class="btn" type="button" hidden></button></div>
+    </section>
+
+    <section id="screen-lesson" class="screen" hidden>
+      <header class="lesson-header">
+        <div class="progress"><div id="progress-fill" class="progress-fill"></div></div>
+        <div class="lesson-meta">
+          <span id="lesson-lang" class="lesson-lang"></span>
+          <span id="lesson-count" class="muted"></span>
+          <span id="lesson-avatar" class="lesson-avatar"></span>
+        </div>
+      </header>
+      <main id="lesson-body" class="lesson-body"></main>
+      <div class="footer lesson-footer">
+        <div id="sheet" class="sheet" hidden></div>
+        <button id="primary-btn" class="btn" type="button" hidden></button>
+      </div>
+    </section>
+
+    <section id="screen-finish" class="screen" hidden>
+      <div id="finish-body" class="finish-body"></div>
+    </section>
+  </div>
+</body>
+</html>
