@@ -25,7 +25,7 @@ Work queue for the deck and demo.
   - Drag works with touch on iOS Safari and Android Chrome (pointer events, no hover UI). Every drop gets instant feedback. A correct assembly plays the question's animation and the twins' high-five, with labeled placeholders and a console log for missing assets.
   - Wrong answers follow /design/feedback-notes.md. Until that exists, show a neutral "Try again" marked [TBD]. Encouragement moments use only twins' lines and art from /design and /assets, otherwise [TBD].
   - Accent color: Duo green #58CC02.
-  - Each player gets a random avatar from the 11 Duolingo characters (Duo, Lily, Zari, Bea, Eddy, Junior, Oscar, Vikram, Lucy, Lin, Falstaff), using the Behance "Duolingo Characters" gallery by Medix Agency (download approved by Michelle).
+  - Each player gets a random avatar from 10 Duolingo characters (Duo, Lily, Zari, Bea, Eddy, Junior, Oscar, Vikram, Lucy, Lin; Falstaff left out because the gallery has no art for him, per Michelle), using the Behance "Duolingo Characters" gallery by Medix Agency (download approved by Michelle).
   - Score: track first-try correct and wrong drops. The formula is [TBD]. Leaderboard is a stub, submitScore(name, score).
   - Final step, only after Michelle approves it at that point: a live leaderboard through Firebase Realtime Database, on a separate deck slide after the QR slide.
 - [ ] APPROVED (2026-10-01): Deck transitions feel like a story/movie, not normal slides. Every slide change is a different scene animation into the next part of the story. Scroll, swipe, arrow keys and clicker each play one full scene (Michelle chose "scroll plays a scene" over scroll-scrubbing).

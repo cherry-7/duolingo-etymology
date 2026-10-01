@@ -1,0 +1,486 @@
+// Demo flow: nickname → lesson (10 questions, 3 language sets) → finish.
+import { CONFIG } from "./config.js";
+import { STRINGS } from "./strings.js";
+import { h, placeholder, assetImg, fileExists } from "./util.js";
+import * as drag from "./formats/drag.js";
+import * as choice from "./formats/choice.js";
+import * as match from "./formats/match.js";
+import * as order from "./formats/order.js";
+
+const FORMATS = { drag, choice, match, order };
+
+// Leaderboard stub. Wired up in prompt 3.
+export function submitScore(name, score, meta = {}) {
+  console.info("[stub] submitScore", name, score, meta);
+  return Promise.resolve();
+}
+
+const state = {
+  name: "",
+  avatar: null,
+  lesson: [], // [{ q, lang, langIndex, indexInLang, langSize }]
+  i: 0,
+  firstTry: 0,
+  mistakes: 0,
+  hadMistake: false,
+  twins: {}
+};
+
+const $ = (id) => document.getElementById(id);
+
+/* ---------- content loading ---------- */
+
+const DUMMY = [
+  {
+    type: "drag",
+    language: "[TBD]",
+    prompt: "[TBD]",
+    root: "[TBD]",
+    parts: [
+      { text: "[TBD] ✓", meaning: "[TBD]", isCorrect: true },
+      { text: "[TBD] ✗", meaning: "[TBD]", isCorrect: false }
+    ],
+    answerMeaning: "[TBD]"
+  }
+];
+
+const isStr = (v) => typeof v === "string" && v.length > 0;
+
+function validate(q, n) {
+  const errs = [];
+  const type = q.type || "drag";
+  if (!FORMATS[type]) errs.push(`unknown type "${q.type}"`);
+  if (!isStr(q.language)) errs.push("language");
+  if (!isStr(q.prompt)) errs.push("prompt");
+  if (type === "drag") {
+    if (!isStr(q.root)) errs.push("root");
+    if (!isStr(q.answerMeaning)) errs.push("answerMeaning");
+    if (!Array.isArray(q.parts) || !q.parts.some((p) => p.isCorrect === true)) errs.push("parts (needs a correct part)");
+    else if (q.parts.some((p) => !isStr(p.text) || typeof p.isCorrect !== "boolean")) errs.push("parts[].text/isCorrect");
+  } else if (type === "choice") {
+    if (!isStr(q.word)) errs.push("word");
+    if (!Array.isArray(q.options) || q.options.length < 2 || !q.options.some((o) => o.isCorrect === true))
+      errs.push("options (2+, one correct)");
+  } else if (type === "match") {
+    if (!Array.isArray(q.pairs) || q.pairs.length < 2 || q.pairs.some((p) => !isStr(p.part) || !isStr(p.meaning)))
+      errs.push("pairs (2+ with part and meaning)");
+  } else if (type === "order") {
+    if (!Array.isArray(q.parts) || q.parts.filter((p) => typeof p.order === "number").length < 2)
+      errs.push("parts (2+ with numeric order)");
+  }
+  if (errs.length) console.error(`questions.json item ${n}: invalid ${errs.join(", ")}`, q);
+  return errs.length === 0;
+}
+
+async function loadJson(url) {
+  try {
+    const r = await fetch(url, { cache: "no-store" });
+    if (!r.ok) return null;
+    return await r.json();
+  } catch (e) {
+    console.error(`Could not read ${url}`, e);
+    return null;
+  }
+}
+
+async function loadLesson() {
+  const data = await loadJson(CONFIG.questionsUrl);
+  let questions = Array.isArray(data) ? data.filter((q, n) => validate(q, n)) : null;
+  const banners = [];
+
+  if (!questions || questions.length === 0) {
+    console.warn("questions.json missing or empty: using one [TBD] dummy question");
+    questions = DUMMY;
+    banners.push(STRINGS.bannerDummy);
+  }
+
+  // Group by language in order of first appearance.
+  const groups = new Map();
+  for (const q of questions) {
+    if (!groups.has(q.language)) groups.set(q.language, []);
+    groups.get(q.language).push(q);
+  }
+  const sets = [...groups.values()];
+
+  if (questions !== DUMMY) {
+    const sizes = sets.map((s) => s.length);
+    const expected = CONFIG.lessonSplit;
+    if (sizes.join() !== expected.join()) {
+      console.error(`Lesson split is [${sizes}] by language, expected [${expected}]`);
+      banners.push(STRINGS.bannerMismatch);
+    }
+    if (data.length !== questions.length) banners.push(STRINGS.bannerMismatch);
+  }
+
+  state.lesson = sets.flatMap((set, langIndex) =>
+    set.map((q, indexInLang) => ({ q, lang: q.language, langIndex, indexInLang, langSize: set.length }))
+  );
+
+  const banner = $("banner");
+  const unique = [...new Set(banners)];
+  banner.textContent = unique.join(" · ");
+  banner.hidden = unique.length === 0;
+}
+
+async function loadTwinsLines() {
+  const lines = (await loadJson(CONFIG.twinsLinesUrl)) || {};
+  state.twins = {
+    firstQuestion: lines.firstQuestion || STRINGS.twinsFirstQuestion,
+    afterMistake: lines.afterMistake || STRINGS.twinsAfterMistake,
+    finish: lines.finish || STRINGS.twinsFinish,
+    highFive: lines.highFive || STRINGS.twinsHighFive
+  };
+}
+
+/* ---------- screens ---------- */
+
+function show(id) {
+  for (const s of document.querySelectorAll(".screen")) s.hidden = s.id !== id;
+}
+
+function avatarEl(character, size) {
+  return assetImg(
+    character.id && `${CONFIG.assets.characters}${character.id}.png`,
+    `[TBD: ${character.name} avatar]`,
+    `avatar avatar-${size}`
+  );
+}
+
+function twinsEl(pose) {
+  return assetImg(`${CONFIG.assets.twins}${pose}.png`, `[TBD: twins ${pose}]`, "twins");
+}
+
+function initNickname() {
+  $("nick-title").textContent = STRINGS.nicknameTitle;
+  $("nick-label").textContent = STRINGS.nicknameLabel;
+  const input = $("nick-input");
+  input.placeholder = STRINGS.nicknamePlaceholder;
+  input.maxLength = CONFIG.nicknameMaxLength;
+  const start = $("nick-start");
+  start.textContent = STRINGS.start;
+
+  const sync = () => (start.disabled = input.value.trim().length === 0);
+  input.addEventListener("input", sync);
+  sync();
+
+  $("nick-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const name = input.value.trim().slice(0, CONFIG.nicknameMaxLength);
+    if (!name) return;
+    input.blur();
+    state.name = name;
+    const pool = CONFIG.characters;
+    state.avatar = pool[Math.floor(Math.random() * pool.length)];
+    revealAvatar();
+  });
+}
+
+function revealAvatar() {
+  $("nick-form").hidden = true;
+  const reveal = $("nick-reveal");
+  reveal.replaceChildren(
+    avatarEl(state.avatar, "lg"),
+    h("p", { class: "avatar-name" }, state.avatar.name),
+    h("p", { class: "muted" }, STRINGS.avatarReveal),
+    h("p", { class: "nick-echo" }, state.name)
+  );
+  reveal.hidden = false;
+  const btn = $("nick-continue");
+  btn.textContent = STRINGS.continue;
+  btn.hidden = false;
+  btn.onclick = () => startLesson();
+}
+
+/* ---------- lesson ---------- */
+
+function startLesson() {
+  state.i = 0;
+  state.firstTry = 0;
+  state.mistakes = 0;
+  $("lesson-avatar").replaceChildren(avatarEl(state.avatar, "sm"));
+  show("screen-lesson");
+  renderQuestion();
+}
+
+function renderHeader(item) {
+  $("lesson-lang").textContent = item.lang;
+  $("lesson-count").textContent = `${item.indexInLang + 1}/${item.langSize}`;
+  const done = state.lesson.length ? state.i / state.lesson.length : 0;
+  $("progress-fill").style.width = `${Math.round(done * 100)}%`;
+}
+
+function renderQuestion() {
+  const item = state.lesson[state.i];
+  state.hadMistake = false;
+  renderHeader(item);
+  hideSheet();
+
+  const body = $("lesson-body");
+  body.classList.remove("is-locked", "is-boundary");
+  const format = FORMATS[item.q.type || "drag"];
+  const nodes = [];
+  if (state.i === 0) {
+    nodes.push(h("div", { class: "twins-bubble" }, twinsEl("encourage"), h("p", {}, state.twins.firstQuestion)));
+  }
+  nodes.push(format.render(item.q, makeCtx(item.q)));
+  body.replaceChildren(...nodes);
+  slideIn(body);
+  if (item.q.type === "drag" || !item.q.type) preloadAnimation(item.q);
+}
+
+function makeCtx(q) {
+  let check = { visible: false, handler: null };
+  const applyCheck = () => {
+    const btn = $("primary-btn");
+    btn.hidden = !check.visible;
+    btn.textContent = STRINGS.check;
+    btn.disabled = !check.handler;
+    btn.onclick = check.handler;
+  };
+  return {
+    img: (file, label) => assetImg(file && `${CONFIG.assets.questions}${file}`, label),
+    useCheck(visible, handler = null) {
+      check = { visible, handler };
+      applyCheck();
+    },
+    wrong(reset) {
+      state.mistakes++;
+      state.hadMistake = true;
+      showSheet("wrong", () => {
+        applyCheck();
+        reset?.();
+      });
+    },
+    complete({ animationSlot, detail }) {
+      if (!state.hadMistake) state.firstTry++;
+      playAnimation(q, animationSlot);
+      showSheet("correct", null, detail);
+    }
+  };
+}
+
+function showSheet(kind, retry, detail) {
+  const sheet = $("sheet");
+  const body = $("lesson-body");
+  body.classList.add("is-locked");
+  sheet.className = `sheet sheet-${kind}`;
+  const btn = $("primary-btn");
+  btn.hidden = false;
+  btn.disabled = false;
+
+  if (kind === "correct") {
+    sheet.replaceChildren(
+      twinsEl("high-five"),
+      h(
+        "div",
+        { class: "sheet-text" },
+        h("p", { class: "sheet-title" }, STRINGS.correctTitle),
+        detail ? h("p", { class: "sheet-detail" }, detail) : null,
+        h("p", { class: "sheet-line" }, state.twins.highFive)
+      )
+    );
+    btn.textContent = STRINGS.continue;
+    btn.classList.remove("is-neutral");
+    btn.onclick = () => next();
+  } else {
+    sheet.replaceChildren(
+      twinsEl("encourage"),
+      h(
+        "div",
+        { class: "sheet-text" },
+        h("p", { class: "sheet-title" }, STRINGS.wrongTitle),
+        h("p", { class: "sheet-line" }, state.twins.afterMistake)
+      )
+    );
+    btn.textContent = STRINGS.tryAgain;
+    btn.classList.add("is-neutral");
+    btn.onclick = () => {
+      hideSheet();
+      retry();
+    };
+  }
+  sheet.hidden = false;
+  btn.focus({ preventScroll: true });
+}
+
+function hideSheet() {
+  $("sheet").hidden = true;
+  $("lesson-body").classList.remove("is-locked");
+  const btn = $("primary-btn");
+  btn.classList.remove("is-neutral");
+}
+
+function next() {
+  const cur = state.lesson[state.i];
+  const nxt = state.lesson[state.i + 1];
+  if (!nxt) return finish();
+  if (nxt.langIndex !== cur.langIndex) return showBoundary(nxt);
+  state.i++;
+  renderQuestion();
+}
+
+/* ---------- language boundary + swipe ---------- */
+
+let swipeHandler = null;
+
+function showBoundary(nxt) {
+  hideSheet();
+  $("primary-btn").hidden = true;
+  const body = $("lesson-body");
+  body.classList.add("is-boundary");
+  body.replaceChildren(
+    h(
+      "div",
+      { class: "boundary" },
+      h("p", { class: "boundary-lang" }, nxt.lang),
+      h("div", { class: "swipe-hint", "aria-hidden": "true" }, "←"),
+      h("p", { class: "muted" }, STRINGS.swipeToNext)
+    )
+  );
+  $("progress-fill").style.width = `${Math.round(((state.i + 1) / state.lesson.length) * 100)}%`;
+
+  const advance = () => {
+    disarm();
+    slideOut(body, () => {
+      state.i++;
+      renderQuestion();
+    });
+  };
+  arm(body, advance);
+}
+
+function arm(el, onSwipe) {
+  disarm();
+  let start = null;
+  const down = (e) => {
+    if (!e.isPrimary) return;
+    start = { x: e.clientX, y: e.clientY, id: e.pointerId };
+    el.setPointerCapture(e.pointerId);
+  };
+  const up = (e) => {
+    if (!start || e.pointerId !== start.id) return;
+    const dx = e.clientX - start.x;
+    const dy = e.clientY - start.y;
+    start = null;
+    if (dx < -60 && Math.abs(dx) > 2 * Math.abs(dy)) onSwipe();
+  };
+  const cancel = () => (start = null);
+  const key = (e) => {
+    if (e.key === "ArrowRight") onSwipe();
+  };
+  el.addEventListener("pointerdown", down);
+  el.addEventListener("pointerup", up);
+  el.addEventListener("pointercancel", cancel);
+  window.addEventListener("keydown", key);
+  swipeHandler = () => {
+    el.removeEventListener("pointerdown", down);
+    el.removeEventListener("pointerup", up);
+    el.removeEventListener("pointercancel", cancel);
+    window.removeEventListener("keydown", key);
+  };
+}
+
+function disarm() {
+  swipeHandler?.();
+  swipeHandler = null;
+}
+
+const reduceMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function slideOut(el, done) {
+  if (reduceMotion()) return done();
+  el.classList.add("slide-out");
+  setTimeout(() => {
+    el.classList.remove("slide-out");
+    done();
+  }, 220);
+}
+
+function slideIn(el) {
+  if (reduceMotion()) return;
+  el.classList.remove("slide-in");
+  el.getBoundingClientRect();
+  el.classList.add("slide-in");
+}
+
+/* ---------- completion animation (Rive or placeholder) ---------- */
+
+let riveLoading = null;
+function loadRive() {
+  if (window.rive) return Promise.resolve(window.rive);
+  riveLoading ??= new Promise((resolve, reject) => {
+    const s = document.createElement("script");
+    s.src = CONFIG.riveRuntimeUrl;
+    s.onload = () => resolve(window.rive);
+    s.onerror = reject;
+    document.head.append(s);
+  });
+  return riveLoading;
+}
+
+function animationUrl(q) {
+  return q.animationId ? `${CONFIG.assets.animations}${q.animationId}.riv` : null;
+}
+
+function preloadAnimation(q) {
+  const url = animationUrl(q);
+  if (url) fileExists(url).then((ok) => ok && loadRive().catch(() => {}));
+}
+
+// Plays over the slot (the picture, or the answer area for non-picture formats).
+async function playAnimation(q, slot) {
+  if (!slot) return;
+  const url = animationUrl(q);
+  const label = q.animationId ? `[TBD: animation ${q.animationId}]` : "[TBD: animation (none specified)]";
+  slot.classList.add("has-anim");
+
+  if (!url || !(await fileExists(url))) {
+    console.warn(q.animationId ? `Missing animation: ${q.animationId} (${url})` : "Missing animation: question has no animationId", q);
+    slot.append(h("div", { class: "anim-tag" }, label));
+    return;
+  }
+  try {
+    const rive = await loadRive();
+    const canvas = h("canvas", { class: "anim-canvas", width: "600", height: "600" });
+    slot.append(h("div", { class: "anim-overlay" }, canvas));
+    const r = new rive.Rive({ src: url, canvas, autoplay: true, onLoad: () => r.resizeDrawingSurfaceToCanvas() });
+  } catch (e) {
+    console.warn(`Rive failed for ${q.animationId}`, e);
+    slot.append(h("div", { class: "anim-tag" }, label));
+  }
+}
+
+/* ---------- finish ---------- */
+
+function finish() {
+  disarm();
+  hideSheet();
+  $("progress-fill").style.width = "100%";
+  const score = state.firstTry; // [TBD: score formula]
+  $("finish-body").replaceChildren(
+    h("h1", { class: "title" }, STRINGS.finishTitle),
+    avatarEl(state.avatar, "lg"),
+    h("p", { class: "nick-echo" }, state.name),
+    h("p", { class: "score" }, String(score)),
+    h("p", { class: "muted" }, STRINGS.scoreFormula),
+    h(
+      "div",
+      { class: "stats" },
+      h("div", {}, h("span", { class: "stat-n" }, `${state.firstTry}/${state.lesson.length}`), h("span", {}, STRINGS.statFirstTry)),
+      h("div", {}, h("span", { class: "stat-n" }, String(state.mistakes)), h("span", {}, STRINGS.statMistakes))
+    ),
+    h("div", { class: "twins-bubble" }, twinsEl("idle"), h("p", {}, state.twins.finish))
+  );
+  show("screen-finish");
+  submitScore(state.name, score, { avatar: state.avatar.id, firstTry: state.firstTry, mistakes: state.mistakes });
+}
+
+/* ---------- boot ---------- */
+
+async function boot() {
+  initNickname();
+  show("screen-nickname");
+  await Promise.all([loadLesson(), loadTwinsLines()]);
+}
+
+boot();
