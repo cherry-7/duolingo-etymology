@@ -3,8 +3,9 @@
 // Fields:
 //   id          anchor for the slide (deck/#id)
 //   layout      "basic" | "lineup" | "finale"
-//   transition  scene that plays when moving INTO this slide (see transitions.js);
-//               going back plays it in reverse. Give each slide a different one.
+//   transition  how this slide arrives from the previous one (see transitions.js).
+//               The motion follows the scroll, so going back plays it in reverse.
+//               Give each slide a different one.
 //   heading     string
 //   body        string, or array of strings (one paragraph each)
 //   twins       image slot for the twin characters: { src, label }
@@ -15,6 +16,8 @@
 // If src is null or the file can't load, a gray box with the label is shown instead.
 //
 // Copy must come from /design/slides. Until it exists, everything is [TBD].
+
+const CHARACTERS = "../assets/characters/";
 
 window.SLIDES = [
   {
@@ -27,19 +30,27 @@ window.SLIDES = [
   {
     id: "lineup",
     layout: "lineup",
-    transition: "zoom-through",
+    transition: "rise",
     heading: "[TBD]",
     characters: [
-      { src: null, label: "[TBD: Duolingo owl]" },
-      { src: null, label: "[TBD: existing Duolingo characters]", wide: true },
-      { src: null, label: "[TBD: twins]" }
+      { src: CHARACTERS + "duo.png", label: "Duo" },
+      { src: CHARACTERS + "bea.png", label: "Bea" },
+      { src: CHARACTERS + "eddy.png", label: "Eddy" },
+      { src: CHARACTERS + "junior.png", label: "Junior" },
+      { src: CHARACTERS + "lily.png", label: "Lily" },
+      { src: CHARACTERS + "lin.png", label: "Lin" },
+      { src: CHARACTERS + "lucy.png", label: "Lucy" },
+      { src: CHARACTERS + "oscar.png", label: "Oscar" },
+      { src: CHARACTERS + "vikram.png", label: "Vikram" },
+      { src: CHARACTERS + "zari.png", label: "Zari" },
+      { src: null, label: "[TBD: twins]", wide: true }
     ]
   },
   {
     id: "finale",
     layout: "finale",
-    transition: "iris",
-    owl: { src: null, label: "[TBD: Duolingo owl]" },
+    transition: "window",
+    owl: { src: CHARACTERS + "duo.png", label: "Duo" },
     line: "Go ahead, scan" // from SPEC.md
   }
 ];

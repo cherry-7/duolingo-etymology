@@ -1,64 +1,71 @@
-// Scene transitions between slides. A slide's `transition` (in slides.js) names one of these;
-// it plays when moving forward INTO that slide, and runs in reverse when going back.
+// How one slide hands over to the next, inspired by the continuous scroll flow of lusion.co.
+// A slide's `transition` (in slides.js) names one of these.
 //
-// Each transition:
-//   out       keyframes for the slide being left
-//   in        keyframes for the slide arriving
-//   duration  ms
-//   easing    CSS easing for the whole scene
+// Motion is tied to the deck's (smoothed) scroll position, so it plays forward when moving
+// on and in reverse when going back. Each transition is two functions of t, where t goes
+// from 0 (previous slide fully on screen) to 1 (this slide fully on screen):
+//   enter(t)  style for the arriving slide (it sits on top)
+//   leave(t)  style for the slide underneath, as it gives way
+// They return { transform, clipPath, opacity, filter } (any subset).
 //
-// These are neutral placeholders until /design (or Michelle's inspo) defines each scene.
+// On top of the transition, the arriving slide's content rises in with a stagger
+// (see revealContent in deck.js).
+//
+// These are placeholders until /design (or Michelle's inspo) defines each scene.
 
 window.TRANSITIONS = {
-  // Dip to the background color, then up into the next scene
-  "fade-through": {
-    duration: 1000,
-    easing: "ease-in-out",
-    out: [{ opacity: 1 }, { opacity: 0, offset: 0.5 }, { opacity: 0 }],
-    in: [{ opacity: 0 }, { opacity: 0, offset: 0.5 }, { opacity: 1 }]
+  // The next chapter rises from below while this one sinks back into the distance
+  rise: {
+    enter: (t) => ({
+      transform: `translateY(${(1 - t) * 100}%)`,
+      clipPath: `inset(0 round ${(1 - t) * 48}px ${(1 - t) * 48}px 0 0)`
+    }),
+    leave: (t) => ({
+      transform: `translateY(${-t * 20}%) scale(${1 - t * 0.12})`,
+      clipPath: `inset(0 round ${t * 48}px)`,
+      opacity: 1 - t * 0.6
+    })
   },
 
-  // Camera flies forward through the old scene into the new one
-  "zoom-through": {
-    duration: 1100,
-    easing: "cubic-bezier(0.6, 0, 0.2, 1)",
-    out: [{ transform: "scale(1)", opacity: 1 }, { transform: "scale(2.5)", opacity: 0 }],
-    in: [
-      { transform: "scale(0.6)", opacity: 0 },
-      { transform: "scale(0.6)", opacity: 0, offset: 0.3 },
-      { transform: "scale(1)", opacity: 1 }
-    ]
+  // A small rounded window in the center opens up into the next scene
+  window: {
+    enter: (t) => {
+      const x = (1 - t) * 34;
+      const y = (1 - t) * 30;
+      return {
+        clipPath: `inset(${y}% ${x}% round ${(1 - t) * 40 + 0}px)`,
+        transform: `scale(${1 + (1 - t) * 0.25})`
+      };
+    },
+    leave: (t) => ({
+      transform: `scale(${1 - t * 0.08})`,
+      filter: `blur(${t * 6}px)`,
+      opacity: 1 - t * 0.5
+    })
   },
 
-  // New scene opens from a growing circle in the center
-  "iris": {
-    duration: 1100,
-    easing: "cubic-bezier(0.65, 0, 0.35, 1)",
-    out: [{ transform: "scale(1)" }, { transform: "scale(0.92)" }],
-    in: [{ clipPath: "circle(0% at 50% 50%)" }, { clipPath: "circle(75% at 50% 50%)" }]
+  // The camera pushes into this scene and the next one comes into focus
+  "push-in": {
+    enter: (t) => ({
+      transform: `scale(${0.8 + t * 0.2})`,
+      filter: `blur(${(1 - t) * 12}px)`,
+      opacity: Math.min(1, t * 1.6)
+    }),
+    leave: (t) => ({
+      transform: `scale(${1 + t * 1.2})`,
+      opacity: 1 - t
+    })
   },
 
-  // New scene pushes the old one up and out
-  "push-up": {
-    duration: 900,
-    easing: "cubic-bezier(0.7, 0, 0.3, 1)",
-    out: [{ transform: "translateY(0)" }, { transform: "translateY(-100%)" }],
-    in: [{ transform: "translateY(100%)" }, { transform: "translateY(0)" }]
-  },
-
-  // Camera pans right to the next scene
-  "pan-left": {
-    duration: 1000,
-    easing: "cubic-bezier(0.7, 0, 0.3, 1)",
-    out: [{ transform: "translateX(0)" }, { transform: "translateX(-100%)" }],
-    in: [{ transform: "translateX(100%)" }, { transform: "translateX(0)" }]
-  },
-
-  // New scene wipes in from the left while the old one drifts away
-  "wipe": {
-    duration: 900,
-    easing: "cubic-bezier(0.65, 0, 0.35, 1)",
-    out: [{ transform: "translateX(0)" }, { transform: "translateX(-20%)" }],
-    in: [{ clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0 0 0)" }]
+  // The next scene slides in from the side over a parallax drift
+  "slide-over": {
+    enter: (t) => ({
+      transform: `translateX(${(1 - t) * 100}%)`,
+      clipPath: `inset(0 round ${(1 - t) * 48}px 0 0 ${(1 - t) * 48}px)`
+    }),
+    leave: (t) => ({
+      transform: `translateX(${-t * 30}%) scale(${1 - t * 0.08})`,
+      opacity: 1 - t * 0.5
+    })
   }
 };

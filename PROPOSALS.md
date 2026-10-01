@@ -67,3 +67,9 @@ What: a way to clear the live leaderboard between run-throughs (e.g. a password-
 Why: rehearsal scores would otherwise show up during the real pitch.
 Effort: small.
 Decision:
+
+### Story thread across the deck
+What: one continuous line that draws itself across every slide as the deck moves (like the ribbon on lusion.co), tying the chapters together.
+Why: makes the deck read as one story instead of separate slides.
+Effort: medium (needs a color and path from /design).
+Decision:

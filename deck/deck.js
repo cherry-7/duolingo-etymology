@@ -33,22 +33,29 @@
     return box;
   }
 
+  // Marks an element to rise into place when its slide arrives
+  function reveal(node) {
+    node.setAttribute("data-reveal", "");
+    return node;
+  }
+
   function textBlock(slide) {
     const block = el("div", "text");
     block.append(el("h2", null, slide.heading || "[TBD]"));
     const body = Array.isArray(slide.body) ? slide.body : [slide.body || "[TBD]"];
     body.forEach((line) => block.append(el("p", null, line)));
+    block.querySelectorAll("h2, p").forEach(reveal);
     return block;
   }
 
   const layouts = {
     basic(stage, slide) {
-      stage.append(textBlock(slide), slot(slide.twins, "twins"));
+      stage.append(textBlock(slide), reveal(slot(slide.twins, "twins")));
     },
     lineup(stage, slide) {
-      stage.append(el("h2", null, slide.heading || "[TBD]"));
+      stage.append(reveal(el("h2", null, slide.heading || "[TBD]")));
       const row = el("div", "lineup");
-      (slide.characters || []).forEach((c) => row.append(slot(c)));
+      (slide.characters || []).forEach((c) => row.append(reveal(slot(c))));
       stage.append(row);
     },
     finale(stage, slide) {
@@ -101,73 +108,125 @@
     return sections[index] && sections[index].querySelector(".layout-finale");
   }
 
-  // Slides are stacked full-screen; one is shown at a time and scenes play between them.
-  let current = 0;
-  let busy = false;
-  let landing = 0; // where the scene now playing will land
-  let queued = []; // presses made while a scene is playing, played next
+  // ---- Motion -------------------------------------------------------------
+  // The deck has one continuous position, measured in slides (0 = first slide).
+  // Input moves `target`; `pos` follows it with a spring, so motion always starts
+  // and stops smoothly. Every frame, each slide is styled from where `pos` is.
 
-  function arrive(index) {
-    current = index;
-    sections.forEach((s, i) => s.classList.toggle("is-active", i === index));
+  const last = sections.length - 1;
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+  const STYLE_PROPS = ["transform", "clipPath", "opacity", "filter"];
+
+  let pos = 0;
+  let vel = 0;
+  let target = 0;
+  let rest = 0; // the slide the deck is settling on
+  let running = false;
+  let lastFrame = 0;
+
+  function applyStyle(node, style) {
+    STYLE_PROPS.forEach((prop) => { node.style[prop] = style && style[prop] != null ? style[prop] : ""; });
+  }
+
+  // Content of an arriving slide rises into place, one piece after another.
+  // Starts are spread over t = 0.25-0.65 and each piece takes 0.35, so all land by t = 1.
+  function revealContent(section, t) {
+    const nodes = section.querySelectorAll("[data-reveal]");
+    nodes.forEach((node, k) => {
+      const start = 0.25 + (k / nodes.length) * 0.4;
+      const local = ease(clamp((t - start) / 0.35, 0, 1));
+      node.style.transform = local < 1 ? `translateY(${(1 - local) * 60}px)` : "";
+      node.style.opacity = local < 1 ? local : "";
+    });
+  }
+
+  function render() {
+    sections.forEach((section, i) => {
+      const scene = window.TRANSITIONS[slides[i].transition] || window.TRANSITIONS.rise;
+      const nextScene = i < last ? window.TRANSITIONS[slides[i + 1].transition] || window.TRANSITIONS.rise : null;
+      const arriving = clamp(pos - (i - 1), 0, 1); // 0 = not here yet, 1 = fully here
+      const leaving = clamp(pos - i, 0, 1); // 0 = still here, 1 = next slide fully over it
+      const visible = arriving > 0 && leaving < 1;
+      section.style.visibility = visible ? "visible" : "hidden";
+      section.style.zIndex = i;
+      if (!visible) {
+        // Off screen: reset the finale so it replays on the next visit
+        if (finaleOf(i)) resetFinale(finaleOf(i));
+        return;
+      }
+      if (i > 0 && arriving < 1) {
+        applyStyle(section, scene.enter(ease(arriving)));
+      } else if (nextScene && leaving > 0) {
+        applyStyle(section, nextScene.leave(ease(leaving)));
+      } else {
+        applyStyle(section, null);
+      }
+      revealContent(section, i === 0 ? 1 : arriving);
+    });
+  }
+
+  function settle() {
+    const index = Math.round(pos);
     history.replaceState(null, "", "#" + sections[index].id);
     if (finaleOf(index)) playFinale(finaleOf(index));
   }
 
-  function show(index) {
-    sections.forEach((s, i) => { if (finaleOf(i)) resetFinale(finaleOf(i)); });
-    arrive(index);
-  }
+  // Critically damped spring: no overshoot, smooth start and stop (~0.9s per slide)
+  const STIFFNESS = 38;
+  const DAMPING = 2 * Math.sqrt(STIFFNESS);
 
-  // Forward plays the arriving slide's transition; backward plays the leaving slide's in reverse.
-  function play(from, to) {
-    const forward = to > from;
-    const name = slides[forward ? to : from].transition;
-    const scene = window.TRANSITIONS && window.TRANSITIONS[name];
-    if (!scene || reduceMotion.matches) {
-      show(to);
-      return Promise.resolve();
-    }
-    const leaving = sections[from];
-    const entering = sections[to];
-    const options = { duration: scene.duration, easing: scene.easing, direction: forward ? "normal" : "reverse" };
-    const top = forward ? entering : leaving;
-    leaving.classList.add("is-leaving");
-    entering.classList.add("is-entering");
-    top.classList.add("is-top");
-    if (finaleOf(to)) resetFinale(finaleOf(to));
-    const animations = [
-      leaving.animate(forward ? scene.out : scene.in, options),
-      entering.animate(forward ? scene.in : scene.out, options)
-    ];
-    return Promise.all(animations.map((a) => a.finished)).then(() => {
-      leaving.classList.remove("is-leaving");
-      entering.classList.remove("is-entering");
-      top.classList.remove("is-top");
-      if (finaleOf(from)) resetFinale(finaleOf(from));
-      arrive(to);
-    });
-  }
-
-  function go(index) {
-    index = Math.max(0, Math.min(sections.length - 1, index));
-    if (busy) {
-      queued.push(index);
+  function frame(now) {
+    const dt = clamp((now - lastFrame) / 1000, 0, 0.033); // frame time can be slightly before lastFrame
+    lastFrame = now;
+    vel += ((target - pos) * STIFFNESS - vel * DAMPING) * dt;
+    pos += vel * dt;
+    const done = Math.abs(target - pos) < 0.0005 && Math.abs(vel) < 0.001;
+    if (done) pos = target;
+    render();
+    if (done) {
+      running = false;
+      settle();
       return;
     }
-    if (index === current) return;
-    busy = true;
-    landing = index;
-    play(current, index).then(() => {
-      busy = false;
-      if (queued.length) go(queued.shift());
-    });
+    requestAnimationFrame(frame);
   }
 
-  // Steps are relative to where the deck will be after the playing and queued scenes finish
-  function step(delta) {
-    const base = queued.length ? queued[queued.length - 1] : busy ? landing : current;
-    go(base + delta);
+  function move() {
+    if (reduceMotion.matches) {
+      pos = target;
+      vel = 0;
+      render();
+      settle();
+      return;
+    }
+    if (running) return;
+    running = true;
+    lastFrame = performance.now();
+    requestAnimationFrame(frame);
+  }
+
+  // Go to a whole slide (keys, clicker, hash). Quick repeated presses stack up.
+  function go(index) {
+    rest = clamp(index, 0, last);
+    target = rest;
+    move();
+  }
+
+  // Free scrolling (wheel, touch) moves the deck with the input, then settles on a slide.
+  // A small nudge past the current slide is enough to move on to the next one.
+  let settleTimer = null;
+  function drift(deltaSlides) {
+    target = clamp(target + deltaSlides, 0, last);
+    move();
+    clearTimeout(settleTimer);
+    settleTimer = setTimeout(snap, 160);
+  }
+  function snap() {
+    const d = target - rest;
+    let index = Math.round(target);
+    if (index === rest && Math.abs(d) > 0.12) index = rest + Math.sign(d);
+    go(index);
   }
 
   // Arrow keys and clickers (most clickers send PageDown / PageUp)
@@ -178,63 +237,61 @@
       case "ArrowDown":
       case "PageDown":
       case "Enter":
-        step(1); break;
+        go(rest + 1); break;
       case " ":
-        step(e.shiftKey ? -1 : 1); break;
+        go(rest + (e.shiftKey ? -1 : 1)); break;
       case "ArrowLeft":
       case "ArrowUp":
       case "PageUp":
-        step(-1); break;
+        go(rest - 1); break;
       case "Home":
         go(0); break;
       case "End":
-        go(sections.length - 1); break;
+        go(last); break;
       default:
         return;
     }
     e.preventDefault();
   });
 
-  // Mouse wheel / trackpad: one flick = one scene. Trackpads keep sending wheel events
-  // after a flick, so further steps wait until the wheel has been quiet for a moment.
-  let wheelSum = 0;
-  let wheelLocked = false;
-  let wheelQuiet = null;
+  // Mouse wheel / trackpad
   window.addEventListener("wheel", (e) => {
     e.preventDefault();
-    clearTimeout(wheelQuiet);
-    wheelQuiet = setTimeout(() => { wheelLocked = false; wheelSum = 0; }, 200);
-    if (wheelLocked || busy) return;
-    wheelSum += Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
-    if (Math.abs(wheelSum) > 40) {
-      step(wheelSum > 0 ? 1 : -1);
-      wheelLocked = true;
-      wheelSum = 0;
-    }
+    const delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+    const px = e.deltaMode === 1 ? delta * 40 : e.deltaMode === 2 ? delta * window.innerHeight : delta;
+    drift(px / (window.innerHeight * 1.2));
   }, { passive: false });
 
-  // Touch: swipe up or left = next, down or right = previous
-  let touchStart = null;
+  // Touch: drag up or left = forward
+  let touch = null;
   window.addEventListener("touchstart", (e) => {
-    touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    touch = { x: e.touches[0].clientX, y: e.touches[0].clientY };
   }, { passive: true });
-  window.addEventListener("touchend", (e) => {
-    if (!touchStart) return;
-    const dx = e.changedTouches[0].clientX - touchStart.x;
-    const dy = e.changedTouches[0].clientY - touchStart.y;
-    touchStart = null;
-    const d = Math.abs(dy) >= Math.abs(dx) ? dy : dx;
-    if (Math.abs(d) > 50) step(d < 0 ? 1 : -1);
-  }, { passive: true });
+  window.addEventListener("touchmove", (e) => {
+    if (!touch) return;
+    e.preventDefault();
+    const x = e.touches[0].clientX;
+    const y = e.touches[0].clientY;
+    const dx = touch.x - x;
+    const dy = touch.y - y;
+    touch = { x, y };
+    drift((Math.abs(dy) >= Math.abs(dx) ? dy : dx) / window.innerHeight);
+  }, { passive: false });
+  window.addEventListener("touchend", () => { touch = null; }, { passive: true });
 
   // Open at the slide named in the URL hash, and follow hash edits in the address bar
   function hashIndex() {
     const index = sections.findIndex((s) => "#" + s.id === location.hash);
     return index >= 0 ? index : 0;
   }
+  function jump(index) {
+    rest = target = pos = index;
+    vel = 0;
+    render();
+    settle();
+  }
   window.addEventListener("hashchange", () => {
-    queued = [];
-    show(hashIndex());
+    if (hashIndex() !== Math.round(pos)) jump(hashIndex());
   });
-  show(hashIndex());
+  jump(hashIndex());
 })();

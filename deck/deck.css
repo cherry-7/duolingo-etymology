@@ -2,6 +2,7 @@
    replace these tokens when it does. */
 :root {
   --bg: #fff;
+  --backdrop: #e6e6e6; /* behind slides, seen as one recedes */
   --text: #222;
   --placeholder-bg: #ddd;
   --placeholder-line: #888;
@@ -18,12 +19,13 @@ body {
 
 body {
   margin: 0;
-  background: var(--bg);
+  background: var(--backdrop);
   color: var(--text);
   font-family: var(--font-sans);
 }
 
-/* Slides are stacked full-screen; each has a centered 16:9 stage (letterboxed). */
+/* Slides are stacked full-screen; each has a centered 16:9 stage (letterboxed).
+   deck.js moves them with inline styles as the deck scrolls. */
 .slide {
   position: fixed;
   inset: 0;
@@ -32,17 +34,8 @@ body {
   overflow: hidden;
   background: var(--bg);
   visibility: hidden;
+  will-change: transform, clip-path, opacity;
 }
-
-.slide.is-active,
-.slide.is-leaving,
-.slide.is-entering {
-  visibility: visible;
-}
-
-.slide.is-leaving,
-.slide.is-entering { z-index: 1; }
-.slide.is-top { z-index: 2; } /* the slide playing the scene's "in" side */
 
 .stage {
   width: min(100vw, 100dvh * 16 / 9);
@@ -106,23 +99,31 @@ body {
   height: 100%;
 }
 
-/* Layout: lineup (heading above a row of characters) */
+/* Layout: lineup (heading above a grid of characters) */
 .layout-lineup {
   grid-template-rows: auto 1fr;
 }
 
 .lineup {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-auto-rows: 1fr;
   gap: var(--space);
   min-height: 0;
 }
 
-.lineup .slot {
-  flex: 1;
+.lineup .slot.wide {
+  grid-column: span 2;
 }
 
-.lineup .slot.wide {
-  flex: 3;
+.lineup .slot {
+  container-type: size;
+}
+
+.lineup img {
+  width: min(100cqw, 100cqh);
+  height: min(100cqw, 100cqh);
+  border-radius: 12%;
 }
 
 /* Layout: finale (owl exits, then QR appears) */
