@@ -171,6 +171,60 @@ body {
   margin: 0;
 }
 
+/* Layout: leaderboard (live top players) */
+.layout-leaderboard {
+  grid-template-rows: auto 1fr auto;
+}
+
+.board {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-auto-rows: 1fr;
+  gap: var(--space);
+  min-height: 0;
+}
+
+.board-row {
+  display: grid;
+  grid-template-columns: 5cqw 6cqw 1fr auto;
+  align-items: center;
+  gap: var(--space);
+  padding: 0 var(--space);
+  border: 0.2cqw solid var(--placeholder-bg);
+  border-radius: 1.5cqw;
+  font-size: 3cqw;
+  font-weight: 700;
+  min-height: 0;
+}
+
+.board-rank { text-align: center; }
+
+.board-avatar {
+  width: 6cqw;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--placeholder-bg);
+}
+
+.board-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.board-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.board-empty {
+  display: grid;
+  place-items: center;
+  grid-row: span 5;
+  color: var(--placeholder-line);
+  font-size: 2.5cqw;
+  border: 0.2cqw dashed var(--placeholder-line);
+  background: var(--placeholder-bg);
+}
+
+.stage .board-status { margin: 0; font-size: 1.6cqw; color: var(--placeholder-line); min-height: 1em; }
+
 @media (prefers-reduced-motion: reduce) {
   .layout-finale.owl-gone .owl,
   .layout-finale.show-qr .qr { transition: none; }

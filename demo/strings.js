@@ -26,6 +26,9 @@ export const STRINGS = {
   scoreFormula: "[TBD: score formula]",
   statFirstTry: "First try",
   statMistakes: "Mistakes",
+  submitting: "[TBD: sending score…]",
+  submitted: "[TBD: score is on the leaderboard]",
+  submitFailed: "[TBD: couldn't reach the leaderboard]",
 
   bannerDummy: "[TBD: dummy question — questions.json missing]",
   bannerMismatch: "[TBD: content mismatch]"

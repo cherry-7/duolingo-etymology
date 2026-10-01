@@ -67,6 +67,15 @@
       code.innerHTML = qrSvg(config.demoUrl || "");
       qr.append(code, el("p", null, slide.line || "[TBD]"));
       stage.append(qr);
+    },
+    // Live scores from the demo; streaming lives in leaderboard.js
+    leaderboard(stage, slide) {
+      stage.append(reveal(el("h2", null, slide.heading || "[TBD]")));
+      const list = el("ol", "board");
+      const status = el("p", "board-status");
+      stage.append(list, status);
+      if (window.Leaderboard) window.Leaderboard.mount(list, slide, status);
+      else list.append(placeholder("[TBD: leaderboard unavailable]"));
     }
   };
 

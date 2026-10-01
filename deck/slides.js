@@ -2,7 +2,7 @@
 //
 // Fields:
 //   id          anchor for the slide (deck/#id)
-//   layout      "basic" | "lineup" | "finale"
+//   layout      "basic" | "lineup" | "finale" | "leaderboard"
 //   transition  how this slide arrives from the previous one (see transitions.js).
 //               The motion follows the scroll, so going back plays it in reverse.
 //               Give each slide a different one.
@@ -11,6 +11,7 @@
 //   twins       image slot for the twin characters: { src, label }
 //   characters  (lineup only) list of image slots: { src, label, wide }
 //   owl, line   (finale only) owl image slot, and the line shown with the QR code
+//   limit       (leaderboard only) how many players to show; scores stream live from Firebase
 //
 // Image slots: set src to a file path relative to /deck, e.g. "../assets/twins/wave.png".
 // If src is null or the file can't load, a gray box with the label is shown instead.
@@ -52,5 +53,12 @@ window.SLIDES = [
     transition: "window",
     owl: { src: CHARACTERS + "duo.png", label: "Duo" },
     line: "Go ahead, scan" // from SPEC.md
+  },
+  {
+    id: "leaderboard",
+    layout: "leaderboard",
+    transition: "slide-over",
+    heading: "[TBD: leaderboard title]",
+    limit: 5
   }
 ];

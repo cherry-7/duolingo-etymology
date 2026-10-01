@@ -9,10 +9,34 @@ import * as order from "./formats/order.js";
 
 const FORMATS = { drag, choice, match, order };
 
-// Leaderboard stub. Wired up in prompt 3.
-export function submitScore(name, score, meta = {}) {
-  console.info("[stub] submitScore", name, score, meta);
-  return Promise.resolve();
+// Sends one score to the live leaderboard (Firebase Realtime Database, REST).
+// One request and no open connection, so a big audience stays under the free-plan limit.
+export async function submitScore(name, score, meta = {}) {
+  const base = window.FIREBASE_CONFIG?.databaseURL;
+  if (!base) throw new Error("FIREBASE_CONFIG.databaseURL missing");
+  const entry = {
+    name,
+    score,
+    avatar: meta.avatar,
+    mistakes: meta.mistakes,
+    ts: { ".sv": "timestamp" } // set by the server
+  };
+  for (let attempt = 1; ; attempt++) {
+    try {
+      const r = await fetch(`${base}/scores.json`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(entry),
+        keepalive: true
+      });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return (await r.json()).name; // the new entry's key
+    } catch (e) {
+      console.error(`submitScore attempt ${attempt} failed`, e);
+      if (attempt >= 3) throw e;
+      await new Promise((res) => setTimeout(res, 800 * attempt));
+    }
+  }
 }
 
 const state = {
@@ -469,10 +493,14 @@ function finish() {
       h("div", {}, h("span", { class: "stat-n" }, `${state.firstTry}/${state.lesson.length}`), h("span", {}, STRINGS.statFirstTry)),
       h("div", {}, h("span", { class: "stat-n" }, String(state.mistakes)), h("span", {}, STRINGS.statMistakes))
     ),
-    h("div", { class: "twins-bubble" }, twinsEl("idle"), h("p", {}, state.twins.finish))
+    h("div", { class: "twins-bubble" }, twinsEl("idle"), h("p", {}, state.twins.finish)),
+    h("p", { id: "submit-status", class: "muted submit-status" }, STRINGS.submitting)
   );
   show("screen-finish");
-  submitScore(state.name, score, { avatar: state.avatar.id, firstTry: state.firstTry, mistakes: state.mistakes });
+  submitScore(state.name, score, { avatar: state.avatar.id, mistakes: state.mistakes }).then(
+    () => ($("submit-status").textContent = STRINGS.submitted),
+    () => ($("submit-status").textContent = STRINGS.submitFailed)
+  );
 }
 
 /* ---------- boot ---------- */
