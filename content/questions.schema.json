@@ -25,6 +25,14 @@
       "type": "string",
       "description": "Image file name in /assets/questions/."
     },
+    "hint": {
+      "type": "string",
+      "description": "Optional hint for a wrong answer. Not shown yet: waits for /design/feedback-notes.md."
+    },
+    "correction": {
+      "type": "string",
+      "description": "Optional correction for a wrong answer. Not shown yet: waits for /design/feedback-notes.md."
+    },
     "drag": {
       "type": "object",
       "description": "Drag parts onto the root. The picture moves from rootImage through stageImages to completeImage as correct parts are dropped.",
@@ -64,7 +72,9 @@
         "animationId": {
           "type": "string",
           "description": "Optional id of the animation to play on correct assembly. File: /assets/animations/<animationId>.riv"
-        }
+        },
+        "hint": { "$ref": "#/$defs/hint" },
+        "correction": { "$ref": "#/$defs/correction" }
       }
     },
     "part": {
@@ -114,7 +124,9 @@
             }
           }
         },
-        "animationId": { "type": "string" }
+        "animationId": { "type": "string" },
+        "hint": { "$ref": "#/$defs/hint" },
+        "correction": { "$ref": "#/$defs/correction" }
       }
     },
     "match": {
@@ -139,7 +151,9 @@
             }
           }
         },
-        "animationId": { "type": "string" }
+        "animationId": { "type": "string" },
+        "hint": { "$ref": "#/$defs/hint" },
+        "correction": { "$ref": "#/$defs/correction" }
       }
     },
     "order": {
@@ -172,7 +186,9 @@
           "type": "string",
           "description": "Optional meaning of the finished word, shown on success."
         },
-        "animationId": { "type": "string" }
+        "animationId": { "type": "string" },
+        "hint": { "$ref": "#/$defs/hint" },
+        "correction": { "$ref": "#/$defs/correction" }
       }
     }
   }

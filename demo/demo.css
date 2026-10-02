@@ -21,7 +21,7 @@ html, body {
   height: 100%;
   background: var(--gray-50);
   color: var(--gray-800);
-  font-family: var(--font-sans);
+  font-family: "Fredoka", var(--font-sans); /* chosen by Michelle (TASKS.md) */
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior: none;
@@ -259,7 +259,9 @@ button.tile.part { touch-action: manipulation; cursor: pointer; }
 .dropzone .root { font-size: 28px; font-weight: 700; }
 .dropzone .attached { display: contents; }
 .dropzone .attached .tile { border-color: var(--duo-green); }
-.dropzone.is-over { border-color: var(--gray-800); background: var(--gray-200); }
+.dropzone.is-over,
+.dropzone.is-armed { border-color: var(--gray-800); background: var(--gray-200); }
+.dropzone:focus-visible { outline: 3px solid var(--gray-800); outline-offset: 2px; }
 .dropzone.is-hit { animation: hit 0.35s ease; }
 .dropzone.is-done { border-style: solid; border-color: var(--duo-green); background: var(--white); }
 @keyframes hit { 0% { border-color: var(--duo-green); } 100% { border-color: var(--gray-400); } }
