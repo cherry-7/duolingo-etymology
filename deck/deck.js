@@ -66,14 +66,14 @@
       stage.append(reveal(el("h2", null, slide.heading || "[TBD]")));
       const list = el("ol", "board");
       const status = el("p", "board-status");
-      // Scores on the left, the QR on the right so latecomers can still join
+      // The QR on the left so latecomers can still join, scores on the right
       const body = el("div", "board-body");
-      body.append(list);
       if (slide.qr) {
         const qr = qrBlock(slide.line);
-        // With the handoff, the QR moves in from the previous slide instead of rising
+        // With the handoff, the QR slides in from the previous slide instead of rising
         body.append(slide.transition === "qr-handoff" ? qr : reveal(qr));
       }
+      body.append(list);
       stage.append(body, status);
       if (window.Leaderboard) window.Leaderboard.mount(list, slide, status);
       else list.append(placeholder("[TBD: leaderboard unavailable]"));
@@ -125,6 +125,18 @@
     stage.classList.remove("owl-gone", "show-qr");
   }
 
+  // Jump straight to the end of the sequence (owl gone, QR showing), e.g. when the
+  // deck opens on the slide after it, so going back finds the finale already finished
+  function finishFinale(stage) {
+    clearTimeout(stage.qrTimer);
+    stage.classList.add("owl-gone", "show-qr");
+  }
+
+  // Does slide i take its QR over from the slide before it?
+  function handsOff(i) {
+    return !!slides[i] && slides[i].transition === "qr-handoff";
+  }
+
   function finaleOf(index) {
     return sections[index] && sections[index].querySelector(".layout-finale");
   }
@@ -162,32 +174,51 @@
     });
   }
 
-  // "qr-handoff": the arriving slide's QR starts on top of the previous slide's QR
-  // and glides into place (FLIP), while the rest of the arriving slide fades in.
+  // "qr-handoff": the arriving slide's QR starts on top of the previous slide's QR and
+  // slides straight into place (FLIP) between 10% and 80% of the move (skipping
+  // the spring's slow ends, so it never creeps at either end). Then the
+  // score rows rise in one after another, so the arrival plays as one sequence.
+  // t is the deck's raw progress into this slide (0-1). The spring already starts and
+  // stops gently, so only a soft sine ease goes on top; a second in-out ease would
+  // squeeze the whole glide into a fraction of a second.
   function qrHandoff(section, prev, t) {
+    const soft = (x) => (1 - Math.cos(Math.PI * x)) / 2;
     const qr = section.querySelector(".qr");
     const code = qr && qr.querySelector(".qr-code");
     const fromCode = prev && prev.querySelector(".qr-code");
-    const others = section.querySelectorAll(".board, .board-status");
+    const rows = section.querySelectorAll(".board-row, .board-empty");
+    const status = section.querySelector(".board-status");
     if (t >= 1 || !code || !fromCode) {
       if (qr) qr.style.transform = qr.style.opacity = "";
-      others.forEach((n) => { n.style.opacity = ""; });
+      rows.forEach((row) => { row.style.transform = row.style.opacity = ""; });
+      if (status) status.style.opacity = "";
       return;
     }
+
+    // The QR travels first
+    const q = soft(clamp((t - 0.1) / 0.7, 0, 1));
     qr.style.transform = "";
     const to = code.getBoundingClientRect();
     const from = fromCode.getBoundingClientRect();
     const box = qr.getBoundingClientRect();
     const k = from.width / to.width;
-    const scale = k + (1 - k) * t;
-    const dx = (from.left + from.width / 2 - (to.left + to.width / 2)) * (1 - t);
-    const dy = (from.top + from.height / 2 - (to.top + to.height / 2)) * (1 - t);
+    const scale = k + (1 - k) * q;
+    const fullDx = from.left + from.width / 2 - (to.left + to.width / 2);
+    const fullDy = from.top + from.height / 2 - (to.top + to.height / 2);
     qr.style.transformOrigin = `${to.left + to.width / 2 - box.left}px ${to.top + to.height / 2 - box.top}px`;
-    qr.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
+    qr.style.transform = `translate(${fullDx * (1 - q)}px, ${fullDy * (1 - q)}px) scale(${scale})`;
     // If the QR hadn't appeared on the previous slide yet, fade it in on the way
     const shown = prev.querySelector(".show-qr") || !prev.querySelector(".layout-finale");
-    qr.style.opacity = shown ? "" : t;
-    others.forEach((n) => { n.style.opacity = t; });
+    qr.style.opacity = shown ? "" : q;
+
+    // Then the scores rise in, one row after another (starts spread over t = 0.5-0.65)
+    rows.forEach((row, n) => {
+      const start = 0.5 + (rows.length > 1 ? n / (rows.length - 1) : 0) * 0.15;
+      const local = soft(clamp((t - start) / 0.25, 0, 1));
+      row.style.transform = `translateY(${(1 - local) * 40}px)`;
+      row.style.opacity = local;
+    });
+    if (status) status.style.opacity = t;
   }
 
   function render() {
@@ -200,8 +231,11 @@
       section.style.visibility = visible ? "visible" : "hidden";
       section.style.zIndex = i;
       if (!visible) {
-        // Off screen: reset the finale so it replays on the next visit
-        if (finaleOf(i)) resetFinale(finaleOf(i));
+        // Off screen: reset the finale so it replays on the next visit. But while the
+        // next slide has taken its QR over (and covers it), keep it finished, so going
+        // back reverses cleanly; it resets once the deck is back before it.
+        const finale = finaleOf(i);
+        if (finale && !(leaving >= 1 && handsOff(i + 1))) resetFinale(finale);
         return;
       }
       if (i > 0 && arriving < 1) {
@@ -212,7 +246,7 @@
         applyStyle(section, null);
       }
       revealContent(section, i === 0 ? 1 : arriving);
-      if (slides[i].transition === "qr-handoff") qrHandoff(section, sections[i - 1], ease(arriving));
+      if (slides[i].transition === "qr-handoff") qrHandoff(section, sections[i - 1], arriving);
     });
   }
 
@@ -220,23 +254,40 @@
     const index = Math.round(pos);
     history.replaceState(null, "", "#" + sections[index].id);
     if (finaleOf(index)) playFinale(finaleOf(index));
+    if (handsOff(index) && finaleOf(index - 1)) finishFinale(finaleOf(index - 1));
   }
 
-  // Critically damped spring: no overshoot, smooth start and stop (~0.9s per slide)
+  // Critically damped spring: no overshoot, smooth start and stop (~0.9s per slide).
+  // A transition can set its own pace (see transitions.js), which scales the stiffness.
   const STIFFNESS = 38;
-  const DAMPING = 2 * Math.sqrt(STIFFNESS);
+
+  // The transition the deck is moving through right now
+  function currentPace() {
+    const index = target > pos ? Math.floor(pos) + 1 : Math.ceil(pos);
+    const scene = slides[index] && window.TRANSITIONS[slides[index].transition];
+    return (scene && scene.pace) || 1;
+  }
+  // A slide counts as arrived (hash updates, the finale starts) once the deck is this
+  // close to it, in slides (0.02 = about 14px at 720p), while the last bit of motion
+  // finishes. Waiting for the spring to stop completely took about a second longer.
+  const ARRIVED = 0.02;
+  let arrived = false;
 
   function frame(now) {
     const dt = clamp((now - lastFrame) / 1000, 0, 0.033); // frame time can be slightly before lastFrame
     lastFrame = now;
-    vel += ((target - pos) * STIFFNESS - vel * DAMPING) * dt;
+    const stiffness = STIFFNESS * currentPace();
+    vel += ((target - pos) * stiffness - vel * 2 * Math.sqrt(stiffness)) * dt;
     pos += vel * dt;
     const done = Math.abs(target - pos) < 0.0005 && Math.abs(vel) < 0.001;
     if (done) pos = target;
     render();
+    if (!arrived && (done || (Number.isInteger(target) && Math.abs(target - pos) < ARRIVED))) {
+      arrived = true;
+      settle();
+    }
     if (done) {
       running = false;
-      settle();
       return;
     }
     requestAnimationFrame(frame);
@@ -260,6 +311,7 @@
   function go(index) {
     rest = clamp(index, 0, last);
     target = rest;
+    arrived = false;
     move();
   }
 
@@ -268,6 +320,7 @@
   let settleTimer = null;
   function drift(deltaSlides) {
     target = clamp(target + deltaSlides, 0, last);
+    arrived = false;
     move();
     clearTimeout(settleTimer);
     settleTimer = setTimeout(snap, 160);

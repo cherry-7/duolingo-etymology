@@ -41,3 +41,5 @@ Work queue for the deck and demo.
 - [ ] (2026-10-01) Story thread removed from the deck at Michelle's request until /design has a thread design. Rebuild from the reverted commits (59aca2d, d63339e) when it does.
 - [ ] APPROVED (2026-10-01, Michelle in chat): QR slide → leaderboard slide: instead of a swipe transition, the QR code animates from its spot on the QR slide into its spot on the leaderboard slide.
 - [ ] APPROVED (2026-10-01, Michelle in chat): Make the owl's fly-away on the QR slide faster (1s → 0.5s).
+- [ ] APPROVED (2026-10-01, Michelle in chat): QR handoff polish. (1) Going back from the leaderboard reverses cleanly: the QR stays visible and Duo doesn't fly off again. (2) Cut the wait before Duo leaves by counting a slide as arrived sooner. (3) Leaderboard arrival as a sequence: the QR moves first along a slight arc, then the score rows rise in one at a time. (4) Live score changes animate: rows slide to their new rank, new entries pop in.
+- [ ] APPROVED (2026-10-01, Michelle in chat): On the leaderboard slide, put the QR code on the left (scores on the right), and have it slide straight to the side from the QR slide instead of arcing.
