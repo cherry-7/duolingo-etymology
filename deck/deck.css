@@ -139,7 +139,7 @@ body {
 
 .layout-finale.owl-gone .owl {
   transform: translate(100cqw, -100cqw);
-  transition: transform 1s ease-in;
+  transition: transform 0.5s ease-in;
 }
 
 .layout-finale .qr {
