@@ -128,65 +128,13 @@
   const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
   const STYLE_PROPS = ["transform", "clipPath", "opacity", "filter"];
 
-  // ---- Story thread (thread.js) -------------------------------------------
-  // The thread is routed around all slide content: text, characters, QR code, leaderboard.
-  const THREAD_OBSTACLES = ".stage h2, .stage p, .slot, .qr-code, .board";
-
-  // Content rectangles in strip units: each slide is 160 x 90, stacked top to bottom.
-  // Measured relative to the slide's stage, so slide transforms and screen size don't matter.
-  function threadObstacles() {
-    const reveals = [...deck.querySelectorAll("[data-reveal]")];
-    const saved = reveals.map((node) => node.style.transform);
-    reveals.forEach((node) => { node.style.transform = ""; }); // measure where content rests
-    const rects = [];
-    sections.forEach((section, i) => {
-      const stage = section.querySelector(".stage").getBoundingClientRect();
-      const scale = 160 / stage.width;
-      section.querySelectorAll(THREAD_OBSTACLES).forEach((node) => {
-        let r = node.getBoundingClientRect();
-        if (node.matches("h2, p")) {
-          // the text itself, not the full-width block it sits in
-          const range = document.createRange();
-          range.selectNodeContents(node);
-          r = range.getBoundingClientRect();
-        }
-        if (!r.width || !r.height) return;
-        rects.push({
-          x: (r.left - stage.left) * scale,
-          y: i * 90 + (r.top - stage.top) * scale,
-          w: r.width * scale,
-          h: r.height * scale
-        });
-      });
-    });
-    reveals.forEach((node, k) => { node.style.transform = saved[k]; });
-    return rects;
-  }
-
-  // Safety net mid-transition: never draw over a QR code on a visible slide
+  // The story thread stays off anything marked data-thread-avoid on a visible slide
   function threadAvoid() {
     return [...deck.querySelectorAll("[data-thread-avoid]")]
       .filter((node) => node.closest(".slide").style.visibility === "visible")
       .map((node) => node.getBoundingClientRect());
   }
-
-  const thread = window.StoryThread
-    ? window.StoryThread.mount(document.body, sections.length, { obstacles: threadObstacles, avoid: threadAvoid })
-    : null;
-
-  // Re-route when content changes size (fonts loading, leaderboard rows arriving)
-  if (thread) {
-    let rerouteTimer = null;
-    const reroute = () => {
-      clearTimeout(rerouteTimer);
-      rerouteTimer = setTimeout(thread.layout, 200);
-    };
-    if (document.fonts) document.fonts.ready.then(reroute);
-    if (window.ResizeObserver) {
-      const watcher = new ResizeObserver(reroute);
-      deck.querySelectorAll(THREAD_OBSTACLES).forEach((node) => watcher.observe(node));
-    }
-  }
+  const thread = window.StoryThread ? window.StoryThread.mount(document.body, sections.length, threadAvoid) : null;
 
   let pos = 0;
   let vel = 0;
