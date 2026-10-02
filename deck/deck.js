@@ -59,25 +59,33 @@
       stage.append(row);
     },
     finale(stage, slide) {
-      stage.append(slot(slide.owl, "owl"));
-      const qr = el("div", "qr");
-      const code = el("div", "qr-code");
-      code.setAttribute("role", "img");
-      code.setAttribute("aria-label", "QR code for " + config.demoUrl);
-      code.innerHTML = qrSvg(config.demoUrl || "");
-      qr.append(code, el("p", null, slide.line || "[TBD]"));
-      stage.append(qr);
+      stage.append(slot(slide.owl, "owl"), qrBlock(slide.line));
     },
     // Live scores from the demo; streaming lives in leaderboard.js
     leaderboard(stage, slide) {
       stage.append(reveal(el("h2", null, slide.heading || "[TBD]")));
       const list = el("ol", "board");
       const status = el("p", "board-status");
-      stage.append(list, status);
+      // Scores on the left, the QR on the right so latecomers can still join
+      const body = el("div", "board-body");
+      body.append(list);
+      if (slide.qr) body.append(reveal(qrBlock(slide.line)));
+      stage.append(body, status);
       if (window.Leaderboard) window.Leaderboard.mount(list, slide, status);
       else list.append(placeholder("[TBD: leaderboard unavailable]"));
     }
   };
+
+  // QR code to the demo, with its line underneath
+  function qrBlock(line) {
+    const qr = el("div", "qr");
+    const code = el("div", "qr-code");
+    code.setAttribute("role", "img");
+    code.setAttribute("aria-label", "QR code for " + config.demoUrl);
+    code.innerHTML = qrSvg(config.demoUrl || "");
+    qr.append(code, el("p", null, line || "[TBD]"));
+    return qr;
+  }
 
   function qrSvg(text) {
     const qr = qrcode(0, "M");
