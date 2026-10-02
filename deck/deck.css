@@ -178,7 +178,7 @@ body {
 
 .board-body {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: auto 1fr; /* QR left, scores right */
   gap: calc(var(--space) * 2);
   min-height: 0;
 }

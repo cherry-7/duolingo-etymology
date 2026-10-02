@@ -66,14 +66,14 @@
       stage.append(reveal(el("h2", null, slide.heading || "[TBD]")));
       const list = el("ol", "board");
       const status = el("p", "board-status");
-      // Scores on the left, the QR on the right so latecomers can still join
+      // The QR on the left so latecomers can still join, scores on the right
       const body = el("div", "board-body");
-      body.append(list);
       if (slide.qr) {
         const qr = qrBlock(slide.line);
-        // With the handoff, the QR moves in from the previous slide instead of rising
+        // With the handoff, the QR slides in from the previous slide instead of rising
         body.append(slide.transition === "qr-handoff" ? qr : reveal(qr));
       }
+      body.append(list);
       stage.append(body, status);
       if (window.Leaderboard) window.Leaderboard.mount(list, slide, status);
       else list.append(placeholder("[TBD: leaderboard unavailable]"));
@@ -175,7 +175,7 @@
   }
 
   // "qr-handoff": the arriving slide's QR starts on top of the previous slide's QR and
-  // glides into place along a slight arc (FLIP) between 10% and 80% of the move (skipping
+  // slides straight into place (FLIP) between 10% and 80% of the move (skipping
   // the spring's slow ends, so it never creeps at either end). Then the
   // score rows rise in one after another, so the arrival plays as one sequence.
   // t is the deck's raw progress into this slide (0-1). The spring already starts and
@@ -205,9 +205,8 @@
     const scale = k + (1 - k) * q;
     const fullDx = from.left + from.width / 2 - (to.left + to.width / 2);
     const fullDy = from.top + from.height / 2 - (to.top + to.height / 2);
-    const lift = Math.sin(Math.PI * q) * Math.hypot(fullDx, fullDy) * 0.12; // the arc
     qr.style.transformOrigin = `${to.left + to.width / 2 - box.left}px ${to.top + to.height / 2 - box.top}px`;
-    qr.style.transform = `translate(${fullDx * (1 - q)}px, ${fullDy * (1 - q) - lift}px) scale(${scale})`;
+    qr.style.transform = `translate(${fullDx * (1 - q)}px, ${fullDy * (1 - q)}px) scale(${scale})`;
     // If the QR hadn't appeared on the previous slide yet, fade it in on the way
     const shown = prev.querySelector(".show-qr") || !prev.querySelector(".layout-finale");
     qr.style.opacity = shown ? "" : q;
