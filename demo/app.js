@@ -349,7 +349,6 @@ let swipeHandler = null;
 
 function showBoundary(nxt) {
   hideSheet();
-  $("primary-btn").hidden = true;
   const body = $("lesson-body");
   body.classList.add("is-boundary");
   body.replaceChildren(
@@ -365,12 +364,20 @@ function showBoundary(nxt) {
 
   const advance = () => {
     disarm();
+    btn.onclick = null;
     slideOut(body, () => {
       state.i++;
       renderQuestion();
     });
   };
   arm(body, advance);
+
+  // Button fallback for the swipe (desktop, screen readers, browsers that grab the gesture)
+  const btn = $("primary-btn");
+  btn.hidden = false;
+  btn.disabled = false;
+  btn.textContent = STRINGS.nextLanguage;
+  btn.onclick = advance;
 }
 
 function arm(el, onSwipe) {

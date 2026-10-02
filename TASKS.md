@@ -31,3 +31,8 @@ Work queue for the deck and demo.
 - [ ] APPROVED (2026-10-01): Deck transitions feel like a story/movie, not normal slides. Every slide change is a different scene animation into the next part of the story. Scroll, swipe, arrow keys and clicker each play one full scene (Michelle chose "scroll plays a scene" over scroll-scrubbing).
 - [ ] APPROVED (2026-10-01): Lineup slide shows all 10 existing Duolingo characters from /assets/characters (Behance images approved for use) plus the twins.
 - [ ] APPROVED (2026-10-01): Replace the current deck transitions. Use https://lusion.co/ as inspiration for a smooth, storylike flow between slides.
+- [ ] APPROVED (2026-10-01, PROPOSALS.md YES): Root URL redirect. Add a top-level `index.html` that sends the bare Pages URL to `/deck/`.
+- [ ] APPROVED (2026-10-01, PROPOSALS.md YES): Tap-to-place for drag questions. Tap a part, then tap the root, as an alternative to dragging.
+- [ ] APPROVED (2026-10-01, PROPOSALS.md YES): Button fallback for the language swipe. A "next" button (text [TBD]) alongside the swipe and arrow key at language boundaries.
+- [ ] APPROVED (2026-10-01, PROPOSALS.md YES): Hint and correction fields. Add optional `hint` and `correction` to the question schema now. Show them on screen only once /design/feedback-notes.md defines what a wrong answer shows.
+- [ ] APPROVED (2026-10-01, PROPOSALS.md YES): Story thread across the deck. One continuous line that draws itself across every slide as the deck moves. Color and path come from /design. Assigned to the deck session; blocked until /design has them.
