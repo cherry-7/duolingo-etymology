@@ -175,9 +175,14 @@
   }
 
   // "qr-handoff": the arriving slide's QR starts on top of the previous slide's QR and
-  // glides into place along a slight arc (FLIP) over the first 60% of the move. Then the
+  // glides into place along a slight arc (FLIP) between 10% and 80% of the move (skipping
+  // the spring's slow ends, so it never creeps at either end). Then the
   // score rows rise in one after another, so the arrival plays as one sequence.
+  // t is the deck's raw progress into this slide (0-1). The spring already starts and
+  // stops gently, so only a soft sine ease goes on top; a second in-out ease would
+  // squeeze the whole glide into a fraction of a second.
   function qrHandoff(section, prev, t) {
+    const soft = (x) => (1 - Math.cos(Math.PI * x)) / 2;
     const qr = section.querySelector(".qr");
     const code = qr && qr.querySelector(".qr-code");
     const fromCode = prev && prev.querySelector(".qr-code");
@@ -191,7 +196,7 @@
     }
 
     // The QR travels first
-    const q = ease(clamp(t / 0.6, 0, 1));
+    const q = soft(clamp((t - 0.1) / 0.7, 0, 1));
     qr.style.transform = "";
     const to = code.getBoundingClientRect();
     const from = fromCode.getBoundingClientRect();
@@ -207,10 +212,10 @@
     const shown = prev.querySelector(".show-qr") || !prev.querySelector(".layout-finale");
     qr.style.opacity = shown ? "" : q;
 
-    // Then the scores rise in, one row after another (starts spread over t = 0.45-0.7)
+    // Then the scores rise in, one row after another (starts spread over t = 0.5-0.65)
     rows.forEach((row, n) => {
-      const start = 0.45 + (rows.length > 1 ? n / (rows.length - 1) : 0) * 0.25;
-      const local = ease(clamp((t - start) / 0.3, 0, 1));
+      const start = 0.5 + (rows.length > 1 ? n / (rows.length - 1) : 0) * 0.15;
+      const local = soft(clamp((t - start) / 0.25, 0, 1));
       row.style.transform = `translateY(${(1 - local) * 40}px)`;
       row.style.opacity = local;
     });
@@ -242,7 +247,7 @@
         applyStyle(section, null);
       }
       revealContent(section, i === 0 ? 1 : arriving);
-      if (slides[i].transition === "qr-handoff") qrHandoff(section, sections[i - 1], ease(arriving));
+      if (slides[i].transition === "qr-handoff") qrHandoff(section, sections[i - 1], arriving);
     });
   }
 
@@ -253,9 +258,16 @@
     if (handsOff(index) && finaleOf(index - 1)) finishFinale(finaleOf(index - 1));
   }
 
-  // Critically damped spring: no overshoot, smooth start and stop (~0.9s per slide)
+  // Critically damped spring: no overshoot, smooth start and stop (~0.9s per slide).
+  // A transition can set its own pace (see transitions.js), which scales the stiffness.
   const STIFFNESS = 38;
-  const DAMPING = 2 * Math.sqrt(STIFFNESS);
+
+  // The transition the deck is moving through right now
+  function currentPace() {
+    const index = target > pos ? Math.floor(pos) + 1 : Math.ceil(pos);
+    const scene = slides[index] && window.TRANSITIONS[slides[index].transition];
+    return (scene && scene.pace) || 1;
+  }
   // A slide counts as arrived (hash updates, the finale starts) once the deck is this
   // close to it, in slides (0.02 = about 14px at 720p), while the last bit of motion
   // finishes. Waiting for the spring to stop completely took about a second longer.
@@ -265,7 +277,8 @@
   function frame(now) {
     const dt = clamp((now - lastFrame) / 1000, 0, 0.033); // frame time can be slightly before lastFrame
     lastFrame = now;
-    vel += ((target - pos) * STIFFNESS - vel * DAMPING) * dt;
+    const stiffness = STIFFNESS * currentPace();
+    vel += ((target - pos) * stiffness - vel * 2 * Math.sqrt(stiffness)) * dt;
     pos += vel * dt;
     const done = Math.abs(target - pos) < 0.0005 && Math.abs(vel) < 0.001;
     if (done) pos = target;
