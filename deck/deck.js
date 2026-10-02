@@ -62,7 +62,6 @@
       stage.append(slot(slide.owl, "owl"));
       const qr = el("div", "qr");
       const code = el("div", "qr-code");
-      code.setAttribute("data-thread-avoid", "");
       code.setAttribute("role", "img");
       code.setAttribute("aria-label", "QR code for " + config.demoUrl);
       code.innerHTML = qrSvg(config.demoUrl || "");
@@ -128,14 +127,6 @@
   const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
   const STYLE_PROPS = ["transform", "clipPath", "opacity", "filter"];
 
-  // The story thread stays off anything marked data-thread-avoid on a visible slide
-  function threadAvoid() {
-    return [...deck.querySelectorAll("[data-thread-avoid]")]
-      .filter((node) => node.closest(".slide").style.visibility === "visible")
-      .map((node) => node.getBoundingClientRect());
-  }
-  const thread = window.StoryThread ? window.StoryThread.mount(document.body, sections.length, threadAvoid) : null;
-
   let pos = 0;
   let vel = 0;
   let target = 0;
@@ -182,7 +173,6 @@
       }
       revealContent(section, i === 0 ? 1 : arriving);
     });
-    if (thread) thread.update(pos);
   }
 
   function settle() {
