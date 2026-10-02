@@ -21,7 +21,7 @@ body {
   margin: 0;
   background: var(--backdrop);
   color: var(--text);
-  font-family: var(--font-sans);
+  font-family: "Fredoka", var(--font-sans); /* deck font chosen by Michelle (TASKS.md) */
 }
 
 /* Slides are stacked full-screen; each has a centered 16:9 stage (letterboxed).

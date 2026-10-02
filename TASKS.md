@@ -36,3 +36,4 @@ Work queue for the deck and demo.
 - [ ] APPROVED (2026-10-01, PROPOSALS.md YES): Button fallback for the language swipe. A "next" button (text [TBD]) alongside the swipe and arrow key at language boundaries.
 - [ ] APPROVED (2026-10-01, PROPOSALS.md YES): Hint and correction fields. Add optional `hint` and `correction` to the question schema now. Show them on screen only once /design/feedback-notes.md defines what a wrong answer shows.
 - [ ] APPROVED (2026-10-01, PROPOSALS.md YES): Story thread across the deck. One continuous line that draws itself across every slide as the deck moves. Color and path come from /design. Assigned to the deck session; blocked until /design has them.
+- [ ] APPROVED (2026-10-01, Michelle in chat): Use the Fredoka font (Google Fonts, weights 300–700) for both the presentation deck and the demo, instead of Duolingo Sans.
