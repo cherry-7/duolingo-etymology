@@ -58,7 +58,7 @@ window.SLIDES = [
   {
     id: "leaderboard",
     layout: "leaderboard",
-    transition: "slide-over",
+    transition: "qr-handoff", // the QR glides over from the previous slide
     heading: "[TBD: leaderboard title]",
     limit: 5,
     qr: true,

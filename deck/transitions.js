@@ -14,6 +14,13 @@
 // These are placeholders until /design (or Michelle's inspo) defines each scene.
 
 window.TRANSITIONS = {
+  // The slide stays put; deck.js moves the QR code from its spot on the previous
+  // slide into its spot on this one, and fades the rest of this slide in around it.
+  "qr-handoff": {
+    enter: () => ({}),
+    leave: () => ({})
+  },
+
   // The next chapter rises from below while this one sinks back into the distance
   rise: {
     enter: (t) => ({

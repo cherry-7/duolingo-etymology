@@ -69,7 +69,11 @@
       // Scores on the left, the QR on the right so latecomers can still join
       const body = el("div", "board-body");
       body.append(list);
-      if (slide.qr) body.append(reveal(qrBlock(slide.line)));
+      if (slide.qr) {
+        const qr = qrBlock(slide.line);
+        // With the handoff, the QR moves in from the previous slide instead of rising
+        body.append(slide.transition === "qr-handoff" ? qr : reveal(qr));
+      }
       stage.append(body, status);
       if (window.Leaderboard) window.Leaderboard.mount(list, slide, status);
       else list.append(placeholder("[TBD: leaderboard unavailable]"));
@@ -158,6 +162,34 @@
     });
   }
 
+  // "qr-handoff": the arriving slide's QR starts on top of the previous slide's QR
+  // and glides into place (FLIP), while the rest of the arriving slide fades in.
+  function qrHandoff(section, prev, t) {
+    const qr = section.querySelector(".qr");
+    const code = qr && qr.querySelector(".qr-code");
+    const fromCode = prev && prev.querySelector(".qr-code");
+    const others = section.querySelectorAll(".board, .board-status");
+    if (t >= 1 || !code || !fromCode) {
+      if (qr) qr.style.transform = qr.style.opacity = "";
+      others.forEach((n) => { n.style.opacity = ""; });
+      return;
+    }
+    qr.style.transform = "";
+    const to = code.getBoundingClientRect();
+    const from = fromCode.getBoundingClientRect();
+    const box = qr.getBoundingClientRect();
+    const k = from.width / to.width;
+    const scale = k + (1 - k) * t;
+    const dx = (from.left + from.width / 2 - (to.left + to.width / 2)) * (1 - t);
+    const dy = (from.top + from.height / 2 - (to.top + to.height / 2)) * (1 - t);
+    qr.style.transformOrigin = `${to.left + to.width / 2 - box.left}px ${to.top + to.height / 2 - box.top}px`;
+    qr.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
+    // If the QR hadn't appeared on the previous slide yet, fade it in on the way
+    const shown = prev.querySelector(".show-qr") || !prev.querySelector(".layout-finale");
+    qr.style.opacity = shown ? "" : t;
+    others.forEach((n) => { n.style.opacity = t; });
+  }
+
   function render() {
     sections.forEach((section, i) => {
       const scene = window.TRANSITIONS[slides[i].transition] || window.TRANSITIONS.rise;
@@ -180,6 +212,7 @@
         applyStyle(section, null);
       }
       revealContent(section, i === 0 ? 1 : arriving);
+      if (slides[i].transition === "qr-handoff") qrHandoff(section, sections[i - 1], ease(arriving));
     });
   }
 
