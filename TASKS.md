@@ -37,3 +37,5 @@ Work queue for the deck and demo.
 - [ ] APPROVED (2026-10-01, PROPOSALS.md YES): Hint and correction fields. Add optional `hint` and `correction` to the question schema now. Show them on screen only once /design/feedback-notes.md defines what a wrong answer shows.
 - [ ] APPROVED (2026-10-01, PROPOSALS.md YES): Story thread across the deck. One continuous line that draws itself across every slide as the deck moves. Color and path come from /design. Assigned to the deck session; blocked until /design has them.
 - [ ] APPROVED (2026-10-01, Michelle in chat): Use the Fredoka font (Google Fonts, weights 300–700) for both the presentation deck and the demo, instead of Duolingo Sans.
+- [ ] APPROVED (2026-10-01): Show the demo QR code on the leaderboard slide too, beside the live scores.
+- [ ] (2026-10-01) Story thread removed from the deck at Michelle's request until /design has a thread design. Rebuild from the reverted commits (59aca2d, d63339e) when it does.

@@ -176,6 +176,24 @@ body {
   grid-template-rows: auto 1fr auto;
 }
 
+.board-body {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: calc(var(--space) * 2);
+  min-height: 0;
+}
+
+.layout-leaderboard .qr {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: var(--space);
+}
+
+.layout-leaderboard .qr-code {
+  width: 22cqw;
+}
+
 .board {
   list-style: none;
   margin: 0;
