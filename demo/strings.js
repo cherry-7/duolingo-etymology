@@ -11,9 +11,9 @@ export const STRINGS = {
   check: "Check",
   tryAgain: "Try again [TBD]",
 
-  correctTitle: "[TBD: correct title]",
-  wrongTitle: "Try again [TBD]",
-  correctionTitle: "Correct answer [TBD]",
+  correctTitle: "[Correct!]",
+  wrongTitle: "Try again...",
+  correctionTitle: "Incorrect",
 
   // Twins lines fall back to these when content/twins-lines.json is missing.
   twinsFirstQuestion: "[TBD: twins encouragement – first question]",
