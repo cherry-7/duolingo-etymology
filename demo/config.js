@@ -7,7 +7,8 @@ export const CONFIG = {
     questions: "../assets/questions/",   // images named in questions.json
     animations: "../assets/animations/", // <animationId>.riv
     characters: "../assets/characters/", // <character id>.png
-    twins: "../assets/twins/"            // <pose>.png
+    twins: "../assets/twins/",           // <pose>.png
+    sounds: "../assets/sounds/"
   },
 
   // Questions per language set, in file order. 10 total.

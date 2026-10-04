@@ -1,0 +1,221 @@
+[
+  {
+    "type": "match",
+    "language": "English (Latin roots)",
+    "prompt": "A morpheme is a meaningful word part. In transport and portable, match each part to its job.",
+    "pairs": [
+      {
+        "part": "port",
+        "meaning": "Root: supplies the core meaning 'carry'"
+      },
+      {
+        "part": "trans-",
+        "meaning": "Prefix: adds 'across' before the root"
+      },
+      {
+        "part": "-able",
+        "meaning": "Suffix: adds 'able to be' after the root"
+      }
+    ]
+  },
+  {
+    "type": "order",
+    "language": "English (Latin roots)",
+    "prompt": "Build the word meaning 'carry across': put the prefix before the root. Leave out the extra tile.",
+    "parts": [
+      {
+        "text": "port",
+        "meaning": "Carry",
+        "order": 2
+      },
+      {
+        "text": "able",
+        "meaning": "Able to be",
+        "order": null
+      },
+      {
+        "text": "trans",
+        "meaning": "Across",
+        "order": 1
+      }
+    ],
+    "answerMeaning": "Transport: trans- (across) + port (carry). The prefix adds meaning before the root."
+  },
+  {
+    "type": "drag",
+    "language": "English (Latin roots)",
+    "prompt": "The root port means 'carry'. Add a suffix after it to form an adjective meaning 'able to be carried'.",
+    "root": "port",
+    "parts": [
+      {
+        "text": "less",
+        "meaning": "Without",
+        "isCorrect": false
+      },
+      {
+        "text": "able",
+        "meaning": "Able to be",
+        "isCorrect": true
+      },
+      {
+        "text": "ful",
+        "meaning": "Full of",
+        "isCorrect": false
+      }
+    ],
+    "answerMeaning": "Portable: port (carry) + -able (able to be). The suffix helps form an adjective.",
+    "rootImage": "english-portable-root.png",
+    "completeImage": "english-portable-complete.png"
+  },
+  {
+    "type": "match",
+    "language": "Chinese",
+    "prompt": "A compound combines meaningful word parts. Match each word to the parts used to build it.",
+    "pairs": [
+      {
+        "part": "火山 (huǒshān): volcano",
+        "meaning": "火 (fire) + 山 (mountain)"
+      },
+      {
+        "part": "木屋 (mùwū): wooden house",
+        "meaning": "木 (wood) + 屋 (house)"
+      },
+      {
+        "part": "火山岩 (huǒshānyán): volcanic rock",
+        "meaning": "火山 (volcano) + 岩 (rock)"
+      }
+    ]
+  },
+  {
+    "type": "drag",
+    "language": "Chinese",
+    "prompt": "Build the compound for a wooden house. Start with 木 (wood) and add the part naming the thing made from it.",
+    "root": "木",
+    "parts": [
+      {
+        "text": "山",
+        "meaning": "Mountain",
+        "isCorrect": false
+      },
+      {
+        "text": "屋",
+        "meaning": "House",
+        "isCorrect": true
+      },
+      {
+        "text": "岩",
+        "meaning": "Rock",
+        "isCorrect": false
+      }
+    ],
+    "answerMeaning": "木屋 (mùwū): wooden house. 木 gives the material; 屋 names the house.",
+    "rootImage": "chinese-muwu-root.png",
+    "completeImage": "chinese-muwu-complete.png"
+  },
+  {
+    "type": "order",
+    "language": "Chinese",
+    "prompt": "Use the compound 火山 (volcano) as a building block. Put it before 岩 (rock) to form volcanic rock. Leave out the extra tile.",
+    "parts": [
+      {
+        "text": "岩",
+        "meaning": "Rock",
+        "order": 2
+      },
+      {
+        "text": "木",
+        "meaning": "Wood",
+        "order": null
+      },
+      {
+        "text": "火山",
+        "meaning": "Volcano",
+        "order": 1
+      }
+    ],
+    "answerMeaning": "火山岩 (huǒshānyán): volcanic rock. A compound, 火山, combines with 岩 to form another compound."
+  },
+  {
+    "type": "choice",
+    "language": "Chinese",
+    "prompt": "Which meaningful part tells you that 火山岩 names a kind of rock?",
+    "word": "火山岩 (huǒshānyán)",
+    "options": [
+      {
+        "text": "火山 (volcano)",
+        "isCorrect": false
+      },
+      {
+        "text": "火 (fire)",
+        "isCorrect": false
+      },
+      {
+        "text": "岩 (rock)",
+        "isCorrect": true
+      }
+    ]
+  },
+  {
+    "type": "choice",
+    "language": "Sanskrit",
+    "prompt": "जल (jala) means water; compound-final -ज (-ja) means born or produced. Which split separates these meaningful parts?",
+    "word": "जलज (jalaja): born in water",
+    "options": [
+      {
+        "text": "ज + लज (ja + laja)",
+        "isCorrect": false
+      },
+      {
+        "text": "जल + ज (jala + ja)",
+        "isCorrect": true
+      },
+      {
+        "text": "ज + ल + ज (ja + la + ja)",
+        "isCorrect": false
+      }
+    ]
+  },
+  {
+    "type": "order",
+    "language": "Sanskrit",
+    "prompt": "Build 'born in water': put jala (water) before the ending -ja (born). Leave out the extra tile.",
+    "parts": [
+      {
+        "text": "ज",
+        "meaning": "Born or produced (-ja)",
+        "order": 2
+      },
+      {
+        "text": "वन",
+        "meaning": "Forest (vana)",
+        "order": null
+      },
+      {
+        "text": "जल",
+        "meaning": "Water (jala)",
+        "order": 1
+      }
+    ],
+    "answerMeaning": "जलज (jalaja): born or produced in water. जल supplies water; compound-final -ज adds born or produced."
+  },
+  {
+    "type": "choice",
+    "language": "Sanskrit",
+    "prompt": "Replace जल (jala, water) with वन (vana, forest), keeping -ज (-ja, born). How does the literal meaning change?",
+    "word": "जलज → वनज (jalaja → vanaja)",
+    "options": [
+      {
+        "text": "From 'born in water' to 'born in a forest'",
+        "isCorrect": true
+      },
+      {
+        "text": "From 'born in water' to 'water without a forest'",
+        "isCorrect": false
+      },
+      {
+        "text": "It stays 'born in water'",
+        "isCorrect": false
+      }
+    ]
+  }
+]

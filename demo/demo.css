@@ -2,6 +2,7 @@
    Colors: Duo green (#58CC02, approved) plus neutral grays until /design has UI exports. */
 :root {
   --duo-green: #58CC02;
+  --duo-red: #FF4B4B;
   --white: #ffffff;
   --gray-50: #f7f7f7;
   --gray-200: #e5e5e5;
@@ -90,6 +91,7 @@ body.is-dragging { -webkit-user-select: none; user-select: none; }
 }
 .btn:disabled { background: var(--gray-200); color: var(--gray-400); cursor: default; }
 .btn.is-neutral { background: var(--gray-800); }
+.btn.is-retry-correct { background: var(--duo-red); }
 .btn:active:not(:disabled) { transform: translateY(1px); }
 .btn:focus-visible, .tile:focus-visible { outline: 3px solid var(--gray-800); outline-offset: 2px; }
 
@@ -242,26 +244,30 @@ button.tile.part { touch-action: manipulation; cursor: pointer; }
 }
 .drag-ghost.is-returning { transition: transform 0.2s ease; }
 
-.dropzone {
+.compound {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 88px;
   margin: 0 0 16px;
-  padding: 12px;
+}
+
+.dropzone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
   border: 3px dashed var(--gray-400);
   border-radius: var(--radius);
   background: var(--gray-50);
   transition: border-color 0.15s, background 0.15s;
 }
-.dropzone .root { font-size: 28px; font-weight: 700; }
-.dropzone .attached { display: contents; }
-.dropzone .attached .tile { border-color: var(--duo-green); }
-.dropzone.is-over,
-.dropzone.is-armed { border-color: var(--gray-800); background: var(--gray-200); }
-.dropzone:focus-visible { outline: 3px solid var(--gray-800); outline-offset: 2px; }
+.compound .root { font-size: 28px; font-weight: 700; }
+.dropzone .attached { display: flex; }
+.dropzone .attached .tile { border-color: var(--duo-green); margin: -3px; }
+.dropzone.is-over { border-color: var(--gray-800); background: var(--gray-200); }
 .dropzone.is-hit { animation: hit 0.35s ease; }
 .dropzone.is-done { border-style: solid; border-color: var(--duo-green); background: var(--white); }
 @keyframes hit { 0% { border-color: var(--duo-green); } 100% { border-color: var(--gray-400); } }
@@ -276,7 +282,7 @@ button.tile.part { touch-action: manipulation; cursor: pointer; }
 .match-col .tile { width: 100%; font-size: 16px; }
 
 .slots { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; min-height: 72px; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--gray-200); }
-.slot { min-width: 64px; min-height: 56px; border-radius: 14px; background: var(--gray-50); border: 2px dashed var(--gray-400); display: flex; }
+.slot { min-width: 0; min-height: 0; border-radius: 14px; background: var(--gray-50); border: 2px dashed var(--gray-400); display: flex; }
 .slot .tile { margin: -2px; }
 .slots.is-done .slot, .slot.is-correct { border: 2px solid var(--duo-green); }
 .slot.is-wrong { border: 2px solid var(--gray-800); }
