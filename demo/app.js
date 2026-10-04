@@ -57,8 +57,29 @@ const SOUNDS = {
   correct: `${CONFIG.assets.sounds}correct_answer.mp3`,
   incorrect: `${CONFIG.assets.sounds}incorrect_answer.mp3`,
   drag: `${CONFIG.assets.sounds}duolingo_dragndrop.mp3`,
-  completed: `${CONFIG.assets.sounds}completed_lesson.mp3`
+  completed: `${CONFIG.assets.sounds}completed_lesson.mp3`,
+  livesLost: `${CONFIG.assets.sounds}liveslost.mp3`
 };
+
+function correctAnswer(q) {
+  if (q.correction) return q.correction;
+  if (q.answerMeaning) return q.answerMeaning;
+  if (q.type === "choice") return q.options.find((option) => option.isCorrect)?.text || "[TBD]";
+  if (q.type === "order") {
+    return q.parts
+      .filter((part) => part.order != null)
+      .sort((a, b) => a.order - b.order)
+      .map((part) => part.text)
+      .join(" + ");
+  }
+  if (q.type === "drag") {
+    return [q.root, ...q.parts.filter((part) => part.isCorrect).map((part) => part.text)].join(" + ");
+  }
+  if (q.type === "match") {
+    return q.pairs.map((pair) => `${pair.part} = ${pair.meaning}`).join("; ");
+  }
+  return "[TBD]";
+}
 
 /* ---------- content loading ---------- */
 
@@ -241,7 +262,7 @@ function renderHeader(item) {
   $("progress-fill").style.width = `${Math.round(done * 100)}%`;
 }
 
-function renderQuestion({ preserveMistake = false } = {}) {
+function renderQuestion({ preserveMistake = false, animate = true } = {}) {
   const item = state.lesson[state.i];
   if (!preserveMistake) {
     state.hadMistake = false;
@@ -259,7 +280,8 @@ function renderQuestion({ preserveMistake = false } = {}) {
   }
   nodes.push(format.render(item.q, makeCtx(item.q)));
   body.replaceChildren(...nodes);
-  slideIn(body);
+  if (animate) slideIn(body);
+  else body.classList.remove("slide-in", "slide-out");
   if (item.q.type === "drag" || !item.q.type) preloadAnimation(item.q);
 }
 
@@ -285,7 +307,7 @@ function makeCtx(q) {
         state.retryUsed = true;
         showSheet("wrong", () => {
           reset?.();
-          renderQuestion({ preserveMistake: true });
+          renderQuestion({ preserveMistake: true, animate: false });
         }, null, q);
       } else {
         showSheet("correction", null, q.answerMeaning || null, q);
@@ -343,7 +365,7 @@ function showSheet(kind, retry, detail, q) {
     btn.onclick = () => {
       state.hadMistake = true;
       hideSheet();
-      retry();
+      retry?.();
     };
   } else {
     playSound(SOUNDS.incorrect);
@@ -353,7 +375,8 @@ function showSheet(kind, retry, detail, q) {
         "div",
         { class: "sheet-text" },
         h("p", { class: "sheet-title" }, STRINGS.correctionTitle),
-        h("p", { class: "sheet-detail" }, q?.correction || detail || "[TBD: correction]"),
+        h("p", { class: "sheet-detail" }, "Correct answer:"),
+        h("p", { class: "sheet-detail" }, correctAnswer(q)),
         h("p", { class: "sheet-line" }, state.twins.afterMistake)
       )
     );
@@ -542,6 +565,7 @@ function finish() {
     h("p", { id: "submit-status", class: "muted submit-status" }, STRINGS.submitting)
   );
   show("screen-finish");
+  if (score < 5) playSound(SOUNDS.livesLost);
   playSound(SOUNDS.completed);
   submitScore(state.name, score, { avatar: state.avatar.id, mistakes: state.mistakes }).then(
     () => ($("submit-status").textContent = STRINGS.submitted),
