@@ -7,6 +7,7 @@
 //   enter(t)  style for the arriving slide (it sits on top)
 //   leave(t)  style for the slide underneath, as it gives way
 // They return { transform, clipPath, opacity, filter } (any subset).
+// Optional pace: how fast the deck moves through this transition (1 = normal, lower = slower).
 //
 // On top of the transition, the arriving slide's content rises in with a stagger
 // (see revealContent in deck.js).
@@ -14,6 +15,14 @@
 // These are placeholders until /design (or Michelle's inspo) defines each scene.
 
 window.TRANSITIONS = {
+  // The slide stays put; deck.js moves the QR code from its spot on the previous
+  // slide into its spot on this one, and fades the rest of this slide in around it.
+  "qr-handoff": {
+    pace: 0.2, // slow and flowing: the QR glides for about a second, then the scores follow
+    enter: () => ({}),
+    leave: () => ({})
+  },
+
   // The next chapter rises from below while this one sinks back into the distance
   rise: {
     enter: (t) => ({

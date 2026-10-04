@@ -24,7 +24,7 @@ Decision: YES / NO / LATER
 What: add a top-level `index.html` that redirects to `/deck/`.
 Why: the bare Pages URL (`/duolingo-etymology/`) currently 404s.
 Effort: small.
-Decision:
+Decision: YES
 
 ### "Etymology" opening-hook slide
 What: a deck slide that breaks down the word "etymology" itself.
@@ -36,40 +36,40 @@ Decision:
 What: a small "3 / 12" counter or progress bar on the deck.
 Why: helps the presenter keep their place on a projector.
 Effort: small.
-Decision:
+Decision: NO
 
 ### Tap-to-place for drag questions
 What: let players tap a part, then tap the root, as an alternative to dragging.
 Why: helps accessibility and players with motor difficulties, and is a backup if dragging misbehaves on someone's phone during the live demo.
 Effort: small.
-Decision:
+Decision: YES
 
 ### Button fallback for the language swipe
 What: a small "next" button (and the existing arrow key) alongside the swipe at language boundaries.
 Why: on desktop and for screen-reader users a swipe is hard to discover. It's also a safety net if a phone's browser grabs the gesture.
 Effort: small.
-Decision:
+Decision: YES
 
 ### Part position field for drag questions
 What: add `position` (e.g. before / after / left / right / top / bottom) to each drag part in questions.json.
 Why: parts currently attach to the root in the order they're dropped, so a prefix dropped second shows up after the root.
 Effort: small.
-Decision:
+Decision: LATER
 
 ### Hint and correction fields
 What: add `hint` and `correction` fields to questions, once /design/feedback-notes.md defines what a wrong answer shows.
 Why: wrong answers currently show only a neutral "Try again [TBD]".
 Effort: small once the notes exist.
-Decision:
+Decision: YES
 
 ### Leaderboard reset for rehearsals
 What: a way to clear the live leaderboard between run-throughs (e.g. a password-protected admin URL or a one-line script).
 Why: rehearsal scores would otherwise show up during the real pitch.
 Effort: small.
-Decision:
+Decision: LATER
 
 ### Story thread across the deck
 What: one continuous line that draws itself across every slide as the deck moves (like the ribbon on lusion.co), tying the chapters together.
 Why: makes the deck read as one story instead of separate slides.
 Effort: medium (needs a color and path from /design).
-Decision:
+Decision: YES

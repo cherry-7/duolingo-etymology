@@ -1,5 +1,6 @@
 // Drag word parts onto the root. The picture moves through stage images
 // toward the complete picture as correct parts are dropped.
+// Tap-to-place also works: tap a part, then tap the root (or use Enter/Space).
 import { h, buzz } from "../util.js";
 import { makeDraggable } from "../drag.js";
 
@@ -7,6 +8,7 @@ export function render(q, ctx) {
   ctx.useCheck(false);
   const needed = q.parts.filter((p) => p.isCorrect).length;
   let placed = 0;
+  let selected = null; // { tile, part } picked by tap
 
   const picture = h("div", { class: "picture" });
   const showPicture = () => {

@@ -26,6 +26,6 @@ Add it to PROPOSALS.md (what, why, effort) and keep building the approved versio
 
 ## Technical
 - Plain HTML/CSS/JS unless a task says otherwise; must run on a phone browser
-- Font: Duolingo Sans from /assets/fonts
+- Font: Fredoka from Google Fonts (weights 300–700), for both /deck and /demo. Duolingo Sans in /assets/fonts is only a fallback.
 - Animations: Rive runtime for .riv files; CSS/JS for simple transitions
 - Work on a branch; end every task with: what changed, how to preview, placeholders used, open questions

@@ -12,6 +12,7 @@
 //   characters  (lineup only) list of image slots: { src, label, wide }
 //   owl, line   (finale only) owl image slot, and the line shown with the QR code
 //   limit       (leaderboard only) how many players to show; scores stream live from Firebase
+//   qr, line    (leaderboard only) show the demo QR code beside the scores, with this line under it
 //
 // Image slots: set src to a file path relative to /deck, e.g. "../assets/twins/wave.png".
 // If src is null or the file can't load, a gray box with the label is shown instead.
@@ -57,8 +58,10 @@ window.SLIDES = [
   {
     id: "leaderboard",
     layout: "leaderboard",
-    transition: "slide-over",
+    transition: "qr-handoff", // the QR glides over from the previous slide
     heading: "[TBD: leaderboard title]",
-    limit: 5
+    limit: 5,
+    qr: true,
+    line: "Go ahead, scan" // from SPEC.md
   }
 ];

@@ -22,6 +22,7 @@ export const STRINGS = {
   twinsHighFive: "[TBD: twins high-five]",
 
   swipeToNext: "[TBD: swipe to next language]",
+  nextLanguage: "[TBD: next language button]",
 
   finishTitle: "[TBD: finish title]",
   scoreFormula: "[TBD: score formula]",
