@@ -11,7 +11,7 @@ export const STRINGS = {
   check: "Check",
   tryAgain: "Try again [TBD]",
 
-  correctTitle: "[Correct!]",
+  correctTitle: "Correct!",
   wrongTitle: "Try again...",
   correctionTitle: "Incorrect",
 
