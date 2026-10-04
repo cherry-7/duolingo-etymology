@@ -2,8 +2,10 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "questions.schema.json",
   "title": "Question set",
-  "description": "The demo lesson: 10 questions, grouped by language in file order (3 Latin-based, 4 Chinese radicals, 3 Sanskrit/South Asian). Each question has a type; a question with no type is a drag question. Image paths are relative to /assets/questions/.",
+  "description": "The demo lesson: exactly 10 questions, grouped by language in file order (3 Latin-based, 4 Chinese radicals, 3 Sanskrit/South Asian). Each question has a type; a question with no type is a drag question. Image paths are relative to /assets/questions/. Language grouping and answer-key consistency must be checked separately.",
   "type": "array",
+  "minItems": 10,
+  "maxItems": 10,
   "items": {
     "oneOf": [
       { "$ref": "#/$defs/drag" },
@@ -24,6 +26,14 @@
     "image": {
       "type": "string",
       "description": "Image file name in /assets/questions/."
+    },
+    "hint": {
+      "type": "string",
+      "description": "Optional short clue that helps the player reason about the answer."
+    },
+    "correction": {
+      "type": "string",
+      "description": "Optional feedback shown after an incorrect answer, giving the correct answer and a short explanation."
     },
     "drag": {
       "type": "object",
@@ -64,7 +74,9 @@
         "animationId": {
           "type": "string",
           "description": "Optional id of the animation to play on correct assembly. File: /assets/animations/<animationId>.riv"
-        }
+        },
+        "hint": { "$ref": "#/$defs/hint" },
+        "correction": { "$ref": "#/$defs/correction" }
       }
     },
     "part": {
@@ -114,7 +126,9 @@
             }
           }
         },
-        "animationId": { "type": "string" }
+        "animationId": { "type": "string" },
+        "hint": { "$ref": "#/$defs/hint" },
+        "correction": { "$ref": "#/$defs/correction" }
       }
     },
     "match": {
@@ -139,7 +153,9 @@
             }
           }
         },
-        "animationId": { "type": "string" }
+        "animationId": { "type": "string" },
+        "hint": { "$ref": "#/$defs/hint" },
+        "correction": { "$ref": "#/$defs/correction" }
       }
     },
     "order": {
@@ -172,7 +188,9 @@
           "type": "string",
           "description": "Optional meaning of the finished word, shown on success."
         },
-        "animationId": { "type": "string" }
+        "animationId": { "type": "string" },
+        "hint": { "$ref": "#/$defs/hint" },
+        "correction": { "$ref": "#/$defs/correction" }
       }
     }
   }
