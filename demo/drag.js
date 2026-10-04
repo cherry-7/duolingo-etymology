@@ -20,7 +20,7 @@ function hitTarget(x, y, targets) {
   return null;
 }
 
-export function makeDraggable(el, { targets, onDrop }) {
+export function makeDraggable(el, { targets, onDrop, onStart }) {
   let drag = null;
 
   el.addEventListener("pointerdown", (e) => {
@@ -57,6 +57,7 @@ export function makeDraggable(el, { targets, onDrop }) {
       frame: 0,
       list: targets()
     };
+    onStart?.();
   });
 
   el.addEventListener("pointermove", (e) => {

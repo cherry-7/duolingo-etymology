@@ -13,6 +13,7 @@ export function render(q, ctx) {
         type: "button",
         class: "tile option",
         onclick: () => {
+          ctx.playSound();
           selected = opt;
           for (const b of buttons) b.classList.toggle("is-selected", b === btn);
           ctx.useCheck(true, check);

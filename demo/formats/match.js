@@ -16,6 +16,7 @@ export function render(q, ctx) {
   for (const pair of shuffle(q.pairs)) right.append(tile("meaning", pair, pair.meaning));
 
   function tap(side, pair, el) {
+    ctx.playSound();
     if (!pick || pick.side === side) {
       pick?.el.classList.remove("is-selected");
       pick = { side, pair, el };

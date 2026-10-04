@@ -3,7 +3,7 @@ import { h, shuffle } from "../util.js";
 
 export function render(q, ctx) {
   const answer = q.parts.filter((p) => p.order != null).sort((a, b) => a.order - b.order);
-  const slots = answer.map(() => h("div", { class: "slot" }));
+  const slots = answer.map(() => h("div", { class: "slot", style: "width: 64px; height: 56px" }));
   const filled = answer.map(() => null); // part in each slot
 
   const bank = h("div", { class: "tray" });
@@ -16,15 +16,21 @@ export function render(q, ctx) {
 
   function toggle(part) {
     const t = tiles.get(part);
+    ctx.playSound();
     const at = filled.indexOf(part);
     if (at >= 0) {
       filled[at] = null;
       t.classList.remove("is-wrong");
       bank.append(t);
+      slots[at].style.width = "64px";
+      slots[at].style.height = "56px";
     } else {
       const free = filled.indexOf(null);
       if (free < 0) return;
+      const tileRect = t.getBoundingClientRect();
       filled[free] = part;
+      slots[free].style.width = `${tileRect.width}px`;
+      slots[free].style.height = `${tileRect.height}px`;
       slots[free].append(t);
     }
     ctx.useCheck(true, filled.includes(null) ? null : check);
@@ -46,5 +52,6 @@ export function render(q, ctx) {
 
   ctx.useCheck(true, null);
   const row = h("div", { class: "slots" }, slots);
-  return h("div", { class: "format format-order" }, h("p", { class: "prompt" }, q.prompt), row, bank);
+  const root = h("div", { class: "format format-order" }, h("p", { class: "prompt" }, q.prompt), row, bank);
+  return root;
 }

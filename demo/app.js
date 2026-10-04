@@ -1,7 +1,7 @@
 // Demo flow: nickname → lesson (10 questions, 3 language sets) → finish.
 import { CONFIG } from "./config.js";
 import { STRINGS } from "./strings.js";
-import { h, placeholder, assetImg, fileExists } from "./util.js";
+import { h, placeholder, assetImg, fileExists, playSound } from "./util.js";
 import * as drag from "./formats/drag.js";
 import * as choice from "./formats/choice.js";
 import * as match from "./formats/match.js";
@@ -47,10 +47,18 @@ const state = {
   firstTry: 0,
   mistakes: 0,
   hadMistake: false,
+  retryUsed: false,
   twins: {}
 };
 
 const $ = (id) => document.getElementById(id);
+
+const SOUNDS = {
+  correct: `${CONFIG.assets.sounds}correct_answer.mp3`,
+  incorrect: `${CONFIG.assets.sounds}incorrect_answer.mp3`,
+  drag: `${CONFIG.assets.sounds}duolingo_dragndrop.mp3`,
+  completed: `${CONFIG.assets.sounds}completed_lesson.mp3`
+};
 
 /* ---------- content loading ---------- */
 
@@ -233,9 +241,12 @@ function renderHeader(item) {
   $("progress-fill").style.width = `${Math.round(done * 100)}%`;
 }
 
-function renderQuestion() {
+function renderQuestion({ preserveMistake = false } = {}) {
   const item = state.lesson[state.i];
-  state.hadMistake = false;
+  if (!preserveMistake) {
+    state.hadMistake = false;
+    state.retryUsed = false;
+  }
   renderHeader(item);
   hideSheet();
 
@@ -270,20 +281,29 @@ function makeCtx(q) {
     wrong(reset) {
       state.mistakes++;
       state.hadMistake = true;
-      showSheet("wrong", () => {
-        applyCheck();
-        reset?.();
-      });
+      if (!state.retryUsed) {
+        state.retryUsed = true;
+        showSheet("wrong", () => {
+          reset?.();
+          renderQuestion({ preserveMistake: true });
+        }, null, q);
+      } else {
+        showSheet("correction", null, q.answerMeaning || null, q);
+      }
     },
     complete({ animationSlot, detail }) {
       if (!state.hadMistake) state.firstTry++;
+      playSound(SOUNDS.correct);
       playAnimation(q, animationSlot);
-      showSheet("correct", null, detail);
+      showSheet("correct", null, detail, q);
+    },
+    playSound() {
+      playSound(SOUNDS.drag);
     }
   };
 }
 
-function showSheet(kind, retry, detail) {
+function showSheet(kind, retry, detail, q) {
   const sheet = $("sheet");
   const body = $("lesson-body");
   body.classList.add("is-locked");
@@ -291,6 +311,7 @@ function showSheet(kind, retry, detail) {
   const btn = $("primary-btn");
   btn.hidden = false;
   btn.disabled = false;
+  btn.classList.remove("is-neutral", "is-retry-correct");
 
   if (kind === "correct") {
     sheet.replaceChildren(
@@ -304,24 +325,41 @@ function showSheet(kind, retry, detail) {
       )
     );
     btn.textContent = STRINGS.continue;
-    btn.classList.remove("is-neutral");
     btn.onclick = () => next();
-  } else {
+  } else if (kind === "wrong") {
+    playSound(SOUNDS.incorrect);
     sheet.replaceChildren(
       twinsEl("encourage"),
       h(
         "div",
         { class: "sheet-text" },
         h("p", { class: "sheet-title" }, STRINGS.wrongTitle),
+        h("p", { class: "sheet-detail" }, q?.hint || "[TBD: hint]"),
         h("p", { class: "sheet-line" }, state.twins.afterMistake)
       )
     );
     btn.textContent = STRINGS.tryAgain;
     btn.classList.add("is-neutral");
     btn.onclick = () => {
+      state.hadMistake = true;
       hideSheet();
       retry();
     };
+  } else {
+    playSound(SOUNDS.incorrect);
+    sheet.replaceChildren(
+      twinsEl("encourage"),
+      h(
+        "div",
+        { class: "sheet-text" },
+        h("p", { class: "sheet-title" }, STRINGS.correctionTitle),
+        h("p", { class: "sheet-detail" }, q?.correction || detail || "[TBD: correction]"),
+        h("p", { class: "sheet-line" }, state.twins.afterMistake)
+      )
+    );
+    btn.textContent = STRINGS.continue;
+    btn.classList.add("is-retry-correct");
+    btn.onclick = () => next();
   }
   sheet.hidden = false;
   btn.focus({ preventScroll: true });
@@ -331,7 +369,7 @@ function hideSheet() {
   $("sheet").hidden = true;
   $("lesson-body").classList.remove("is-locked");
   const btn = $("primary-btn");
-  btn.classList.remove("is-neutral");
+  btn.classList.remove("is-neutral", "is-retry-correct");
 }
 
 function next() {
@@ -497,6 +535,7 @@ function finish() {
     h("p", { id: "submit-status", class: "muted submit-status" }, STRINGS.submitting)
   );
   show("screen-finish");
+  playSound(SOUNDS.completed);
   submitScore(state.name, score, { avatar: state.avatar.id, mistakes: state.mistakes }).then(
     () => ($("submit-status").textContent = STRINGS.submitted),
     () => ($("submit-status").textContent = STRINGS.submitFailed)

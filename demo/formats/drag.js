@@ -32,15 +32,23 @@ export function render(q, ctx) {
   const zone = h(
     "div",
     { class: "dropzone", "aria-label": "Drop zone" },
-    h("span", { class: "root" }, q.root),
     attached
+  );
+  const compound = h(
+    "div",
+    { class: "compound" },
+    h("span", { class: "root" }, q.root),
+    zone
   );
 
   const tray = h("div", { class: "tray" });
+  let correctTile = null;
   for (const part of q.parts) {
     const tile = h("div", { class: "tile part", role: "button" }, part.text);
+    if (part.isCorrect && !correctTile) correctTile = tile;
     makeDraggable(tile, {
       targets: () => [zone],
+      onStart: () => ctx.playSound(),
       onDrop: (el, target) => {
         if (!target) return false; // outside the box: spring back, no penalty
         if (!part.isCorrect) {
@@ -49,6 +57,7 @@ export function render(q, ctx) {
           return false;
         }
         buzz(15);
+        ctx.playSound();
         el.classList.add("is-locked", "is-placed");
         attached.append(el);
         placed++;
@@ -67,5 +76,12 @@ export function render(q, ctx) {
     tray.append(tile);
   }
 
-  return h("div", { class: "format format-drag" }, h("p", { class: "prompt" }, q.prompt), picture, zone, tray);
+  const root = h("div", { class: "format format-drag" }, h("p", { class: "prompt" }, q.prompt), picture, compound, tray);
+  requestAnimationFrame(() => {
+    if (!correctTile) return;
+    const tileRect = correctTile.getBoundingClientRect();
+    zone.style.width = `${tileRect.width}px`;
+    zone.style.height = `${tileRect.height}px`;
+  });
+  return root;
 }

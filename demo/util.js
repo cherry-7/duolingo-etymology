@@ -51,6 +51,22 @@ export function buzz(ms) {
   if (navigator.vibrate) navigator.vibrate(ms);
 }
 
+const soundCache = new Map();
+
+export function playSound(url) {
+  if (!url) return;
+  let audio = soundCache.get(url);
+  if (!audio) {
+    audio = new Audio(url);
+    audio.preload = "auto";
+    soundCache.set(url, audio);
+  }
+  audio.currentTime = 0;
+  audio.play().catch((error) => {
+    console.warn(`Could not play sound: ${url}`, error);
+  });
+}
+
 const existsCache = new Map();
 export function fileExists(url) {
   if (!existsCache.has(url)) {
