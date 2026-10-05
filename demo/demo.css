@@ -225,9 +225,16 @@ body.is-dragging { -webkit-user-select: none; user-select: none; }
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
+  transition: transform 0.08s ease, border-bottom-width 0.08s ease;
 }
 .tile.part { touch-action: none; cursor: grab; }
 button.tile.part { touch-action: manipulation; cursor: pointer; }
+.tile.option:active:not(:disabled),
+.tile.match:active:not(:disabled),
+.format-order .tile.part:active:not(:disabled) {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
+}
 .tile.is-selected { border-color: var(--gray-800); }
 .tile.is-correct { border-color: var(--duo-green); color: var(--duo-green); }
 .tile.is-wrong { border-color: var(--gray-800); background: var(--gray-200); }
