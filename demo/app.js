@@ -270,6 +270,7 @@ function renderQuestion({ preserveMistake = false, animate = true } = {}) {
   }
   renderHeader(item);
   hideSheet();
+  $("primary-btn").hidden = false;
 
   const body = $("lesson-body");
   body.classList.remove("is-locked", "is-boundary");
@@ -425,7 +426,6 @@ function showBoundary(nxt) {
 
   const advance = () => {
     disarm();
-    btn.onclick = null;
     slideOut(body, () => {
       state.i++;
       renderQuestion();
@@ -433,12 +433,7 @@ function showBoundary(nxt) {
   };
   arm(body, advance);
 
-  // Button fallback for the swipe (desktop, screen readers, browsers that grab the gesture)
-  const btn = $("primary-btn");
-  btn.hidden = false;
-  btn.disabled = false;
-  btn.textContent = STRINGS.nextLanguage;
-  btn.onclick = advance;
+  $("primary-btn").hidden = true;
 }
 
 function arm(el, onSwipe) {
@@ -447,7 +442,11 @@ function arm(el, onSwipe) {
   const down = (e) => {
     if (!e.isPrimary) return;
     start = { x: e.clientX, y: e.clientY, id: e.pointerId };
-    el.setPointerCapture(e.pointerId);
+    try {
+      el.setPointerCapture(e.pointerId);
+    } catch {
+      // Pointer capture is unavailable for some browser-generated events.
+    }
   };
   const up = (e) => {
     if (!start || e.pointerId !== start.id) return;
@@ -458,7 +457,7 @@ function arm(el, onSwipe) {
   };
   const cancel = () => (start = null);
   const key = (e) => {
-    if (e.key === "ArrowRight") onSwipe();
+    if (e.key === "ArrowRight" || e.key === "ArrowLeft") onSwipe();
   };
   el.addEventListener("pointerdown", down);
   el.addEventListener("pointerup", up);
