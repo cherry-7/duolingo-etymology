@@ -54,3 +54,4 @@ Work queue for the deck and demo.
 - [ ] APPROVED (2026-10-05, Michelle in chat): Question prompts bold only the most important part (the first line/sentence); the rest is regular weight.
 - [ ] APPROVED (2026-10-05, Michelle in chat): Language-change screen: the swipe hint arrow points right (→), and Enter or Space (as well as the arrow keys) moves on to the next language.
 - [ ] APPROVED (2026-10-05, Michelle in chat): Avatar reveal shows the avatar and "Hi, [nickname]!" only (no character name, no reveal line); only the nickname is bold.
+- [ ] APPROVED (2026-10-06, Michelle in chat): Finish screen title reads "You did it!".

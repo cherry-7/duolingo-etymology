@@ -25,7 +25,7 @@ export const STRINGS = {
   swipeToNext: "[TBD: swipe to next language]",
   nextLanguage: "[TBD: next language button]",
 
-  finishTitle: "[TBD: finish title]",
+  finishTitle: "You did it!",
   statFirstTry: "Great job!",
   submitting: "[TBD: sending score…]",
   submitted: "[TBD: score is on the leaderboard]",
