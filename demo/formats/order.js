@@ -8,10 +8,13 @@ export function render(q, ctx) {
 
   const bank = h("div", { class: "tray" });
   const tiles = new Map();
+  const cells = new Map(); // each tile's home in the bank; it turns into a gray gap while the tile is out
   for (const part of shuffle(q.parts)) {
     const t = h("button", { type: "button", class: "tile part", onclick: () => toggle(part) }, part.text);
+    const cell = h("span", { class: "bank-cell" }, t);
     tiles.set(part, t);
-    bank.append(t);
+    cells.set(part, cell);
+    bank.append(cell);
   }
 
   function toggle(part) {
@@ -21,13 +24,20 @@ export function render(q, ctx) {
     if (at >= 0) {
       filled[at] = null;
       t.classList.remove("is-wrong");
-      bank.append(t);
+      const cell = cells.get(part);
+      cell.classList.remove("is-empty");
+      cell.style.width = cell.style.height = "";
+      cell.append(t);
       slots[at].style.width = "64px";
       slots[at].style.height = "56px";
     } else {
       const free = filled.indexOf(null);
       if (free < 0) return;
       const tileRect = t.getBoundingClientRect();
+      const cell = cells.get(part);
+      cell.style.width = `${tileRect.width}px`;
+      cell.style.height = `${tileRect.height}px`;
+      cell.classList.add("is-empty");
       filled[free] = part;
       slots[free].style.width = `${tileRect.width}px`;
       slots[free].style.height = `${tileRect.height}px`;

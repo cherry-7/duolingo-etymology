@@ -8,6 +8,7 @@
 // onDrop returning true means the drop was accepted and the caller has moved el.
 // Otherwise the ghost springs back to where el sits.
 // onTap (optional) runs when el is pressed and released without being dragged.
+// onStart (optional) runs on every press, before any drag or tap.
 
 const SLOP = 16; // px added around drop targets for fat fingers
 
@@ -21,7 +22,7 @@ function hitTarget(x, y, targets) {
   return null;
 }
 
-export function makeDraggable(el, { targets, onDrop, onStart }) {
+export function makeDraggable(el, { targets, onDrop, onTap, onStart }) {
   let drag = null;
 
   el.addEventListener("pointerdown", (e) => {

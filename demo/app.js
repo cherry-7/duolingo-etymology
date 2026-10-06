@@ -338,28 +338,26 @@ function showSheet(kind, retry, detail, q) {
 
   if (kind === "correct") {
     sheet.replaceChildren(
-      twinsEl("high-five"),
-      h(
-        "div",
-        { class: "sheet-text" },
-        h("p", { class: "sheet-title" }, STRINGS.correctTitle),
+      sheetText(
+        "correct",
+        STRINGS.correctTitle,
         detail ? h("p", { class: "sheet-detail" }, detail) : null,
         h("p", { class: "sheet-line" }, state.twins.highFive)
-      )
+      ),
+      twinsEl("high-five")
     );
     btn.textContent = STRINGS.continue;
     btn.onclick = () => next();
   } else if (kind === "wrong") {
     playSound(SOUNDS.incorrect);
     sheet.replaceChildren(
-      twinsEl("encourage"),
-      h(
-        "div",
-        { class: "sheet-text" },
-        h("p", { class: "sheet-title" }, STRINGS.wrongTitle),
+      sheetText(
+        "wrong",
+        STRINGS.wrongTitle,
         h("p", { class: "sheet-detail" }, q?.hint || "[TBD: hint]"),
         h("p", { class: "sheet-line" }, state.twins.afterMistake)
-      )
+      ),
+      twinsEl("encourage")
     );
     btn.textContent = STRINGS.tryAgain;
     btn.classList.add("is-neutral");
@@ -371,22 +369,37 @@ function showSheet(kind, retry, detail, q) {
   } else {
     playSound(SOUNDS.incorrect);
     sheet.replaceChildren(
-      twinsEl("encourage"),
-      h(
-        "div",
-        { class: "sheet-text" },
-        h("p", { class: "sheet-title" }, STRINGS.correctionTitle),
-        h("p", { class: "sheet-detail" }, "Correct answer:"),
+      sheetText(
+        "wrong",
+        STRINGS.correctionTitle,
         h("p", { class: "sheet-detail" }, correctAnswer(q)),
         h("p", { class: "sheet-line" }, state.twins.afterMistake)
-      )
+      ),
+      twinsEl("encourage")
     );
-    btn.textContent = STRINGS.continue;
+    btn.textContent = STRINGS.gotIt;
     btn.classList.add("is-retry-correct");
     btn.onclick = () => next();
   }
   sheet.hidden = false;
   btn.focus({ preventScroll: true });
+}
+
+// Duolingo-style sheet heading: a round ✓ or ✕ badge, then the title
+const ICONS = {
+  correct: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  wrong: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>'
+};
+
+function sheetText(icon, title, ...rest) {
+  const badge = h("span", { class: "sheet-icon" });
+  badge.innerHTML = ICONS[icon];
+  return h(
+    "div",
+    { class: "sheet-text" },
+    h("div", { class: "sheet-head" }, badge, h("p", { class: "sheet-title" }, title)),
+    ...rest
+  );
 }
 
 function hideSheet() {
@@ -575,6 +588,8 @@ function finish() {
 /* ---------- boot ---------- */
 
 async function boot() {
+  // iOS Safari only shows :active (the button press-down) when a touch listener exists
+  document.addEventListener("touchstart", () => {}, { passive: true });
   initNickname();
   show("screen-nickname");
   await Promise.all([loadLesson(), loadTwinsLines()]);
