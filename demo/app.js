@@ -233,9 +233,10 @@ function revealAvatar() {
   const reveal = $("nick-reveal");
   reveal.replaceChildren(
     avatarEl(state.avatar, "lg"),
-    h("p", { class: "avatar-name" }, state.avatar.name),
-    h("p", { class: "muted" }, STRINGS.avatarReveal),
-    h("p", { class: "nick-echo" }, state.name)
+    // only the nickname is bold
+    h("p", { class: "greeting" }, ...STRINGS.greeting.split(/(\{name\})/).map((part) =>
+      part === "{name}" ? h("strong", {}, state.name) : part
+    ))
   );
   reveal.hidden = false;
   const btn = $("nick-continue");
@@ -431,7 +432,7 @@ function showBoundary(nxt) {
       "div",
       { class: "boundary" },
       h("p", { class: "boundary-lang" }, nxt.lang),
-      h("div", { class: "swipe-hint", "aria-hidden": "true" }, "←"),
+      h("div", { class: "swipe-hint", "aria-hidden": "true" }, "→"),
       h("p", { class: "muted" }, STRINGS.swipeToNext)
     )
   );
@@ -470,7 +471,11 @@ function arm(el, onSwipe) {
   };
   const cancel = () => (start = null);
   const key = (e) => {
-    if (e.key === "ArrowRight" || e.key === "ArrowLeft") onSwipe();
+    // Arrow keys, Enter or Space move on to the next language
+    if (["ArrowRight", "ArrowLeft", "Enter", " "].includes(e.key)) {
+      e.preventDefault();
+      onSwipe();
+    }
   };
   el.addEventListener("pointerdown", down);
   el.addEventListener("pointerup", up);
@@ -560,18 +565,17 @@ function finish() {
   disarm();
   hideSheet();
   $("progress-fill").style.width = "100%";
-  const score = state.firstTry; // [TBD: score formula]
+  // 1 point per question right on the first try; mistakes never subtract (Michelle, TASKS.md)
+  const score = state.firstTry;
   $("finish-body").replaceChildren(
     h("h1", { class: "title" }, STRINGS.finishTitle),
     avatarEl(state.avatar, "lg"),
     h("p", { class: "nick-echo" }, state.name),
     h("p", { class: "score" }, String(score)),
-    h("p", { class: "muted" }, STRINGS.scoreFormula),
     h(
       "div",
       { class: "stats" },
-      h("div", {}, h("span", { class: "stat-n" }, `${state.firstTry}/${state.lesson.length}`), h("span", {}, STRINGS.statFirstTry)),
-      h("div", {}, h("span", { class: "stat-n" }, String(state.mistakes)), h("span", {}, STRINGS.statMistakes))
+      h("div", {}, h("span", { class: "stat-n" }, `${state.firstTry}/${state.lesson.length}`), h("span", {}, STRINGS.statFirstTry))
     ),
     h("div", { class: "twins-bubble" }, twinsEl("idle"), h("p", {}, state.twins.finish)),
     h("p", { id: "submit-status", class: "muted submit-status" }, STRINGS.submitting)
@@ -579,6 +583,7 @@ function finish() {
   show("screen-finish");
   if (score < 5) playSound(SOUNDS.livesLost);
   playSound(SOUNDS.completed);
+  // mistakes are sent only to break leaderboard ties, never to lower the score
   submitScore(state.name, score, { avatar: state.avatar.id, mistakes: state.mistakes }).then(
     () => ($("submit-status").textContent = STRINGS.submitted),
     () => ($("submit-status").textContent = STRINGS.submitFailed)

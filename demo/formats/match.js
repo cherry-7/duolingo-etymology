@@ -1,5 +1,5 @@
 // Match parts to meanings: tap one tile in each column.
-import { h, shuffle, buzz } from "../util.js";
+import { h, shuffle, buzz, promptEl } from "../util.js";
 
 export function render(q, ctx) {
   ctx.useCheck(false);
@@ -44,5 +44,5 @@ export function render(q, ctx) {
   }
 
   const grid = h("div", { class: "match-grid" }, left, right);
-  return h("div", { class: "format format-match" }, h("p", { class: "prompt" }, q.prompt), grid);
+  return h("div", { class: "format format-match" }, promptEl(q.prompt), grid);
 }

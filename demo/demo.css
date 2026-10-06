@@ -111,7 +111,7 @@ body.is-dragging { -webkit-user-select: none; user-select: none; }
 .btn:disabled { background: var(--gray-200); box-shadow: none; color: var(--gray-400); cursor: default; }
 /* Red: try again and the correct-answer screen */
 .btn.is-neutral,
-.btn.is-retry-correct { --btn-face: var(--duo-red); --btn-ledge: var(--duo-red-dark); }
+.btn.is-retry-correct { --btn-face: #FF4B4B; --btn-ledge: var(--duo-red-dark); } /* red button face, per Michelle */
 .btn:focus-visible, .tile:focus-visible { outline: 3px solid var(--gray-800); outline-offset: 2px; }
 
 /* Thumb-zone footer pinned to the bottom of each screen */
@@ -137,7 +137,8 @@ body.is-dragging { -webkit-user-select: none; user-select: none; }
 .text-input:focus { outline: none; border-color: var(--duo-green); }
 
 .nick-reveal { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; }
-.avatar-name { font-size: 24px; font-weight: 700; margin: 8px 0 0; }
+.greeting { font-size: 26px; font-weight: 400; margin: 12px 0 0; }
+.greeting strong { font-weight: 700; }
 .nick-echo { font-size: 18px; font-weight: 700; margin: 4px 0; }
 
 /* ---------- avatars, assets, placeholders ---------- */
@@ -169,7 +170,7 @@ body.is-dragging { -webkit-user-select: none; user-select: none; }
 .progress { height: 16px; border-radius: 999px; background: var(--gray-200); overflow: hidden; }
 .progress-fill { position: relative; height: 100%; width: 0; background: var(--duo-green); border-radius: inherit; transition: width 0.35s ease; }
 /* the lighter shine stripe across the top of the fill */
-.progress-fill::after { content: ""; position: absolute; left: 8px; right: 8px; top: 4px; height: 4px; border-radius: 999px; background: rgba(255, 255, 255, 0.3); }
+.progress-fill::after { content: ""; position: absolute; left: 8px; right: 8px; top: 4px; height: 4px; border-radius: 999px; background: rgba(255, 255, 255, 0.2); }
 .lesson-meta { display: flex; align-items: center; gap: 8px; margin-top: 10px; min-height: 36px; }
 .lesson-lang { font-weight: 700; font-size: 15px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
@@ -187,6 +188,7 @@ body.is-dragging { -webkit-user-select: none; user-select: none; }
 @keyframes slide-in { from { transform: translateX(30%); opacity: 0; } to { transform: none; opacity: 1; } }
 
 .prompt { font-size: 22px; font-weight: 700; line-height: 1.25; margin: 4px 0 14px; color: var(--gray-800); }
+.prompt-rest { display: block; margin-top: 6px; font-size: 18px; font-weight: 400; line-height: 1.35; }
 .word { font-size: 32px; font-weight: 700; text-align: center; margin: 8px 0 16px; }
 
 .twins-bubble { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
@@ -254,6 +256,34 @@ button.tile:active:not(:disabled) { transform: translateY(2px); border-bottom-wi
 .tile.is-selected { background: var(--duo-blue-light); border-color: var(--duo-blue-edge); color: var(--duo-blue-dark); }
 .tile.is-correct { background: var(--duo-green-light); border-color: var(--duo-green-edge); color: var(--duo-green-dark); }
 .tile.is-wrong { background: var(--duo-red-light); border-color: var(--duo-red-edge); color: var(--duo-red-dark); }
+
+/* Correct: green tiles jump, then a shine sweeps across them (several tiles ripple in turn) */
+.tile { position: relative; overflow: hidden; }
+.tile.is-correct,
+.slot.is-correct .tile,
+.dropzone.is-done .attached .tile { animation: tile-jump 0.5s cubic-bezier(0.3, 0.7, 0.4, 1) var(--jump-delay, 0s) both; }
+.tile.is-correct::after,
+.slot.is-correct .tile::after,
+.dropzone.is-done .attached .tile::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.75) 50%, transparent 70%);
+  transform: translateX(-130%);
+  animation: tile-shine 0.6s ease-out calc(var(--jump-delay, 0s) + 0.15s) forwards;
+  pointer-events: none;
+}
+.slot:nth-child(2) { --jump-delay: 0.07s; }
+.slot:nth-child(3) { --jump-delay: 0.14s; }
+.slot:nth-child(4) { --jump-delay: 0.21s; }
+@keyframes tile-jump {
+  0% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(-10px) scale(1.04); }
+  55% { transform: translateY(0) scale(0.98); }
+  75% { transform: translateY(-3px) scale(1); }
+  100% { transform: translateY(0) scale(1); }
+}
+@keyframes tile-shine { to { transform: translateX(130%); } }
 .tile:disabled { cursor: default; }
 .tile.is-lifted { opacity: 0.25; }
 .tile.is-locked { cursor: default; }
@@ -322,7 +352,7 @@ button.tile:active:not(:disabled) { transform: translateY(2px); border-bottom-wi
 .boundary { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
 .boundary-lang { font-size: 26px; font-weight: 700; margin: 0; }
 .swipe-hint { font-size: 40px; color: var(--gray-400); animation: nudge 1.4s ease-in-out infinite; }
-@keyframes nudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-14px); } }
+@keyframes nudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(14px); } }
 
 /* feedback sheet: the whole footer turns green or red, like Duolingo */
 .lesson-footer { flex: none; margin-left: calc(-1 * max(var(--gutter), env(safe-area-inset-left))); margin-right: calc(-1 * max(var(--gutter), env(safe-area-inset-right))); padding-left: var(--gutter); padding-right: var(--gutter); border-top: 2px solid var(--gray-200); transition: background 0.15s ease; }
@@ -342,8 +372,8 @@ button.tile:active:not(:disabled) { transform: translateY(2px); border-bottom-wi
 .sheet-correct { color: var(--duo-green-dark); }
 .sheet-correct .sheet-icon { background: var(--duo-green-dark); color: var(--white); }
 .sheet-wrong, .sheet-correction { color: var(--duo-red-dark); }
-/* wrong: a lighter red badge with a dark ✕, as in Duolingo's Incorrect sheet */
-.sheet-wrong .sheet-icon, .sheet-correction .sheet-icon { background: var(--duo-red); color: #3C0D0D; }
+/* wrong: a red badge with a white ✕ */
+.sheet-wrong .sheet-icon, .sheet-correction .sheet-icon { background: var(--duo-red); color: var(--white); }
 .sheet-wrong .sheet-detail, .sheet-correction .sheet-detail { font-size: 18px; font-weight: 400; }
 @keyframes sheet-up { from { transform: translateY(12px); opacity: 0; } to { transform: none; opacity: 1; } }
 

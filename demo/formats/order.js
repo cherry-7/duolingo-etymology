@@ -1,5 +1,5 @@
 // Tap parts into slots in the right order, then check.
-import { h, shuffle } from "../util.js";
+import { h, shuffle, promptEl } from "../util.js";
 
 export function render(q, ctx) {
   const answer = q.parts.filter((p) => p.order != null).sort((a, b) => a.order - b.order);
@@ -62,6 +62,6 @@ export function render(q, ctx) {
 
   ctx.useCheck(true, null);
   const row = h("div", { class: "slots" }, slots);
-  const root = h("div", { class: "format format-order" }, h("p", { class: "prompt" }, q.prompt), row, bank);
+  const root = h("div", { class: "format format-order" }, promptEl(q.prompt), row, bank);
   return root;
 }
