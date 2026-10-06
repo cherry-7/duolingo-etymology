@@ -6,13 +6,13 @@ export const STRINGS = {
   nicknamePlaceholder: "[TBD]",
   start: "Start",
 
-  avatarReveal: "[TBD: avatar reveal line]",
+  greeting: "Hi, {name}!", // shown under the avatar; {name} = the player's nickname
   continue: "Continue",
   check: "Check",
-  tryAgain: "Try again [TBD]",
+  tryAgain: "Got it",
 
   correctTitle: "Correct!",
-  wrongTitle: "Try again...",
+  wrongTitle: "Not quite!",
   correctionTitle: "Incorrect",
   gotIt: "Got it",
 
@@ -26,9 +26,7 @@ export const STRINGS = {
   nextLanguage: "[TBD: next language button]",
 
   finishTitle: "[TBD: finish title]",
-  scoreFormula: "[TBD: score formula]",
-  statFirstTry: "First try",
-  statMistakes: "Mistakes",
+  statFirstTry: "Great job!",
   submitting: "[TBD: sending score…]",
   submitted: "[TBD: score is on the leaderboard]",
   submitFailed: "[TBD: couldn't reach the leaderboard]",
