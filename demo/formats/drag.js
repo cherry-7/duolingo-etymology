@@ -44,35 +44,74 @@ export function render(q, ctx) {
   );
 
   const tray = h("div", { class: "tray" });
+
+  function select(tile, part) {
+    const same = selected?.tile === tile;
+    selected?.tile.classList.remove("is-selected");
+    selected = same ? null : { tile, part };
+    selected?.tile.classList.add("is-selected");
+    zone.classList.toggle("is-armed", !!selected);
+  }
+
+  // Shared by drag-drop and tap-to-place. Returns true if the part was attached.
+  function place(tile, part) {
+    selected?.tile.classList.remove("is-selected");
+    selected = null;
+    zone.classList.remove("is-armed");
+    if (!part.isCorrect) {
+      buzz(40);
+      ctx.wrong();
+      return false;
+    }
+    buzz(15);
+    ctx.playSound();
+    tile.classList.add("is-locked", "is-placed");
+    tile.removeAttribute("tabindex");
+    attached.append(tile);
+    placed++;
+    zone.classList.remove("is-hit");
+    zone.getBoundingClientRect();
+    zone.classList.add("is-hit");
+    showPicture();
+    if (placed >= needed) {
+      zone.classList.add("is-done");
+      for (const t of tray.querySelectorAll(".part")) t.classList.add("is-locked");
+      ctx.complete({ animationSlot: picture, detail: q.answerMeaning });
+    }
+    return true;
+  }
+
+  // The drop box is only one tile wide, so the root and the box together are the tap target
+  const placeSelected = () => {
+    if (selected && !zone.classList.contains("is-done")) place(selected.tile, selected.part);
+  };
+  compound.setAttribute("role", "button");
+  compound.setAttribute("tabindex", "0");
+  compound.setAttribute("aria-label", q.root);
+  compound.addEventListener("click", placeSelected);
+  compound.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      placeSelected();
+    }
+  });
+
   let correctTile = null;
   for (const part of q.parts) {
-    const tile = h("div", { class: "tile part", role: "button" }, part.text);
+    const tile = h("div", { class: "tile part", role: "button", tabindex: "0" }, part.text);
     if (part.isCorrect && !correctTile) correctTile = tile;
     makeDraggable(tile, {
       targets: () => [zone],
       onStart: () => ctx.playSound(),
-      onDrop: (el, target) => {
-        if (!target) return false; // outside the box: spring back, no penalty
-        if (!part.isCorrect) {
-          buzz(40);
-          ctx.wrong();
-          return false;
-        }
-        buzz(15);
+      // Outside the box: spring back, no penalty
+      onDrop: (el, target) => (target ? place(el, part) : false),
+      onTap: (el) => select(el, part)
+    });
+    tile.addEventListener("keydown", (e) => {
+      if ((e.key === "Enter" || e.key === " ") && !tile.classList.contains("is-locked")) {
+        e.preventDefault();
         ctx.playSound();
-        el.classList.add("is-locked", "is-placed");
-        attached.append(el);
-        placed++;
-        zone.classList.remove("is-hit");
-        zone.getBoundingClientRect();
-        zone.classList.add("is-hit");
-        showPicture();
-        if (placed >= needed) {
-          zone.classList.add("is-done");
-          for (const t of tray.querySelectorAll(".part")) t.classList.add("is-locked");
-          ctx.complete({ animationSlot: picture, detail: q.answerMeaning });
-        }
-        return true;
+        select(tile, part);
       }
     });
     tray.append(tile);

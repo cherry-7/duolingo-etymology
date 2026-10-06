@@ -1,8 +1,18 @@
 /* Demo styles. Mobile first.
-   Colors: Duo green (#58CC02, approved) plus neutral grays until /design has UI exports. */
+   Colors and button/tile/sheet styles match the Duolingo app (Michelle's screenshots, TASKS.md). */
 :root {
   --duo-green: #58CC02;
-  --duo-red: #D32F2F;
+  --duo-green-dark: #58A700;   /* button ledge, correct text */
+  --duo-green-light: #D7FFB8;  /* correct sheet + tile */
+  --duo-green-edge: #A5ED6E;
+  --duo-red: #FF4B4B;
+  --duo-red-dark: #EA2B2B;
+  --duo-red-light: #FFDFE0;
+  --duo-red-edge: #FFB2B2;
+  --duo-blue: #1CB0F6;
+  --duo-blue-dark: #1899D6;
+  --duo-blue-light: #DDF4FF;
+  --duo-blue-edge: #84D8FF;
   --white: #ffffff;
   --gray-50: #f7f7f7;
   --gray-200: #e5e5e5;
@@ -76,24 +86,32 @@ body.is-dragging { -webkit-user-select: none; user-select: none; }
 }
 
 /* ---------- buttons ---------- */
+/* Duolingo 3D button: a darker ledge under the face; pressing sinks the face onto it */
 .btn {
+  --btn-face: var(--duo-green);
+  --btn-ledge: var(--duo-green-dark);
   width: 100%;
   min-height: 52px;
+  margin-bottom: 4px; /* room for the ledge */
   border: 0;
   border-radius: var(--radius);
-  background: var(--duo-green);
+  background: var(--btn-face);
+  box-shadow: 0 4px 0 var(--btn-ledge);
   color: var(--white);
   font: inherit;
   font-size: 17px;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   touch-action: manipulation;
   cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease;
 }
-.btn:disabled { background: var(--gray-200); color: var(--gray-400); cursor: default; }
-.btn.is-neutral { background: var(--gray-800); }
-.btn.is-retry-correct { background: var(--duo-red); }
-.btn:active:not(:disabled) { transform: translateY(1px); }
+.btn:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 var(--btn-ledge); }
+.btn:disabled { background: var(--gray-200); box-shadow: none; color: var(--gray-400); cursor: default; }
+/* Red: try again and the correct-answer screen */
+.btn.is-neutral,
+.btn.is-retry-correct { --btn-face: var(--duo-red); --btn-ledge: var(--duo-red-dark); }
 .btn:focus-visible, .tile:focus-visible { outline: 3px solid var(--gray-800); outline-offset: 2px; }
 
 /* Thumb-zone footer pinned to the bottom of each screen */
@@ -148,8 +166,10 @@ body.is-dragging { -webkit-user-select: none; user-select: none; }
 
 /* ---------- lesson ---------- */
 .lesson-header { flex: none; padding-bottom: 8px; }
-.progress { height: 14px; border-radius: 999px; background: var(--gray-200); overflow: hidden; }
-.progress-fill { height: 100%; width: 0; background: var(--duo-green); border-radius: inherit; transition: width 0.35s ease; }
+.progress { height: 16px; border-radius: 999px; background: var(--gray-200); overflow: hidden; }
+.progress-fill { position: relative; height: 100%; width: 0; background: var(--duo-green); border-radius: inherit; transition: width 0.35s ease; }
+/* the lighter shine stripe across the top of the fill */
+.progress-fill::after { content: ""; position: absolute; left: 8px; right: 8px; top: 4px; height: 4px; border-radius: 999px; background: rgba(255, 255, 255, 0.3); }
 .lesson-meta { display: flex; align-items: center; gap: 8px; margin-top: 10px; min-height: 36px; }
 .lesson-lang { font-weight: 700; font-size: 15px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
@@ -166,7 +186,7 @@ body.is-dragging { -webkit-user-select: none; user-select: none; }
 .lesson-body.slide-out { transform: translateX(-30%); opacity: 0; transition: transform 0.22s ease, opacity 0.22s ease; }
 @keyframes slide-in { from { transform: translateX(30%); opacity: 0; } to { transform: none; opacity: 1; } }
 
-.prompt { font-size: 20px; font-weight: 700; margin: 4px 0 12px; }
+.prompt { font-size: 22px; font-weight: 700; line-height: 1.25; margin: 4px 0 14px; color: var(--gray-800); }
 .word { font-size: 32px; font-weight: 700; text-align: center; margin: 8px 0 16px; }
 
 .twins-bubble { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
@@ -219,7 +239,8 @@ body.is-dragging { -webkit-user-select: none; user-select: none; }
   color: var(--gray-800);
   font: inherit;
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 500;
+  transition: transform 0.08s ease, border-width 0.08s ease, background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
   touch-action: manipulation;
   cursor: pointer;
   -webkit-user-select: none;
@@ -228,9 +249,11 @@ body.is-dragging { -webkit-user-select: none; user-select: none; }
 }
 .tile.part { touch-action: none; cursor: grab; }
 button.tile.part { touch-action: manipulation; cursor: pointer; }
-.tile.is-selected { border-color: var(--gray-800); }
-.tile.is-correct { border-color: var(--duo-green); color: var(--duo-green); }
-.tile.is-wrong { border-color: var(--gray-800); background: var(--gray-200); }
+/* Press: the tile sinks onto its thicker bottom edge (buttons only; dragged parts lift instead) */
+button.tile:active:not(:disabled) { transform: translateY(2px); border-bottom-width: 2px; margin-bottom: 2px; }
+.tile.is-selected { background: var(--duo-blue-light); border-color: var(--duo-blue-edge); color: var(--duo-blue-dark); }
+.tile.is-correct { background: var(--duo-green-light); border-color: var(--duo-green-edge); color: var(--duo-green-dark); }
+.tile.is-wrong { background: var(--duo-red-light); border-color: var(--duo-red-edge); color: var(--duo-red-dark); }
 .tile:disabled { cursor: default; }
 .tile.is-lifted { opacity: 0.25; }
 .tile.is-locked { cursor: default; }
@@ -267,8 +290,11 @@ button.tile.part { touch-action: manipulation; cursor: pointer; }
 }
 .compound .root { font-size: 28px; font-weight: 700; }
 .dropzone .attached { display: flex; }
-.dropzone .attached .tile { border-color: var(--duo-green); margin: -3px; }
-.dropzone.is-over { border-color: var(--gray-800); background: var(--gray-200); }
+.dropzone .attached .tile { background: var(--duo-green-light); border-color: var(--duo-green-edge); color: var(--duo-green-dark); margin: -3px; }
+.dropzone.is-over,
+.dropzone.is-armed { border-color: var(--duo-blue-edge); background: var(--duo-blue-light); }
+.compound { cursor: pointer; }
+.compound:focus-visible { outline: 3px solid var(--gray-800); outline-offset: 4px; border-radius: 12px; }
 .dropzone.is-hit { animation: hit 0.35s ease; }
 .dropzone.is-done { border-style: solid; border-color: var(--duo-green); background: var(--white); }
 @keyframes hit { 0% { border-color: var(--duo-green); } 100% { border-color: var(--gray-400); } }
@@ -276,17 +302,21 @@ button.tile.part { touch-action: manipulation; cursor: pointer; }
 .tray { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
 
 .options { display: flex; flex-direction: column; gap: 10px; }
-.options .tile { width: 100%; justify-content: flex-start; text-align: left; }
+.options .tile { width: 100%; justify-content: center; text-align: center; }
 
 .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .match-col { display: flex; flex-direction: column; gap: 10px; }
 .match-col .tile { width: 100%; font-size: 16px; }
 
-.slots { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; min-height: 72px; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--gray-200); }
-.slot { min-width: 0; min-height: 0; border-radius: 14px; background: var(--gray-50); border: 2px dashed var(--gray-400); display: flex; }
+/* answer line, as in Duolingo's word-bank questions */
+.slots { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; min-height: 72px; margin-bottom: 28px; padding: 8px 0 12px; border-top: 2px solid var(--gray-200); border-bottom: 2px solid var(--gray-200); }
+.slot { min-width: 0; min-height: 0; border-radius: 14px; background: var(--gray-50); border: 2px solid var(--gray-200); display: flex; }
 .slot .tile { margin: -2px; }
-.slots.is-done .slot, .slot.is-correct { border: 2px solid var(--duo-green); }
-.slot.is-wrong { border: 2px solid var(--gray-800); }
+.slot.is-correct .tile { background: var(--duo-green-light); border-color: var(--duo-green-edge); color: var(--duo-green-dark); }
+.slot.is-wrong .tile { background: var(--duo-red-light); border-color: var(--duo-red-edge); color: var(--duo-red-dark); }
+/* where a tile left the bank, a gray gap holds its place */
+.bank-cell { display: inline-flex; border-radius: 14px; }
+.bank-cell.is-empty { background: var(--gray-200); }
 
 /* language boundary */
 .boundary { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
@@ -294,18 +324,27 @@ button.tile.part { touch-action: manipulation; cursor: pointer; }
 .swipe-hint { font-size: 40px; color: var(--gray-400); animation: nudge 1.4s ease-in-out infinite; }
 @keyframes nudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-14px); } }
 
-/* feedback sheet */
-.lesson-footer { flex: none; margin-left: calc(-1 * max(var(--gutter), env(safe-area-inset-left))); margin-right: calc(-1 * max(var(--gutter), env(safe-area-inset-right))); padding-left: var(--gutter); padding-right: var(--gutter); border-top: 2px solid var(--gray-200); }
+/* feedback sheet: the whole footer turns green or red, like Duolingo */
+.lesson-footer { flex: none; margin-left: calc(-1 * max(var(--gutter), env(safe-area-inset-left))); margin-right: calc(-1 * max(var(--gutter), env(safe-area-inset-right))); padding-left: var(--gutter); padding-right: var(--gutter); border-top: 2px solid var(--gray-200); transition: background 0.15s ease; }
 .lesson-footer:has(.btn[hidden]):has(.sheet[hidden]) { display: none; }
-.sheet { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; animation: sheet-up 0.2s ease both; }
-.sheet-correct { border-left: 6px solid var(--duo-green); padding-left: 10px; }
-.sheet-wrong { border-left: 6px solid var(--gray-400); padding-left: 10px; }
+.lesson-footer:has(.sheet-correct:not([hidden])) { background: var(--duo-green-light); border-top-color: transparent; }
+.lesson-footer:has(.sheet-wrong:not([hidden])),
+.lesson-footer:has(.sheet-correction:not([hidden])) { background: var(--duo-red-light); border-top-color: transparent; }
+.sheet { display: flex; align-items: flex-start; gap: 12px; padding-top: 6px; margin-bottom: 14px; animation: sheet-up 0.2s ease both; }
 .sheet-text { flex: 1; min-width: 0; }
-.sheet-title { margin: 0; font-size: 20px; font-weight: 700; }
-.sheet-detail { margin: 2px 0 0; font-weight: 700; }
-.sheet-line { margin: 2px 0 0; font-size: 14px; color: var(--gray-600); }
-.sheet-correction { color: var(--duo-red); }
-.sheet-correction .sheet-line { color: var(--duo-red); }
+.sheet-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.sheet-icon { width: 30px; height: 30px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--white); }
+.sheet-icon svg { width: 16px; height: 16px; }
+.sheet-title { margin: 0; font-size: 24px; font-weight: 700; }
+.sheet-detail { margin: 2px 0 0; font-size: 17px; font-weight: 500; }
+.sheet-line { margin: 4px 0 0; font-size: 14px; opacity: 0.85; }
+.sheet .twins { width: 56px; height: 56px; }
+.sheet-correct { color: var(--duo-green-dark); }
+.sheet-correct .sheet-icon { background: var(--duo-green-dark); color: var(--white); }
+.sheet-wrong, .sheet-correction { color: var(--duo-red-dark); }
+/* wrong: a lighter red badge with a dark ✕, as in Duolingo's Incorrect sheet */
+.sheet-wrong .sheet-icon, .sheet-correction .sheet-icon { background: var(--duo-red); color: #3C0D0D; }
+.sheet-wrong .sheet-detail, .sheet-correction .sheet-detail { font-size: 18px; font-weight: 400; }
 @keyframes sheet-up { from { transform: translateY(12px); opacity: 0; } to { transform: none; opacity: 1; } }
 
 /* ---------- finish ---------- */
