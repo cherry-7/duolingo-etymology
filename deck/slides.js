@@ -77,14 +77,19 @@ function swatch(color, label, labelColor, w) {
 // Coordinates are in Figma's 704x514 card frames (the slide shows them at 481 wide). Swatch
 // fills are read from the exported Rectangle SVGs; the hex labels and characters are the SVGs.
 const RESEARCH_ART = DECK_ART + "research/";
-function researchCard(character, art, group, fills, labels) {
+function researchCard(character, art, group, fills, labels, behind) {
   // The swatch block: skin (square), hair (wide) on top, then two rows of wide + square
   const [gx, gy] = group;
   const at = [[0, 0, 104.17], [110.68, 0, 195.32], [0, 130.21, 195.32], [201.83, 130.21, 104.17], [0, 240.89, 195.32], [201.83, 240.89, 104.17]];
   const swatches = fills.map((fill, i) => ({ x: gx + at[i][0], y: gy + at[i][1], w: at[i][2], h: 104.17, fill }));
   const parts = labels.map(([hex, x, y]) => ({ src: RESEARCH_ART + "label-" + hex + ".svg", x, y: y + 4.5, w: 50, h: 9 }));
   if (art) parts.unshift({ src: RESEARCH_ART + art + ".svg", x: character[0], y: character[1], w: character[2], h: character[3] });
-  return { type: "research", w: 481, z: 7, swatches, parts, placeholder: art ? null : "[TBD: card 1 layers not in the export]" };
+  if (behind) parts.unshift(behind); // e.g. the white of an eye that shows through the character art
+  return { type: "research", w: 481, z: 7, swatches, parts };
+}
+// Card 1's layers aren't in the export, so it's the card cut from the slide export (Michelle's call)
+function researchCardFromExport(file) {
+  return { type: "research", w: 481, z: 7, swatches: [], parts: [{ src: RESEARCH_ART + file, x: 0, y: 0, w: 704, h: 514, round: true }] };
 }
 
 // Everything that can appear in the world, back to front (z)
@@ -175,7 +180,7 @@ window.WORLD_ACTORS = {
   swatchOrange: swatch("#E48900", "#E48900", "#FFFFFF", 242),
   swatchJeans: swatch("#B3C8DF", "#0084C2", "#363135", 454), // Figma fills this one #B3C8DF but labels it #0084C2
   swatchBlue: swatch("#0063CF", "#0063CF", "#FFFFFF", 242),
-  research1: researchCard(null, null, [317, 84], [], []),
+  research1: researchCardFromExport("card1-from-export.png"),
   research2: researchCard([67, 105, 226, 324], "card2-character", [317, 84],
     ["#FFCBA3", "#3D3D3D", "#FEB101", "#FFF3F2", "#FF9501", "#FDCA9B"],
     [["FFCBA3", 343, 159], ["3D3D3D", 493, 159], ["FEB101", 389, 291], ["FFF3F2", 545, 291], ["FF9501", 389, 399], ["FDCA9B", 545, 399]]),
@@ -184,7 +189,8 @@ window.WORLD_ACTORS = {
     [["DA8F71", 351, 177], ["3C3E3D", 507, 177], ["FEAADF", 397, 305], ["A6653F", 553, 305], ["27E89F", 397, 417], ["20AFF3", 553, 417]]),
   research4: researchCard([51, 50, 239, 388], "card4-character", [317, 84],
     ["#A1674A", "#3D3D3F", "#FAB327", "#FF4A4F", "#1CB0F6", "#4DC4FD"],
-    [["A36746", 343, 159], ["3D3D3F", 493, 159], ["FAB327", 389, 291], ["FF4A4F", 545, 291], ["1CB0F6", 389, 399], ["4DC4FD", 545, 399]]),
+    [["A36746", 343, 159], ["3D3D3F", 493, 159], ["FAB327", 389, 291], ["FF4A4F", 545, 291], ["1CB0F6", 389, 399], ["4DC4FD", 545, 399]],
+    { src: RESEARCH_ART + "card4-eye-white.svg", x: 154, y: 168, w: 69, h: 69 }),
   // card 5's image exported larger than its Figma box (234x380); sized to match the slide export
   research5: researchCard([68, 59, 249, 398], "card5-character", [329, 84],
     ["#C67962", "#3D3D3D", "#CD348E", "#AB0464", "#0084C2", "#00468E"],

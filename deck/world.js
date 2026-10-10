@@ -104,9 +104,8 @@ window.World = (function () {
         img.src = p.src;
         img.alt = "";
         place(img, p);
-        Object.assign(img.style, { display: "block", borderRadius: 0, boxShadow: "none" });
+        Object.assign(img.style, { display: "block", borderRadius: p.round ? "70.3px" : 0, boxShadow: "none" });
       });
-      if (def.placeholder) place(el("div", "research-tbd", node), { x: 60, y: 60, w: 584, h: 394 }).textContent = def.placeholder;
       return (s) => {
         node.style.opacity = s.opacity;
         node.style.transform = `translate(${s.x}px, ${s.y}px) scale(${s.w / 704}) rotate(${s.rotate || 0}deg)`;

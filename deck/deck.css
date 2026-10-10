@@ -340,8 +340,6 @@ body {
   line-height: 42px;
 }
 /* Character Color Research: cards cut from the Figma export, rounded, with their solid shadow */
-/* Research card placeholder (the cards' layout is set inline in world.js) */
-.research-tbd { box-sizing: border-box; display: grid; place-items: center; background: #ddd; color: #888; border: 3px dashed #888; border-radius: 30px; font-size: 30px; text-align: center; padding: 20px; }
 
 .actor-pill {
   display: grid;
