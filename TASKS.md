@@ -55,3 +55,9 @@ Work queue for the deck and demo.
 - [ ] APPROVED (2026-10-05, Michelle in chat): Language-change screen: the swipe hint arrow points right (→), and Enter or Space (as well as the arrow keys) moves on to the next language.
 - [ ] APPROVED (2026-10-05, Michelle in chat): Avatar reveal shows the avatar and "Hi, [nickname]!" only (no character name, no reveal line); only the nickname is bold.
 - [ ] APPROVED (2026-10-06, Michelle in chat): Finish screen title reads "You did it!".
+- [ ] APPROVED (2026-10-09, Michelle in chat): Rebuild the deck from the Figma designs exported to /design/slides ("one continuous world" plan): background color fades between slides, shared actors (twins, Saissha's photo, speech bubble, word halves, card stack) travel between slides, swirls draw themselves with the scroll. Build in steps, with reviews after step 1 (engine + Opening/User Story) and step 3 (card stack + examples).
+  - Slide order: Opening, User Story (bubble lines: "Hi! My name is Saissha." → Group 29 "I am learning English right now." → Group 30 "I can memorise new words, but I wish I understood how their parts create meaning."), User Story-1, Morphology 1–3, examples (English, Hindi, Chinese, Spanish), Interviews ×2, Character Default/Color/Research, QR slide, Leaderboard last.
+  - QR slide: Duo (design/slides/pngs/duolingo_flying.png) flies across and drops off the QR code; it then hands over to the twin's sign on the Leaderboard slide. The live QR from deck/config.js is placed over the sign.
+  - Narrow font: "Fredoka Condensed" = Fredoka at 75% width (wdth axis), weight 400, line-height 150%, letter-spacing -1.1%.
+  - Card stack from design/slides/svgs/Card Stack.
+  - Copy still missing in Figma stays [TBD]: "TITLE TITLE", interview quotes and names.
