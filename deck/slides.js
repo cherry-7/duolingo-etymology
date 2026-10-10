@@ -50,7 +50,9 @@ const C = {
   lilac: "#CE82FF",
   purple: "#8A38F5",
   blue: "#1CB0F6",
-  meaning: "#A9CBED" // pale blue word meanings on the cards
+  meaning: "#A9CBED", // pale blue word meanings on the cards
+  navy: "#2B70C9", // Interviews background
+  attribution: "#D5E2F4" // who said it, under each quote
 };
 
 // Flashcard helpers: text positions are Figma's (stage coordinates); the card's top-left is (446, 204)
@@ -121,7 +123,22 @@ window.WORLD_ACTORS = {
   wordEnglish: { type: "text", font: "semibold", z: 30 },
   wordHindi: { type: "text", font: "semibold", z: 30 },
   wordChinese: { type: "text", font: "semibold", z: 30 },
-  wordSpanish: { type: "text", font: "semibold", z: 30 }
+  wordSpanish: { type: "text", font: "semibold", z: 30 },
+
+  // Interviews (design/slides/Interviews.png, Interviews-1.png). Two light-blue circles
+  // travel through both slides; on the second, a column slides up with three circles in it.
+  circleA: { type: "ellipse", z: 40 },
+  circleB: { type: "ellipse", z: 40 },
+  column: { type: "rect", z: 41 },
+  columnTop: { type: "ellipse", z: 42 },
+  columnMid: { type: "ellipse", z: 42 },
+  columnBottom: { type: "ellipse", z: 42 },
+  quoteA: { type: "quote", font: "semibold", z: 45 },
+  quoteB: { type: "quote", font: "semibold", z: 45 },
+  quoteC: { type: "quote", font: "semibold", z: 45 },
+  saidA: { type: "text", font: "semibold", z: 45 },
+  saidB: { type: "text", font: "semibold", z: 45 },
+  saidC: { type: "text", font: "semibold", z: 45 }
 };
 
 // The lilac circle, fully open: centred on the stage, big enough to cover the corners
@@ -148,6 +165,23 @@ function cardTrick(finalAngle, fan, at) {
 }
 const REVEAL = { reveal: 0, at: [0.15, 0.7] };
 
+// Interviews: a quote (white, 76.67px, the *word* gets the orange pill) and who said it.
+// Copy is still a placeholder in Figma, so it's [TBD] here.
+function quote(text, x, y, at) {
+  return {
+    x, y, size: 76.67, color: C.white, text,
+    enter: { dy: 70, opacity: 0, reveal: 0, at },
+    exit: { dy: -70, opacity: 0, at: [0, 0.4] }
+  };
+}
+function said(text, x, y, size, at) {
+  return {
+    x, y, size, color: C.attribution, text,
+    enter: { dy: 50, opacity: 0, at },
+    exit: { dy: -50, opacity: 0, at: [0, 0.4] }
+  };
+}
+
 // Morphology 2 and 3 share the split background (design/slides/Morphology 2.png)
 // They run past the top and bottom of the slide so they reach the window edges on screens
 // that are taller than 16:9 (the slide itself shows y 0-1080)
@@ -165,9 +199,9 @@ const storyActors = {
 
 // One example after English: the stack stays, the previous top card flies off to reveal
 // this one, and the labels slide out and back in with the new language and word
-function example(id, ref, card, lang, whole, langKey, wordKey) {
+function example(id, ref, card, lang, whole, langKey, wordKey, cardExit) {
   const actors = Object.assign({}, STACK);
-  actors[card] = Object.assign({ enter: REVEAL, exit: FLY_OFF }, CARD_TOP);
+  actors[card] = Object.assign({ enter: REVEAL, exit: cardExit || FLY_OFF }, CARD_TOP);
   actors[langKey] = Object.assign(lang, { enter: Object.assign({ at: [0.45, 1] }, fromLeft), exit: Object.assign({ at: [0, 0.45] }, fromLeft) });
   actors[wordKey] = Object.assign(whole, { enter: Object.assign({ at: [0.5, 1] }, fromRight), exit: Object.assign({ at: [0, 0.45] }, fromRight) });
   return { id, layout: "scene", ref, bg: C.blue, pace: 0.45, actors };
@@ -325,7 +359,47 @@ window.SLIDES = [
   example("example-chinese", "Morphology Example - Chinese", "cardChinese",
     label("Chinese", 128, 495), label("\u5988\n(Mom)", 1682, 450, { align: "center" }), "langChinese", "wordChinese"), // 妈
   example("example-spanish", "Morphology Example - Spanish", "cardSpanish",
-    label("Spanish", 120, 496), label("Lavaplatos\n(Dishwasher)", 1704, 444, { align: "center" }), "langSpanish", "wordSpanish"),
+    label("Spanish", 120, 496), label("Lavaplatos\n(Dishwasher)", 1704, 444, { align: "center" }), "langSpanish", "wordSpanish",
+    // Leaving for the Interviews: the card grows to fill the screen and becomes the dark-blue
+    // background (its words fade first; the card itself fades only at the very end)
+    { scale: 3.4, reveal: 0, at: [0, 0.65], fade: [0.75, 1] }),
+  {
+    id: "interviews",
+    layout: "scene",
+    ref: "Interviews",
+    bg: C.navy,
+    bgAt: [0.3, 0.7], // changes behind the growing card
+    pace: 0.3,
+    actors: {
+      // The circles drift in from opposite corners at different speeds
+      circleA: { x: 84, y: 59, w: 509, h: 509, color: C.blue, enter: { dx: -800, dy: -650, at: [0.45, 1] } },
+      circleB: { x: 1289, y: 511, w: 509, h: 509, color: C.blue, enter: { dx: 750, dy: 650, at: [0.55, 1] } },
+      // Quotes rise in one after the other; the pill then sweeps across the marked word
+      quoteA: quote("\u201C [TBD: Duolingo user *quote*] \u201D", 522, 146, [0.5, 1]),
+      saidA: said("Duolingo User - [TBD]", 1101, 405, 51.3, [0.6, 1]),
+      quoteB: quote("\u201C [TBD: Duolingo user *quote*] \u201D", 207, 600, [0.62, 1]),
+      saidB: said("Duolingo User - [TBD]", 207, 851, 51.3, [0.7, 1])
+    }
+  },
+  {
+    id: "interviews-expert",
+    layout: "scene",
+    ref: "Interviews-1",
+    bg: C.navy,
+    pace: 0.3,
+    actors: {
+      // The light-blue column slides up from the bottom carrying its three circles; the two
+      // circles from the previous slide roll down to the bottom row (one turns white)
+      column: { x: 84, y: 9, w: 509, h: 1671, color: C.blue, enter: { dy: 1250, at: [0.05, 0.7] } },
+      columnTop: { x: 105, y: -288, w: 468, h: 468, color: C.orange, enter: { dy: 1250, at: [0.1, 0.75] } },
+      columnMid: { x: 105, y: 238, w: 468, h: 469, color: C.white, enter: { dy: 1250, at: [0.14, 0.79] } },
+      columnBottom: { x: 105, y: 765, w: 468, h: 468, color: C.orange, enter: { dy: 1250, at: [0.18, 0.83] } },
+      circleA: { x: 980, y: 885, w: 468, h: 468, color: C.blue, at: [0.15, 0.85] },
+      circleB: { x: 1514, y: 885, w: 468, h: 468, color: C.white, at: [0.2, 0.9] },
+      quoteC: quote("\u201C [TBD: expert *quote*] \u201D", 691, 346, [0.5, 1]),
+      saidC: said("[TBD: name], Linguistic Expert", 1107, 635, 48, [0.6, 1])
+    }
+  },
   {
     id: "lineup",
     layout: "lineup",

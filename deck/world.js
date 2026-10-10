@@ -203,6 +203,28 @@ window.World = (function () {
       };
     },
 
+    // Quote with one highlighted word: write it as *word* in the text. An orange pill sweeps
+    // across behind that word as reveal goes from 0.6 to 1 (Interviews slides).
+    quote(def, layer) {
+      const node = el("div", "actor actor-text actor-quote " + (def.font || ""), layer);
+      let html = null;
+      let pills = [];
+      return (s) => {
+        node.style.opacity = s.opacity;
+        node.style.color = s.color;
+        node.style.fontSize = s.size + "px";
+        node.style.transform = `translate(${s.x}px, ${s.y}px)`;
+        if (html !== s.textA) {
+          html = s.textA;
+          const safe = s.textA.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+          node.innerHTML = safe.replace(/\*([^*]+)\*/g, '<span class="highlight">$1</span>');
+          pills = [...node.querySelectorAll(".highlight")];
+        }
+        const sweep = soft(clamp((s.reveal - 0.6) / 0.4, 0, 1));
+        pills.forEach((p) => p.style.setProperty("--sweep", sweep));
+      };
+    },
+
     // White pill with a short label (the Morphology 3 pills)
     pill(def, layer) {
       const node = el("div", "actor actor-pill condensed", layer);
@@ -450,12 +472,15 @@ window.World = (function () {
           // Exits: from its spot toward its exit offset
           const lt = local(t, pa.exit && pa.exit.at, [0, 0.5]);
           s = mix(pa, offset(pa, pa.exit), lt);
+          // fade: [start, end] fades out on its own schedule (e.g. only at the very end)
+          if (pa.exit && pa.exit.fade) s.opacity = pa.opacity * (1 - local(t, pa.exit.fade));
         } else if (pb) {
           // Enters: from its enter offset into its spot
           const lt = local(t, pb.enter && pb.enter.at, [0.5, 1]);
           s = mix(offset(pb, pb.enter), pb, lt, pb.enter && pb.enter.pop, pb.enter && pb.enter.ease === "back");
           if (pb.enter && pb.enter.orbit) spiral(s, pb.enter.orbit, lt);
           if (pb.enter && pb.enter.fan) s.rotate += pb.enter.fan * fanBump(lt);
+          if (pb.enter && pb.enter.fade) s.opacity = pb.opacity * local(t, pb.enter.fade);
         } else if (pa) {
           s = mix(pa, pa, 0);
         } else {
