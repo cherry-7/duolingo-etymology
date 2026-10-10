@@ -69,3 +69,4 @@ Work queue for the deck and demo.
 - [ ] APPROVED (2026-10-09, Michelle in chat): The card trick's fan-out takes about 1 second.
 - [ ] APPROVED (2026-10-09, Michelle in chat): Interviews → Expert: the light-blue column comes up tucked under the top orange circle, which pulls it up (they move together, the column's top hidden under the circle).
 - [ ] APPROVED (2026-10-09, Michelle in chat): Expert slide: no gap above the light-blue column; it comes up as one piece with its top fully behind the orange circle (column starts at the circle's centre line).
+- (2026-10-09) Fix from Michelle's screenshot: shapes waiting to enter must start fully outside the window on screens taller than 16:9 (the expert slide's orange circle peeked in below the Interviews slide).

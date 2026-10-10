@@ -152,12 +152,15 @@ const STACK = {
   cardFlat: { x: 428.05, y: 202.76 },
   cardTiltLeft: { x: 446, y: 204, rotate: -9.0 }
 };
+// Off-screen starting/ending spots are far enough out to stay hidden on screens from 4:3 to
+// 21:9 (the deck letterboxes; on those screens the strips beside the slide are visible).
+
 // Labels either side of the stack: language on the left, the whole word on the right
 const label = (text, x, y, extra) => Object.assign({ x, y, size: 60, color: C.white, text }, extra);
 const fromLeft = { dx: -450, opacity: 0 };
 const fromRight = { dx: 450, opacity: 0 };
 // Moving between examples: the top card flies off to the left, revealing the next one
-const FLY_OFF = { dx: -1500, dy: -90, rotate: -24, at: [0, 0.6] };
+const FLY_OFF = { dx: -2100, dy: -90, rotate: -24, at: [0, 0.6] }; // far enough that the tilted card is off even very wide screens
 // Card-trick entrance. Every card starts the same way (2.2x bigger, turned -150°, out on
 // one short swirl) so the stack arrives as a single deck; finalAngle is where it ends up,
 // fan is how far it swings past that while the deck fans open.
@@ -166,9 +169,10 @@ function cardTrick(finalAngle, fan, at) {
 }
 const REVEAL = { reveal: 0, at: [0.15, 0.7] };
 
-// Interviews-1: the orange circle pulls the column up from below the screen (starts low
-// enough that the column's top, under the circle, is off screen)
-const PULL_UP = { dy: 1400, at: [0.05, 0.8] };
+// Interviews-1: the orange circle pulls the column up from below the screen. It starts far
+// enough down to stay hidden even on screens much taller than 16:9 (a 4:3 window shows
+// about 180px below the slide), so nothing peeks in before the move.
+const PULL_UP = { dy: 2100, at: [0.05, 0.8] };
 
 // Interviews: a quote (white, 76.67px, the *word* gets the orange pill) and who said it.
 // Copy is still a placeholder in Figma, so it's [TBD] here.
@@ -198,7 +202,7 @@ const storyActors = {
   frame: { width: 50, color: C.orange, enter: { draw: 0, at: [0, 0.75] } },
   swirlOrange: { x: 726.7, y: 113.3, enter: { draw: 0, at: [0.1, 1] }, exit: { draw: 0, at: [0, 0.5] } },
   shadow: { x: 1183, y: 935, w: 629, h: 76, color: C.shadowOnYellow, at: [0.1, 0.9] },
-  saissha: { x: 107, y: 117, w: 742, enter: { dx: -1000, at: [0.2, 0.8] } },
+  saissha: { x: 107, y: 117, w: 742, enter: { dx: -1300, at: [0.2, 0.8] } },
   twins: { x: 1235, y: 540, w: 590.73, at: [0.1, 0.9], walk: 18 }
 };
 
@@ -281,8 +285,8 @@ window.SLIDES = [
       frame: { width: 50, color: C.orange, exit: { draw: 0, at: [0, 0.6] } },
       swirlOrangeLearner: { x: -76.6, y: 42.1, enter: { draw: 0, at: [0.4, 1] }, exit: { draw: 0, at: [0, 0.7] } },
       shadow: { x: 794, y: 884, w: 1051, h: 127, color: C.shadowOnYellow, exit: { opacity: 0, at: [0, 0.4] } },
-      saissha: { x: 107, y: 529.87, w: 424, exit: { dx: -700, at: [0, 0.6] } },
-      twins: { x: 854, y: 254.93, w: 971.73, walk: 14, exit: { dx: 1300, at: [0, 0.6] } },
+      saissha: { x: 107, y: 529.87, w: 424, exit: { dx: -1000, at: [0, 0.6] } },
+      twins: { x: 854, y: 254.93, w: 971.73, walk: 14, exit: { dx: 1700, at: [0, 0.6] } },
       bubble: {
         x: 181, y: 198, w: 1061.83, h: 195, size: 80, tail: 1, padX: 61, // Figma's text starts with a space
         text: "That's the learner we're teaching for.",
@@ -377,8 +381,9 @@ window.SLIDES = [
     pace: 0.3,
     actors: {
       // The circles drift in from opposite corners at different speeds
-      circleA: { x: 84, y: 59, w: 509, h: 509, color: C.blue, enter: { dx: -800, dy: -650, at: [0.45, 1] } },
-      circleB: { x: 1289, y: 511, w: 509, h: 509, color: C.blue, enter: { dx: 750, dy: 650, at: [0.55, 1] } },
+      // (they start well outside the window, so they don't peek in on taller screens)
+      circleA: { x: 84, y: 59, w: 509, h: 509, color: C.blue, enter: { dx: -1100, dy: -950, at: [0.45, 1] } },
+      circleB: { x: 1289, y: 511, w: 509, h: 509, color: C.blue, enter: { dx: 1050, dy: 950, at: [0.55, 1] } },
       // Quotes rise in one after the other; the pill then sweeps across the marked word
       quoteA: quote("\u201C [TBD: Duolingo user *quote*] \u201D", 522, 146, [0.5, 1]),
       saidA: said("Duolingo User - [TBD]", 1101, 405, 51.3, [0.6, 1]),
