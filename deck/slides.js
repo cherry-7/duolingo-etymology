@@ -53,8 +53,9 @@ const C = {
 
 // Everything that can appear in the world, back to front (z)
 window.WORLD_ACTORS = {
-  swirlYellow: { type: "path", shape: "swirlOpening", stroke: C.yellow, width: 50, z: 1 },
-  swirlOrange: { type: "path", shape: "swirlStory", stroke: C.orange, width: 50, z: 1 },
+  // The swirls drift slowly while resting (idle loop), out of step with each other
+  swirlYellow: { type: "path", shape: "swirlOpening", stroke: C.yellow, width: 50, z: 1, idle: "drift" },
+  swirlOrange: { type: "path", shape: "swirlStory", stroke: C.orange, width: 50, z: 1, idle: "drift", idleDelay: "-5s" },
   title: { type: "text", font: "title", z: 2 },
   shadow: { type: "ellipse", z: 3 },
   saissha: { type: "img", src: DECK_ART + "saissha.png", w: 742, h: 963, z: 4, idle: "breathe" },

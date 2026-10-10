@@ -62,3 +62,4 @@ Work queue for the deck and demo.
   - Card stack from design/slides/svgs/Card Stack.
   - Copy still missing in Figma stays [TBD]: "TITLE TITLE", interview quotes and names.
 - [ ] APPROVED (2026-10-09, Michelle in chat, step 1 review): Swirls draw and rewind more slowly so they feel natural. Opening → User Story: the orange frame traces itself from the top middle down the left and right sides, meeting at the bottom middle. Saissha's photo floats gently as if breathing. Every new speech bubble pops in like the first one (the old one pops out first) instead of fading, and bubble text must never sit outside its bubble.
+- [ ] APPROVED (2026-10-09, Michelle in chat): The background swirls on the opening and story slides keep moving while resting: a slow drift, sway and swell (idle loop), on top of the draw/rewind transitions.

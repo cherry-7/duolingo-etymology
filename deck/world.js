@@ -39,7 +39,7 @@ window.World = (function () {
   }
 
   function el(tag, cls, parent) {
-    const node = tag === "svg" || tag === "path" ? document.createElementNS(SVG, tag) : document.createElement(tag);
+    const node = tag === "svg" || tag === "path" || tag === "g" ? document.createElementNS(SVG, tag) : document.createElement(tag);
     if (cls) node.setAttribute("class", cls);
     if (parent) parent.append(node);
     return node;
@@ -122,7 +122,10 @@ window.World = (function () {
       svg.setAttribute("width", W);
       svg.setAttribute("height", H);
       svg.setAttribute("overflow", "visible");
-      const path = el("path", null, svg);
+      // Optional idle loop (def.idle, e.g. "drift") on a group, so it never fights the travel transform
+      const group = el("g", def.idle ? "idle-" + def.idle : null, svg);
+      if (def.idleDelay) group.style.animationDelay = def.idleDelay;
+      const path = el("path", null, group);
       path.setAttribute("d", window.SHAPES[def.shape]);
       path.setAttribute("fill", "none");
       path.setAttribute("stroke", def.stroke);
