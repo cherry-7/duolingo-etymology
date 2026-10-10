@@ -65,14 +65,16 @@ window.World = (function () {
 
   const kinds = {
     img(def, layer) {
-      const img = el("img", "actor actor-img", layer);
+      // Outer layer travels; the image inside can have an idle loop (def.idle, e.g. "breathe")
+      const node = el("div", "actor actor-img", layer);
+      const img = el("img", def.idle ? "idle-" + def.idle : null, node);
       img.src = def.src;
       img.alt = "";
       img.style.width = def.w + "px";
       img.style.height = def.h + "px";
       return (s) => {
-        img.style.opacity = s.opacity;
-        img.style.transform = `translate(${s.x}px, ${s.y}px) scale(${s.w / def.w}) rotate(${s.rotate || 0}deg)`;
+        node.style.opacity = s.opacity;
+        node.style.transform = `translate(${s.x}px, ${s.y}px) scale(${s.w / def.w}) rotate(${s.rotate || 0}deg)`;
       };
     },
 
@@ -85,12 +87,32 @@ window.World = (function () {
       };
     },
 
-    // Border around the whole stage (the orange frame on the User Story slides)
+    // Border around the whole stage (the orange frame on the User Story slides). Drawn as
+    // two lines from the top middle, down the left and right sides, meeting at the bottom
+    // middle; draw 0 = none, 1 = closed frame. The stroke is centred on the stage edge
+    // (the outer half is clipped), so a width-W frame uses a 2W stroke.
     frame(def, layer) {
-      const node = el("div", "actor actor-frame", layer);
+      const svg = el("svg", "actor actor-frame", layer);
+      svg.setAttribute("width", W);
+      svg.setAttribute("height", H);
+      const halves = [
+        `M${W / 2} 0H0V${H}H${W / 2}`, // left
+        `M${W / 2} 0H${W}V${H}H${W / 2}` // right
+      ].map((d) => {
+        const path = el("path", null, svg);
+        path.setAttribute("d", d);
+        path.setAttribute("fill", "none");
+        const length = path.getTotalLength();
+        path.style.strokeDasharray = `${length} ${length}`;
+        return { path, length };
+      });
       return (s) => {
-        node.style.opacity = s.opacity;
-        node.style.boxShadow = `inset 0 0 0 ${s.width}px ${s.color}`;
+        svg.style.opacity = s.opacity;
+        halves.forEach(({ path, length }) => {
+          path.setAttribute("stroke", s.color);
+          path.setAttribute("stroke-width", 2 * s.width);
+          path.style.strokeDashoffset = length * (1 - clamp(s.draw, 0, 1));
+        });
       };
     },
 
@@ -160,19 +182,37 @@ window.World = (function () {
         text.style.width = s.w + "px";
         text.style.height = s.h + "px";
         text.style.fontSize = s.size + "px";
-        text.style.padding = `0 ${s.padX}px`;
+        a.style.left = b.style.left = s.padX + "px";
         crossfade(a, b, s);
       };
     }
   };
 
-  // Two text layers so a text change doesn't jump: the old text fades out in the first
-  // half of the move, the new one fades in during the second half (never both at once)
+  // Two text layers so a text change doesn't jump. Never both at once: the old text fades
+  // out early (first 30% of the move), the new one fades in late (last 30%). Bubbles resize
+  // in between (BUBBLE_AT), so text is never shown in a bubble of the wrong size.
   function crossfade(a, b, s) {
     if (a.textContent !== s.textA) a.textContent = s.textA;
     if (b.textContent !== (s.textB || "")) b.textContent = s.textB || "";
-    a.style.opacity = s.textB ? clamp(1 - 2 * s.textMix, 0, 1) : 1;
-    b.style.opacity = s.textB ? clamp(2 * s.textMix - 1, 0, 1) : 0;
+    const t = s.raw ?? s.textMix;
+    a.style.opacity = s.textB ? clamp(1 - t / 0.3, 0, 1) : 1;
+    b.style.opacity = s.textB ? clamp((t - 0.7) / 0.3, 0, 1) : 0;
+  }
+  const BUBBLE_AT = [0.25, 0.8];
+
+  // A new line of speech: the old bubble pops back into its tail, then the new one pops
+  // out of its tail with the same overshoot as the first bubble. Never both at once.
+  function swapBubble(pa, pb, t) {
+    const out = clamp(t / 0.4, 0, 1);
+    const pop = clamp((t - 0.45) / 0.4, 0, 1);
+    if (pop <= 0) {
+      const s = mix(pa, pa, 0);
+      s.scale = 1 - soft(out);
+      return s;
+    }
+    const s = mix(pb, pb, 0);
+    s.scale = Math.max(0, backOut(pop));
+    return s;
   }
 
   // ---- State interpolation -------------------------------------------------
@@ -289,9 +329,12 @@ window.World = (function () {
         const pa = A.actors[key] && withDefaults(A.actors[key]);
         const pb = B && B.actors[key] && withDefaults(B.actors[key]);
         let s;
-        if (pa && pb) {
-          const lt = local(t, pb.at);
+        if (pa && pb && actors[key].type === "bubble" && pa.text !== pb.text) {
+          s = swapBubble(pa, pb, t);
+        } else if (pa && pb) {
+          const lt = local(t, pb.at || (actors[key].type === "bubble" ? BUBBLE_AT : null));
           s = walk(mix(pa, pb, lt), pb, lt);
+          s.raw = t; // text fades follow the whole move
         } else if (pa && B) {
           // Exits: from its spot toward its exit offset
           const lt = local(t, pa.exit && pa.exit.at, [0, 0.5]);

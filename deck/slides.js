@@ -55,7 +55,7 @@ window.WORLD_ACTORS = {
   swirlOrange: { type: "path", shape: "swirlStory", stroke: C.orange, width: 50, z: 1 },
   title: { type: "text", font: "title", z: 2 },
   shadow: { type: "ellipse", z: 3 },
-  saissha: { type: "img", src: DECK_ART + "saissha.png", w: 742, h: 963, z: 4 },
+  saissha: { type: "img", src: DECK_ART + "saissha.png", w: 742, h: 963, z: 4, idle: "breathe" },
   twins: { type: "img", src: DECK_ART + "twins.png", w: 1262, h: 944, z: 5 },
   bubble: { type: "bubble", z: 6 },
   names: { type: "text", font: "condensed", z: 7 },
@@ -64,8 +64,8 @@ window.WORLD_ACTORS = {
 
 // User Story layout, shared by its three bubble lines (design/slides/User Story.png)
 const storyActors = {
-  frame: { width: 50, color: C.orange, enter: { width: 0, at: [0, 0.6] } },
-  swirlOrange: { x: 726.7, y: 113.3, enter: { draw: 0, at: [0.35, 1] } },
+  frame: { width: 50, color: C.orange, enter: { draw: 0, at: [0, 0.75] } },
+  swirlOrange: { x: 726.7, y: 113.3, enter: { draw: 0, at: [0.1, 1] } },
   shadow: { x: 1183, y: 935, w: 629, h: 76, color: C.shadowOnYellow, at: [0.1, 0.9] },
   saissha: { x: 107, y: 117, w: 742, enter: { dx: -1000, at: [0.2, 0.8] } },
   twins: { x: 1235, y: 540, w: 590.73, at: [0.1, 0.9], walk: 18 }
@@ -78,7 +78,7 @@ window.SLIDES = [
     ref: "Opening",
     bg: C.orange,
     actors: {
-      swirlYellow: { x: 0, y: 0, exit: { draw: 0, at: [0, 0.6] } },
+      swirlYellow: { x: 0, y: 0, exit: { draw: 0, at: [0, 0.9] } },
       title: {
         x: 959.5, y: 0, align: "center", size: 260, color: C.white,
         text: "[TBD: title]", // Figma still says "TITLE TITLE"

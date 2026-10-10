@@ -280,7 +280,7 @@ body {
 
 .actor-img { display: block; user-select: none; -webkit-user-drag: none; }
 .actor-ellipse { width: 100px; height: 100px; border-radius: 50%; }
-.actor-frame { width: 1920px; height: 1080px; pointer-events: none; }
+.actor-frame { overflow: hidden; pointer-events: none; }
 .actor-path { overflow: visible; pointer-events: none; }
 
 /* Text: Fredoka; "condensed" is Fredoka Condensed (75% width) from the Figma spec */
@@ -296,15 +296,30 @@ body {
   top: 0;
   left: 0;
   box-sizing: border-box;
-  display: grid;
-  align-items: center;
   color: #4B4B4B;
   line-height: 1.5;
   font-weight: 400;
   white-space: pre;
 }
-.bubble-text > div { grid-area: 1 / 1; }
+/* Each text layer is centred on its own, so a taller outgoing text can't push the other */
+.bubble-text > div { position: absolute; top: 50%; transform: translateY(-50%); }
 .bubble-text.measure { visibility: hidden; display: block; width: auto; height: auto; padding: 0; }
+
+/* Idle loops (deck/world.js, def.idle) */
+.idle-breathe {
+  display: block;
+  transform-origin: 50% 100%;
+  animation: breathe 5.2s ease-in-out infinite;
+}
+@keyframes breathe {
+  0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  25% { transform: translate(4px, -9px) rotate(-0.6deg) scale(1.008); }
+  50% { transform: translate(0, -14px) rotate(0deg) scale(1.016); }
+  75% { transform: translate(-4px, -7px) rotate(0.6deg) scale(1.008); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .idle-breathe { animation: none; }
+}
 
 /* deck/?ref: the Figma export on top, half see-through, for checking alignment */
 .world-ref { position: absolute; inset: 0; width: 1920px; height: 1080px; opacity: 0.5; pointer-events: none; z-index: 100; }
