@@ -130,6 +130,7 @@ window.WORLD_ACTORS = {
   circleA: { type: "ellipse", z: 40 },
   circleB: { type: "ellipse", z: 40 },
   column: { type: "rect", z: 41 },
+  columnAbove: { type: "rect", z: 41 }, // fills above the slide on taller screens, once landed
   columnTop: { type: "ellipse", z: 42 },
   columnMid: { type: "ellipse", z: 42 },
   columnBottom: { type: "ellipse", z: 42 },
@@ -393,11 +394,16 @@ window.SLIDES = [
     pace: 0.3,
     actors: {
       // The top orange circle comes up from below the screen and pulls the light-blue column
-      // up behind it: the column's top edge stays tucked under the circle the whole way, and
+      // up behind it: the column's top edge stays at the circle's centre the whole way, and
       // the circles sitting on the column ride along. Same move for all four, so they stay
       // attached. The two circles from the previous slide roll down to the bottom row (one
       // turns white).
-      column: { x: 84, y: 9, w: 509, h: 1671, color: C.blue, enter: PULL_UP },
+      // Starts at the orange circle's centre line (Figma: y 9), so its top is always behind
+      // the circle, with no gap above it on screens taller than 16:9
+      column: { x: 84, y: -54, w: 509, h: 1734, color: C.blue, enter: PULL_UP },
+      // Above the slide (only seen on screens taller than 16:9): continues the column up to the
+      // window edge, appearing only once everything has landed, so it never shows above the circle
+      columnAbove: { x: 84, y: -800, w: 509, h: 760, color: C.blue, enter: { opacity: 0, fade: [0.92, 1] } },
       columnTop: { x: 105, y: -288, w: 468, h: 468, color: C.orange, enter: PULL_UP },
       columnMid: { x: 105, y: 238, w: 468, h: 469, color: C.white, enter: PULL_UP },
       columnBottom: { x: 105, y: 765, w: 468, h: 468, color: C.orange, enter: PULL_UP },

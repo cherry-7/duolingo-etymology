@@ -68,3 +68,4 @@ Work queue for the deck and demo.
 - [ ] APPROVED (2026-10-09, Michelle in chat): The card-trick entrance fans out like a hand of cards (the stack swirls in as one deck, then spreads and settles), and it plays faster.
 - [ ] APPROVED (2026-10-09, Michelle in chat): The card trick's fan-out takes about 1 second.
 - [ ] APPROVED (2026-10-09, Michelle in chat): Interviews → Expert: the light-blue column comes up tucked under the top orange circle, which pulls it up (they move together, the column's top hidden under the circle).
+- [ ] APPROVED (2026-10-09, Michelle in chat): Expert slide: no gap above the light-blue column; it comes up as one piece with its top fully behind the orange circle (column starts at the circle's centre line).
