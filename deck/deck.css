@@ -288,6 +288,21 @@ body {
 .actor-text .text-b { position: absolute; inset: 0; }
 .condensed { font-stretch: 75%; font-variation-settings: "wdth" 75; letter-spacing: -0.011em; }
 .title { font-weight: 400; letter-spacing: -0.01em; }
+/* Big headings in Figma are Fredoka SemiExpanded (112.5% width), weight 500 */
+.heading { font-stretch: 112.5%; font-variation-settings: "wdth" 112.5; font-weight: 500; letter-spacing: -0.011em; }
+.letter { display: inline-block; white-space: pre; transform-origin: 50% 100%; }
+.actor-rect { width: 0; height: 0; }
+.actor-pill {
+  display: grid;
+  align-items: center;
+  box-sizing: border-box;
+  background: #FFFFFF;
+  color: #4B4B4B;
+  line-height: 1.5;
+  font-weight: 400;
+  white-space: pre;
+  transform-origin: 50% 100%;
+}
 
 .actor-bubble { width: 0; height: 0; }
 .bubble-shape { position: absolute; top: 0; left: 0; overflow: visible; }

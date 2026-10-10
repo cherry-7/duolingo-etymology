@@ -46,7 +46,9 @@ const C = {
   white: "#FFFFFF",
   ink: "#4B4B4B", // bubble text
   shadowOnOrange: "#CA7700",
-  shadowOnYellow: "#DA9F00"
+  shadowOnYellow: "#DA9F00",
+  lilac: "#CE82FF",
+  purple: "#8A38F5"
 };
 
 // Everything that can appear in the world, back to front (z)
@@ -59,8 +61,24 @@ window.WORLD_ACTORS = {
   twins: { type: "img", src: DECK_ART + "twins.png", w: 1262, h: 944, z: 5 },
   bubble: { type: "bubble", z: 6 },
   names: { type: "text", font: "condensed", z: 7 },
-  frame: { type: "frame", z: 8 }
+  frame: { type: "frame", z: 8 },
+  // Morphology: a lilac circle opens over the story, then the word splits in two
+  wipe: { type: "ellipse", z: 9 },
+  panel: { type: "rect", z: 10 },
+  divider: { type: "rect", z: 11 },
+  morA: { type: "text", font: "heading", letters: true, z: 12 }, // "Mor"
+  morB: { type: "text", font: "heading", letters: true, z: 12 }, // "phology"
+  hyphenA: { type: "text", font: "heading", z: 12 },
+  hyphenB: { type: "text", font: "heading", z: 12 },
+  pillA: { type: "pill", z: 13 },
+  pillB: { type: "pill", z: 13 }
 };
+
+// The lilac circle, fully open: centred on the stage, big enough to cover the corners
+const WIPE_OPEN = { x: 960 - 1150, y: 540 - 1150, w: 2300, h: 2300, color: C.lilac };
+// Morphology 2 and 3 share the split background (design/slides/Morphology 2.png)
+const PANEL = { x: 798, y: 0, w: 1122, h: 1080, color: C.purple };
+const DIVIDER = { x: 739, y: 0, w: 67, h: 1080, color: C.yellow };
 
 // User Story layout, shared by its three bubble lines (design/slides/User Story.png)
 const storyActors = {
@@ -137,15 +155,64 @@ window.SLIDES = [
     bg: C.yellow,
     pace: 0.3,
     actors: {
-      frame: { width: 50, color: C.orange },
-      swirlOrange: { x: -76.6, y: 42.1 },
-      shadow: { x: 794, y: 884, w: 1051, h: 127, color: C.shadowOnYellow },
-      saissha: { x: 107, y: 529.87, w: 424 },
-      twins: { x: 854, y: 254.93, w: 971.73, walk: 14 },
+      frame: { width: 50, color: C.orange, exit: { draw: 0, at: [0, 0.6] } },
+      swirlOrange: { x: -76.6, y: 42.1, exit: { draw: 0, at: [0, 0.7] } },
+      shadow: { x: 794, y: 884, w: 1051, h: 127, color: C.shadowOnYellow, exit: { opacity: 0, at: [0, 0.4] } },
+      saissha: { x: 107, y: 529.87, w: 424, exit: { dx: -700, at: [0, 0.6] } },
+      twins: { x: 854, y: 254.93, w: 971.73, walk: 14, exit: { dx: 1300, at: [0, 0.6] } },
       bubble: {
         x: 181, y: 198, w: 1061.83, h: 195, size: 80, tail: 1, padX: 61, // Figma's text starts with a space
-        text: "That's the learner we're teaching for."
+        text: "That's the learner we're teaching for.",
+        exit: { scale: 0, at: [0, 0.3] }
       }
+    }
+  },
+  {
+    id: "morphology",
+    layout: "scene",
+    ref: "Morphology",
+    bg: C.lilac,
+    bgAt: [0.7, 1], // changes behind the circle
+    pace: 0.3,
+    actors: {
+      // Opens from the middle of the speech bubble
+      wipe: Object.assign({ enter: { from: { x: 712, y: 295, w: 0, h: 0 }, at: [0.05, 0.75] } }, WIPE_OPEN),
+      morA: { x: 209, y: 360, size: 240, color: C.white, text: "Mor", enter: { letters: true, at: [0.5, 1] } },
+      morB: { x: 708.6, y: 360, size: 240, color: C.white, text: "phology", letterOffset: 3, enter: { letters: true, at: [0.5, 1] } }
+    }
+  },
+  {
+    id: "morphology-split",
+    layout: "scene",
+    ref: "Morphology 2",
+    bg: C.lilac,
+    pace: 0.35,
+    actors: {
+      wipe: WIPE_OPEN,
+      // The purple half slides in from the right; the yellow divider grows top to bottom
+      panel: Object.assign({ enter: { dx: 1122, at: [0, 0.7] } }, PANEL),
+      divider: Object.assign({ enter: { h: 0, at: [0.35, 0.9] } }, DIVIDER),
+      morA: { x: 167, y: 360, size: 240, color: C.white, text: "Mor" },
+      morB: { x: 858, y: 360, size: 240, color: C.white, text: "phology", letterOffset: 3 }
+    }
+  },
+  {
+    id: "morphology-parts",
+    layout: "scene",
+    ref: "Morphology 3",
+    bg: C.lilac,
+    pace: 0.4,
+    actors: {
+      wipe: WIPE_OPEN,
+      panel: PANEL,
+      divider: DIVIDER,
+      morA: { x: 136, y: 323, size: 200, color: C.white, text: "Mor" },
+      hyphenA: { x: 552.3, y: 323, size: 200, color: C.white, text: "-", enter: { dx: -70, opacity: 0, at: [0.3, 0.9] } },
+      hyphenB: { x: 893, y: 323, size: 200, color: C.white, text: "-", enter: { dx: 70, opacity: 0, at: [0.3, 0.9] } },
+      morB: { x: 990, y: 323, size: 200, color: C.white, text: "phology", letterOffset: 3 },
+      // The pills bounce up from below, one after the other
+      pillA: { x: 193, y: 683, w: 402, h: 112, size: 64, padX: 58, text: "\u201CMorphemes\u201D", enter: { dy: 260, opacity: 0, ease: "back", at: [0.4, 0.9] } },
+      pillB: { x: 1154, y: 683, w: 410, h: 112, size: 64, padX: 58, text: "\u201Cthe study of\u201D", enter: { dy: 260, opacity: 0, ease: "back", at: [0.5, 1] } }
     }
   },
   {

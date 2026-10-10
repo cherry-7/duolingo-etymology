@@ -137,10 +137,12 @@ window.World = (function () {
     },
 
     // Text block. x is the left edge, centre or right edge depending on align.
+    // def.letters: each letter can pop in on its own (enter: { letters: true })
     text(def, layer) {
       const node = el("div", "actor actor-text " + (def.font || ""), layer);
       const a = el("div", "text-a", node);
       const b = el("div", "text-b", node);
+      let spans = [];
       return (s) => {
         node.style.opacity = s.opacity;
         node.style.color = s.color;
@@ -148,7 +150,42 @@ window.World = (function () {
         node.style.textAlign = s.align || "left";
         const shift = s.align === "center" ? "-50%" : s.align === "right" ? "-100%" : "0";
         node.style.transform = `translate(${s.x}px, ${s.y}px) translateX(${shift})`;
-        crossfade(a, b, s);
+        if (!def.letters) return crossfade(a, b, s);
+        if (a.dataset.text !== s.textA) {
+          a.dataset.text = s.textA;
+          a.replaceChildren(...[...s.textA].map((ch) => el("span", "letter")));
+          spans = [...a.children];
+          spans.forEach((span, i) => { span.textContent = s.textA[i]; });
+        }
+        popLetters(spans, s.letters ?? 1, s.letterOffset || 0);
+      };
+    },
+
+    // Solid rectangle (panels, dividers); can grow from any edge by animating w/h
+    rect(def, layer) {
+      const node = el("div", "actor actor-rect", layer);
+      return (s) => {
+        node.style.opacity = s.opacity;
+        node.style.background = s.color;
+        node.style.width = Math.max(0, s.w) + "px";
+        node.style.height = Math.max(0, s.h) + "px";
+        node.style.transform = `translate(${s.x}px, ${s.y}px)`;
+      };
+    },
+
+    // White pill with a short label (the Morphology 3 pills)
+    pill(def, layer) {
+      const node = el("div", "actor actor-pill condensed", layer);
+      const label = el("div", null, node);
+      return (s) => {
+        node.style.opacity = s.opacity;
+        node.style.width = s.w + "px";
+        node.style.height = s.h + "px";
+        node.style.borderRadius = s.h / 2 + "px";
+        node.style.fontSize = s.size + "px";
+        node.style.transform = `translate(${s.x}px, ${s.y}px) scale(${s.scale ?? 1})`;
+        node.style.paddingLeft = (s.padX ?? 0) + "px";
+        if (label.textContent !== s.textA) label.textContent = s.textA;
       };
     },
 
@@ -188,6 +225,20 @@ window.World = (function () {
     }
   };
 
+  // Letters pop up one after another: t 0 = none shown, 1 = all in place.
+  // offset delays this word's letters (counted in letters), so two words can pop as one.
+  function popLetters(spans, t, offset) {
+    const n = spans.length + offset;
+    const gap = 0.06; // each letter starts this much (of t) after the previous one
+    const span = 1 - gap * (n - 1);
+    spans.forEach((sp, i) => {
+      const li = clamp((t - gap * (i + offset)) / Math.max(span, 0.2), 0, 1);
+      const k = backOut(li);
+      sp.style.opacity = clamp(li * 2, 0, 1);
+      sp.style.transform = li < 1 ? `translateY(${(1 - k) * 120}px) scale(${0.6 + 0.4 * k})` : "";
+    });
+  }
+
   // Two text layers so a text change doesn't jump. Never both at once: the old text fades
   // out early (first 30% of the move), the new one fades in late (last 30%). Bubbles resize
   // in between (BUBBLE_AT), so text is never shown in a bubble of the wrong size.
@@ -217,28 +268,39 @@ window.World = (function () {
 
   // ---- State interpolation -------------------------------------------------
 
-  const NUMERIC = ["x", "y", "w", "h", "opacity", "rotate", "draw", "width", "size", "scale", "tail", "padX"];
+  const NUMERIC = ["x", "y", "w", "h", "opacity", "rotate", "draw", "width", "size", "scale", "tail", "padX", "letters"];
 
   function withDefaults(p) {
-    return Object.assign({ opacity: 1, rotate: 0, draw: 1, scale: 1, tail: 0 }, p);
+    return Object.assign({ opacity: 1, rotate: 0, draw: 1, scale: 1, tail: 0, letters: 1 }, p);
   }
 
-  // Placement p with an enter/exit offset applied (dx, dy, opacity, draw, width, scale)
+  // Placement p with an enter/exit offset applied:
+  //   dx, dy        shift from its spot
+  //   opacity, draw, width, scale, rotate, w, h   values to start (or end) at
+  //   from          absolute values to start from, e.g. { x, y, w, h } for a circle growing from a point
+  //   letters       pop the text in letter by letter instead
+  // With none of those, it simply fades.
+  const OFFSET_KEYS = ["opacity", "draw", "width", "scale", "rotate", "w", "h"];
   function offset(p, o) {
     const q = Object.assign({}, p);
     if (!o) return Object.assign(q, { opacity: 0 });
+    if (o.letters) return Object.assign(q, { letters: 0 });
     if (o.dx) q.x = p.x + o.dx;
     if (o.dy) q.y = p.y + o.dy;
-    ["opacity", "draw", "width", "scale", "rotate"].forEach((k) => { if (o[k] != null) q[k] = o[k]; });
-    if (o.opacity == null && o.dx == null && o.dy == null && o.scale == null && o.draw == null && o.width == null) q.opacity = 0;
+    OFFSET_KEYS.forEach((k) => { if (o[k] != null) q[k] = o[k]; });
+    if (o.from) Object.assign(q, o.from);
+    const moves = o.dx != null || o.dy != null || o.from || OFFSET_KEYS.some((k) => o[k] != null);
+    if (!moves) q.opacity = 0;
     return q;
   }
 
-  function mix(p, q, t, pop) {
+  function mix(p, q, t, pop, back) {
     const s = {};
+    const tt = back ? backOut(t) : t; // "back": a little overshoot, like a bounce
     NUMERIC.forEach((k) => {
-      if (p[k] != null || q[k] != null) s[k] = lerp(p[k] ?? q[k], q[k] ?? p[k], t);
+      if (p[k] != null || q[k] != null) s[k] = lerp(p[k] ?? q[k], q[k] ?? p[k], k === "opacity" ? t : tt);
     });
+    s.letterOffset = q.letterOffset ?? p.letterOffset;
     if (pop) s.scale = Math.max(0, lerp(p.scale ?? 1, q.scale ?? 1, backOut(t)));
     s.color = mixColor(p.color, q.color, t);
     s.align = q.align || p.align;
@@ -318,7 +380,7 @@ window.World = (function () {
       world.style.visibility = A ? "visible" : "hidden";
       if (!A) return;
 
-      world.style.background = mixColor(A.bg, B ? B.bg : A.bg, B ? soft(t) : 0);
+      world.style.background = mixColor(A.bg, B ? B.bg : A.bg, B ? local(t, B.bgAt) : 0);
       if (ref) {
         const near = slides[Math.round(pos)];
         const src = near && near.ref ? "../design/slides/" + near.ref + ".png" : "";
@@ -342,7 +404,7 @@ window.World = (function () {
         } else if (pb) {
           // Enters: from its enter offset into its spot
           const lt = local(t, pb.enter && pb.enter.at, [0.5, 1]);
-          s = mix(offset(pb, pb.enter), pb, lt, pb.enter && pb.enter.pop);
+          s = mix(offset(pb, pb.enter), pb, lt, pb.enter && pb.enter.pop, pb.enter && pb.enter.ease === "back");
         } else if (pa) {
           s = mix(pa, pa, 0);
         } else {
