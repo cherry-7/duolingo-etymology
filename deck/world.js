@@ -150,6 +150,7 @@ window.World = (function () {
 
     // Text block. x is the left edge, centre or right edge depending on align.
     // def.letters: each letter can pop in on its own (enter: { letters: true })
+    // def.kern: { letterIndex: em } nudges single letters to match the Figma spacing
     text(def, layer) {
       const node = el("div", "actor actor-text " + (def.font || ""), layer);
       const a = el("div", "text-a", node);
@@ -167,7 +168,10 @@ window.World = (function () {
           a.dataset.text = s.textA;
           a.replaceChildren(...[...s.textA].map((ch) => el("span", "letter")));
           spans = [...a.children];
-          spans.forEach((span, i) => { span.textContent = s.textA[i]; });
+          spans.forEach((span, i) => {
+            span.textContent = s.textA[i];
+            if (def.kern && def.kern[i]) span.style.marginLeft = def.kern[i] + "em";
+          });
         }
         popLetters(spans, s.letters ?? 1, s.letterOffset || 0);
       };

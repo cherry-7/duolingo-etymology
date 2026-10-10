@@ -153,10 +153,12 @@ window.WORLD_ACTORS = {
 
   // Characters (design/slides/Character Default.png, Character Color.png, Character Color
   // Research.png). The twins come back here (they're the same actor as in the story).
+  // The bottom orange circle of the expert slide blooms out into the orange background
+  bloom: { type: "ellipse", z: 2 },
   squiggle: { type: "path", shape: "squiggle", stroke: "#FFC800", width: 200, cap: "round", z: 2.6 },
   wave: { type: "ellipse", z: 2.7 },
   titleColor: { type: "text", font: "heading", letters: true, z: 4.5 },
-  titlePalette: { type: "text", font: "heading", letters: true, z: 4.5 },
+  titlePalette: { type: "text", font: "heading", letters: true, z: 4.5, kern: { 5: -0.179, 6: -0.066 } }, // Figma sets "tt" tighter than the web font
   swatchSkin: swatch("#EAB991", "#EAB991", "#363135", 242),
   swatchHair: swatch("#363135", "#363135", "#FFFFFF", 454),
   swatchShirt: swatch("#F3EFE9", "#F3EFE9", "#363135", 454),
@@ -453,8 +455,9 @@ window.SLIDES = [
       columnBottom: { x: 105, y: 765, w: 468, h: 468, color: C.orange, enter: PULL_UP, exit: PUSH_DOWN },
       circleA: { x: 980, y: 885, w: 468, h: 468, color: C.blue, at: [0.15, 0.85], exit: { dy: 1200, at: [0, 0.55] } },
       circleB: { x: 1514, y: 885, w: 468, h: 468, color: C.white, at: [0.2, 0.9], exit: { dy: 1200, at: [0.05, 0.6] } },
-      quoteC: quote("\u201C [TBD: expert *quote*] \u201D", 691, 346, [0.5, 1]),
-      saidC: said("[TBD: name], Linguistic Expert", 1107, 635, 48, [0.6, 1])
+      // these leave quicker than usual, before the orange bloom reaches them
+      quoteC: Object.assign(quote("\u201C [TBD: expert *quote*] \u201D", 691, 346, [0.5, 1]), { exit: { dy: -70, opacity: 0, at: [0, 0.2] } }),
+      saidC: Object.assign(said("[TBD: name], Linguistic Expert", 1107, 635, 48, [0.6, 1]), { exit: { dy: -50, opacity: 0, at: [0, 0.2] } })
     }
   },
   {
@@ -462,9 +465,13 @@ window.SLIDES = [
     layout: "scene",
     ref: "Character Default",
     bg: C.orange,
-    bgAt: [0.15, 0.6],
+    bgAt: [0.58, 0.6], // swaps while the bloom covers the screen (a navy-to-orange fade goes brown)
     pace: 0.3,
     actors: {
+      // Grows out of the expert slide's bottom orange circle (centre 339, 999) to cover
+      // the whole window, behind the column as it leaves
+      bloom: { x: 339 - 2600, y: 999 - 2600, w: 5200, h: 5200, color: C.orange,
+        enter: { from: { x: 105, y: 765, w: 468, h: 468 }, at: [0.05, 0.6] }, exit: { opacity: 0, at: [0, 0.05] } },
       // The yellow squiggle draws itself, then the twins drop in and bounce onto their shadow
       squiggle: { x: 281, y: 29, enter: { draw: 0, at: [0.2, 0.9] }, exit: { draw: 0, at: [0, 0.6] } },
       shadow: { x: 534, y: 718.6, w: 778.4, h: 161.8, color: C.shadowOnSquiggle, enter: { w: 0, h: 0, dx: 389, dy: 81, at: [0.45, 0.85] } },
