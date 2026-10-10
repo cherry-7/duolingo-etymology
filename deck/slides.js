@@ -56,6 +56,8 @@ window.WORLD_ACTORS = {
   // The swirls drift slowly while resting (idle loop), out of step with each other
   swirlYellow: { type: "path", shape: "swirlOpening", stroke: C.yellow, width: 50, z: 1, idle: "drift" },
   swirlOrange: { type: "path", shape: "swirlStory", stroke: C.orange, width: 50, z: 1, idle: "drift", idleDelay: "-5s" },
+  // Same swirl in its "learner" spot: the story one unswirls, then this one swirls in
+  swirlOrangeLearner: { type: "path", shape: "swirlStory", stroke: C.orange, width: 50, z: 1, idle: "drift", idleDelay: "-8s" },
   title: { type: "text", font: "title", z: 2 },
   shadow: { type: "ellipse", z: 3 },
   saissha: { type: "img", src: DECK_ART + "saissha.png", w: 742, h: 963, z: 4, idle: "breathe" },
@@ -84,7 +86,7 @@ const DIVIDER = { x: 739, y: 0, w: 67, h: 1080, color: C.yellow };
 // User Story layout, shared by its three bubble lines (design/slides/User Story.png)
 const storyActors = {
   frame: { width: 50, color: C.orange, enter: { draw: 0, at: [0, 0.75] } },
-  swirlOrange: { x: 726.7, y: 113.3, enter: { draw: 0, at: [0.1, 1] } },
+  swirlOrange: { x: 726.7, y: 113.3, enter: { draw: 0, at: [0.1, 1] }, exit: { draw: 0, at: [0, 0.5] } },
   shadow: { x: 1183, y: 935, w: 629, h: 76, color: C.shadowOnYellow, at: [0.1, 0.9] },
   saissha: { x: 107, y: 117, w: 742, enter: { dx: -1000, at: [0.2, 0.8] } },
   twins: { x: 1235, y: 540, w: 590.73, at: [0.1, 0.9], walk: 18 }
@@ -157,7 +159,7 @@ window.SLIDES = [
     pace: 0.3,
     actors: {
       frame: { width: 50, color: C.orange, exit: { draw: 0, at: [0, 0.6] } },
-      swirlOrange: { x: -76.6, y: 42.1, exit: { draw: 0, at: [0, 0.7] } },
+      swirlOrangeLearner: { x: -76.6, y: 42.1, enter: { draw: 0, at: [0.4, 1] }, exit: { draw: 0, at: [0, 0.7] } },
       shadow: { x: 794, y: 884, w: 1051, h: 127, color: C.shadowOnYellow, exit: { opacity: 0, at: [0, 0.4] } },
       saissha: { x: 107, y: 529.87, w: 424, exit: { dx: -700, at: [0, 0.6] } },
       twins: { x: 854, y: 254.93, w: 971.73, walk: 14, exit: { dx: 1300, at: [0, 0.6] } },
