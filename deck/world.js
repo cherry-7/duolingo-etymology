@@ -176,6 +176,33 @@ window.World = (function () {
       };
     },
 
+    // Card from the stack (design/slides/svgs/Card Stack): rounded blue card with a darker
+    // outline. Rotates around its centre. def.texts makes it a flashcard whose words ride
+    // on it; reveal (0-1) brings those words up once the card has landed (second half).
+    card(def, layer) {
+      const node = el("div", "actor actor-card", layer);
+      node.style.width = def.w + "px";
+      node.style.height = def.h + "px";
+      const words = (def.texts || []).map((t) => {
+        const w = el("div", "card-text " + (t.font || ""), node);
+        w.textContent = t.text;
+        w.style.left = t.x - def.origin[0] + "px";
+        w.style.top = t.y - def.origin[1] + "px";
+        w.style.fontSize = t.size + "px";
+        w.style.color = t.color;
+        return w;
+      });
+      return (s) => {
+        node.style.opacity = s.opacity;
+        node.style.transform = `translate(${s.x}px, ${s.y}px) rotate(${s.rotate || 0}deg) scale(${s.scale ?? 1})`;
+        words.forEach((w, i) => {
+          const k = soft(clamp((s.reveal - 0.5 - i * 0.05) / 0.35, 0, 1));
+          w.style.opacity = k;
+          w.style.transform = k < 1 ? `translateY(${(1 - k) * 50}px)` : "";
+        });
+      };
+    },
+
     // White pill with a short label (the Morphology 3 pills)
     pill(def, layer) {
       const node = el("div", "actor actor-pill condensed", layer);
@@ -271,19 +298,19 @@ window.World = (function () {
 
   // ---- State interpolation -------------------------------------------------
 
-  const NUMERIC = ["x", "y", "w", "h", "opacity", "rotate", "draw", "width", "size", "scale", "tail", "padX", "letters"];
+  const NUMERIC = ["x", "y", "w", "h", "opacity", "rotate", "draw", "width", "size", "scale", "tail", "padX", "letters", "reveal"];
 
   function withDefaults(p) {
-    return Object.assign({ opacity: 1, rotate: 0, draw: 1, scale: 1, tail: 0, letters: 1 }, p);
+    return Object.assign({ opacity: 1, rotate: 0, draw: 1, scale: 1, tail: 0, letters: 1, reveal: 1 }, p);
   }
 
   // Placement p with an enter/exit offset applied:
   //   dx, dy        shift from its spot
-  //   opacity, draw, width, scale, rotate, w, h   values to start (or end) at
+  //   opacity, draw, width, scale, rotate, w, h, reveal   values to start (or end) at
   //   from          absolute values to start from, e.g. { x, y, w, h } for a circle growing from a point
   //   letters       pop the text in letter by letter instead
   // With none of those, it simply fades.
-  const OFFSET_KEYS = ["opacity", "draw", "width", "scale", "rotate", "w", "h"];
+  const OFFSET_KEYS = ["opacity", "draw", "width", "scale", "rotate", "w", "h", "reveal"];
   function offset(p, o) {
     const q = Object.assign({}, p);
     if (!o) return Object.assign(q, { opacity: 0 });

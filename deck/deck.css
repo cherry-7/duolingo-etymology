@@ -292,6 +292,23 @@ body {
 .heading { font-stretch: 112.5%; font-variation-settings: "wdth" 112.5; font-weight: 500; letter-spacing: -0.011em; }
 .letter { display: inline-block; white-space: pre; transform-origin: 50% 100%; }
 .actor-rect { width: 0; height: 0; }
+/* Example slides: Fredoka SemiBold, normal width (matched to the Figma exports) */
+.semibold { font-weight: 600; letter-spacing: -0.011em; }
+.actor-card {
+  box-sizing: border-box;
+  background: #287DD2;
+  border: 20px solid #2B70C9;
+  border-radius: 100px;
+  transform-origin: 50% 50%;
+}
+.card-text {
+  position: absolute;
+  margin: -20px 0 0 -20px; /* text positions are measured from the card's outer edge */
+  line-height: 1.5;
+  white-space: pre;
+  font-weight: 600;
+  letter-spacing: -0.011em;
+}
 .actor-pill {
   display: grid;
   align-items: center;

@@ -48,8 +48,22 @@ const C = {
   shadowOnOrange: "#CA7700",
   shadowOnYellow: "#DA9F00",
   lilac: "#CE82FF",
-  purple: "#8A38F5"
+  purple: "#8A38F5",
+  blue: "#1CB0F6",
+  meaning: "#A9CBED" // pale blue word meanings on the cards
 };
+
+// Flashcard helpers: text positions are Figma's (stage coordinates); the card's top-left is (446, 204)
+const CARD_TOP = { x: 446, y: 204 };
+function flashcard(z, texts) {
+  return { type: "card", w: 1028, h: 672, z, origin: [CARD_TOP.x, CARD_TOP.y], texts };
+}
+function word(text, x, y, size) {
+  return { text, x, y, size, color: "#FFFFFF" };
+}
+function meaning(text, x, y, size) {
+  return { text, x, y, size, color: "#A9CBED" };
+}
 
 // Everything that can appear in the world, back to front (z)
 window.WORLD_ACTORS = {
@@ -74,11 +88,60 @@ window.WORLD_ACTORS = {
   hyphenA: { type: "text", font: "heading", z: 12 },
   hyphenB: { type: "text", font: "heading", z: 12 },
   pillA: { type: "pill", z: 13 },
-  pillB: { type: "pill", z: 13 }
+  pillB: { type: "pill", z: 13 },
+
+  // Examples: a stack of cards (design/slides/svgs/Card Stack). Three cards stay at the
+  // back; each language has its own top card (a flashcard carrying its words). Top cards
+  // are stacked English over Hindi over Chinese over Spanish, so each one flies off to
+  // reveal the next.
+  cardTiltRight: { type: "card", w: 1028, h: 672, z: 20 },
+  cardFlat: { type: "card", w: 1028, h: 672, z: 21 },
+  cardTiltLeft: { type: "card", w: 1028, h: 672, z: 22 },
+  cardEnglish: flashcard(27, [
+    word("Un-", 532, 351, 180), word("happy", 900, 351, 180),
+    meaning("(Not)", 596, 621, 72), meaning("(Happy)", 1017, 621, 72)
+  ]),
+  cardHindi: flashcard(26, [
+    word("Vidya", 551, 365, 160), word("laya", 1059, 365, 160),
+    meaning("Knowledge", 582, 605, 72), meaning("Home", 1123, 605, 72)
+  ]),
+  cardChinese: flashcard(25, [
+    word("n\u01DA", 687, 289, 100), word("m\u01CE", 1097, 289, 100), // pinyin nǚ, mǎ
+    word("\u5973", 641, 374, 220), word("\u9A6C", 1063, 397, 220), // 女, 马
+    meaning("Female", 635, 681, 72), meaning("(Pronounce)", 998, 687, 64)
+  ]),
+  cardSpanish: flashcard(24, [
+    word("Lava", 536, 382, 160), word("platos", 969, 382, 160),
+    meaning("Washes", 591, 594, 70), meaning("Dishes", 1092, 594, 70)
+  ]),
+  langEnglish: { type: "text", font: "semibold", z: 30 },
+  langHindi: { type: "text", font: "semibold", z: 30 },
+  langChinese: { type: "text", font: "semibold", z: 30 },
+  langSpanish: { type: "text", font: "semibold", z: 30 },
+  wordEnglish: { type: "text", font: "semibold", z: 30 },
+  wordHindi: { type: "text", font: "semibold", z: 30 },
+  wordChinese: { type: "text", font: "semibold", z: 30 },
+  wordSpanish: { type: "text", font: "semibold", z: 30 }
 };
 
 // The lilac circle, fully open: centred on the stage, big enough to cover the corners
 const WIPE_OPEN = { x: 960 - 1150, y: 540 - 1150, w: 2300, h: 2300, color: C.lilac };
+// The card stack behind every example. The tilted cards turn around the same centre as
+// the top card (960, 540); angles recovered from the SVG exports, placement measured
+// from the stack's outline in the Figma export.
+const STACK = {
+  cardTiltRight: { x: 446, y: 204, rotate: 9.19 },
+  cardFlat: { x: 428.05, y: 202.76 },
+  cardTiltLeft: { x: 446, y: 204, rotate: -9.0 }
+};
+// Labels either side of the stack: language on the left, the whole word on the right
+const label = (text, x, y, extra) => Object.assign({ x, y, size: 60, color: C.white, text }, extra);
+const fromLeft = { dx: -450, opacity: 0 };
+const fromRight = { dx: 450, opacity: 0 };
+// Moving between examples: the top card flies off to the left, revealing the next one
+const FLY_OFF = { dx: -1500, dy: -90, rotate: -24, at: [0, 0.6] };
+const REVEAL = { reveal: 0, at: [0.25, 1] };
+
 // Morphology 2 and 3 share the split background (design/slides/Morphology 2.png)
 const PANEL = { x: 798, y: 0, w: 1122, h: 1080, color: C.purple };
 const DIVIDER = { x: 739, y: 0, w: 67, h: 1080, color: C.yellow };
@@ -91,6 +154,16 @@ const storyActors = {
   saissha: { x: 107, y: 117, w: 742, enter: { dx: -1000, at: [0.2, 0.8] } },
   twins: { x: 1235, y: 540, w: 590.73, at: [0.1, 0.9], walk: 18 }
 };
+
+// One example after English: the stack stays, the previous top card flies off to reveal
+// this one, and the labels slide out and back in with the new language and word
+function example(id, ref, card, lang, whole, langKey, wordKey) {
+  const actors = Object.assign({}, STACK);
+  actors[card] = Object.assign({ enter: REVEAL, exit: FLY_OFF }, CARD_TOP);
+  actors[langKey] = Object.assign(lang, { enter: Object.assign({ at: [0.45, 1] }, fromLeft), exit: Object.assign({ at: [0, 0.45] }, fromLeft) });
+  actors[wordKey] = Object.assign(whole, { enter: Object.assign({ at: [0.5, 1] }, fromRight), exit: Object.assign({ at: [0, 0.45] }, fromRight) });
+  return { id, layout: "scene", ref, bg: C.blue, pace: 0.45, actors };
+}
 
 window.SLIDES = [
   {
@@ -206,18 +279,43 @@ window.SLIDES = [
     bg: C.lilac,
     pace: 0.4,
     actors: {
-      wipe: WIPE_OPEN,
-      panel: PANEL,
-      divider: DIVIDER,
-      morA: { x: 136, y: 323, size: 200, color: C.white, text: "Mor" },
-      hyphenA: { x: 552.3, y: 323, size: 200, color: C.white, text: "-", enter: { dx: -70, opacity: 0, at: [0.3, 0.9] } },
-      hyphenB: { x: 893, y: 323, size: 200, color: C.white, text: "-", enter: { dx: 70, opacity: 0, at: [0.3, 0.9] } },
-      morB: { x: 990, y: 323, size: 200, color: C.white, text: "phology", letterOffset: 3 },
+      // Leaving for the examples: the lilac circle closes to the middle, the purple half
+      // slides away, the words and pills drop out
+      wipe: Object.assign({ exit: { w: 0, h: 0, dx: 1150, dy: 1150, at: [0.05, 0.6] } }, WIPE_OPEN),
+      panel: Object.assign({ exit: { dx: 1122, at: [0, 0.5] } }, PANEL),
+      divider: Object.assign({ exit: { h: 0, at: [0, 0.4] } }, DIVIDER),
+      morA: { x: 136, y: 323, size: 200, color: C.white, text: "Mor", exit: { dy: -140, opacity: 0, at: [0, 0.35] } },
+      hyphenA: { x: 552.3, y: 323, size: 200, color: C.white, text: "-", enter: { dx: -70, opacity: 0, at: [0.3, 0.9] }, exit: { dy: -140, opacity: 0, at: [0, 0.35] } },
+      hyphenB: { x: 893, y: 323, size: 200, color: C.white, text: "-", enter: { dx: 70, opacity: 0, at: [0.3, 0.9] }, exit: { dy: -140, opacity: 0, at: [0, 0.35] } },
+      morB: { x: 990, y: 323, size: 200, color: C.white, text: "phology", letterOffset: 3, exit: { dy: -140, opacity: 0, at: [0, 0.35] } },
       // The pills bounce up from below, one after the other
-      pillA: { x: 193, y: 683, w: 402, h: 112, size: 64, padX: 58, text: "\u201CMorphemes\u201D", enter: { dy: 260, opacity: 0, ease: "back", at: [0.4, 0.9] } },
-      pillB: { x: 1154, y: 683, w: 410, h: 112, size: 64, padX: 58, text: "\u201Cthe study of\u201D", enter: { dy: 260, opacity: 0, ease: "back", at: [0.5, 1] } }
+      pillA: { x: 193, y: 683, w: 402, h: 112, size: 64, padX: 58, text: "\u201CMorphemes\u201D", enter: { dy: 260, opacity: 0, ease: "back", at: [0.4, 0.9] }, exit: { dy: 300, opacity: 0, at: [0, 0.35] } },
+      pillB: { x: 1154, y: 683, w: 410, h: 112, size: 64, padX: 58, text: "\u201Cthe study of\u201D", enter: { dy: 260, opacity: 0, ease: "back", at: [0.5, 1] }, exit: { dy: 300, opacity: 0, at: [0, 0.35] } }
     }
   },
+  {
+    id: "example-english",
+    layout: "scene",
+    ref: "Morphology Example - English",
+    bg: C.blue,
+    bgAt: [0.05, 0.6],
+    pace: 0.3,
+    actors: {
+      // The cards are dealt in from below, one after another, and settle into the stack
+      cardTiltRight: Object.assign({ enter: { dy: 1000, rotate: 32, ease: "back", at: [0.25, 0.75] } }, STACK.cardTiltRight),
+      cardFlat: Object.assign({ enter: { dy: 1000, rotate: -12, ease: "back", at: [0.32, 0.82] } }, STACK.cardFlat),
+      cardTiltLeft: Object.assign({ enter: { dy: 1000, rotate: -30, ease: "back", at: [0.39, 0.89] } }, STACK.cardTiltLeft),
+      cardEnglish: Object.assign({ enter: { dy: 1000, rotate: 14, reveal: 0, ease: "back", at: [0.45, 1] }, exit: FLY_OFF }, CARD_TOP),
+      langEnglish: label("English", 129, 495, { enter: Object.assign({ at: [0.6, 1] }, fromLeft), exit: Object.assign({ at: [0, 0.45] }, fromLeft) }),
+      wordEnglish: label("Unhappy", 1559, 495, { enter: Object.assign({ at: [0.65, 1] }, fromRight), exit: Object.assign({ at: [0, 0.45] }, fromRight) })
+    }
+  },
+  example("example-hindi", "Morphology Example - Hindi", "cardHindi",
+    label("Hindi", 162, 495), label("Vidyalaya\n(School)", 1682, 450, { align: "center" }), "langHindi", "wordHindi"),
+  example("example-chinese", "Morphology Example - Chinese", "cardChinese",
+    label("Chinese", 128, 495), label("\u5988\n(Mom)", 1682, 450, { align: "center" }), "langChinese", "wordChinese"), // 妈
+  example("example-spanish", "Morphology Example - Spanish", "cardSpanish",
+    label("Spanish", 120, 496), label("Lavaplatos\n(Dishwasher)", 1704, 444, { align: "center" }), "langSpanish", "wordSpanish"),
   {
     id: "lineup",
     layout: "lineup",
