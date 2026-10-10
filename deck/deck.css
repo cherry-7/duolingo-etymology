@@ -340,11 +340,8 @@ body {
   line-height: 42px;
 }
 /* Character Color Research: cards cut from the Figma export, rounded, with their solid shadow */
-/* Research cards in Figma's 704x514 frame units (481 wide on the slide: radius 48, shadow 10) */
-.research-card { width: 704px; height: 514px; transform-origin: 0 0; background: #2B70C9; border-radius: 70.3px; box-shadow: 14.6px 14.6px 0 #18529C; }
-.research-card > * { position: absolute; }
-.research-swatch { border-radius: 20px; }
-.research-tbd { inset: 60px; display: grid; place-items: center; background: #ddd; color: #888; border: 3px dashed #888; border-radius: 30px; font-size: 30px; text-align: center; padding: 20px; }
+/* Research card placeholder (the cards' layout is set inline in world.js) */
+.research-tbd { box-sizing: border-box; display: grid; place-items: center; background: #ddd; color: #888; border: 3px dashed #888; border-radius: 30px; font-size: 30px; text-align: center; padding: 20px; }
 
 .actor-pill {
   display: grid;

@@ -88,18 +88,25 @@ window.World = (function () {
 
     // Research card: a 704x514 Figma card frame (swatches, labels, character) shown at def.w wide
     research(def, layer) {
+      // Layout is set inline (not in deck.css) so a cached old stylesheet can't scramble the card
       const node = el("div", "actor research-card", layer);
+      Object.assign(node.style, { width: "704px", height: "514px", background: "#2B70C9", borderRadius: "70.3px", boxShadow: "14.6px 14.6px 0 #18529C" });
+      const place = (child, p) => {
+        Object.assign(child.style, { position: "absolute", left: p.x + "px", top: p.y + "px", width: p.w + "px", height: p.h + "px", margin: 0 });
+        return child;
+      };
       def.swatches.forEach((p) => {
-        const sw = el("div", "research-swatch", node);
-        Object.assign(sw.style, { left: p.x + "px", top: p.y + "px", width: p.w + "px", height: p.h + "px", background: p.fill });
+        const sw = place(el("div", "research-swatch", node), p);
+        Object.assign(sw.style, { background: p.fill, borderRadius: "20px" });
       });
       def.parts.forEach((p) => {
         const img = el("img", null, node);
         img.src = p.src;
         img.alt = "";
-        Object.assign(img.style, { left: p.x + "px", top: p.y + "px", width: p.w + "px", height: p.h + "px" });
+        place(img, p);
+        Object.assign(img.style, { display: "block", borderRadius: 0, boxShadow: "none" });
       });
-      if (def.placeholder) el("div", "research-tbd", node).textContent = def.placeholder;
+      if (def.placeholder) place(el("div", "research-tbd", node), { x: 60, y: 60, w: 584, h: 394 }).textContent = def.placeholder;
       return (s) => {
         node.style.opacity = s.opacity;
         node.style.transform = `translate(${s.x}px, ${s.y}px) scale(${s.w / 704}) rotate(${s.rotate || 0}deg)`;
