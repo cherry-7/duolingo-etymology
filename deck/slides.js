@@ -140,10 +140,11 @@ const fromLeft = { dx: -450, opacity: 0 };
 const fromRight = { dx: 450, opacity: 0 };
 // Moving between examples: the top card flies off to the left, revealing the next one
 const FLY_OFF = { dx: -1500, dy: -90, rotate: -24, at: [0, 0.6] };
-// Card-trick entrance: starts 2.6x bigger, turned, out on a spiral (startAngle in degrees),
-// fading in quickly, then winds in to its spot
-function cardTrick(startAngle, rotate, at) {
-  return { scale: 2.6, rotate, opacity: 0, orbit: { r: 650, angle: startAngle, turns: 0.75 }, at };
+// Card-trick entrance. Every card starts the same way (2.2x bigger, turned -150°, out on
+// one short swirl) so the stack arrives as a single deck; finalAngle is where it ends up,
+// fan is how far it swings past that while the deck fans open.
+function cardTrick(finalAngle, fan, at) {
+  return { scale: 2.2, rotate: finalAngle - 150, opacity: 0, orbit: { r: 320, angle: 200, turns: 0.45 }, fan, at };
 }
 const REVEAL = { reveal: 0, at: [0.15, 0.7] };
 
@@ -306,14 +307,15 @@ window.SLIDES = [
     ref: "Morphology Example - English",
     bg: C.blue,
     bgAt: [0.05, 0.6],
-    pace: 0.3,
+    pace: 0.6, // quick and snappy
     actors: {
-      // A card trick: one after another, each card starts big and spinning, then spirals in,
-      // shrinking into its place in the stack. Hidden until its turn.
-      cardTiltRight: Object.assign({ enter: cardTrick(0, 9.19 + 200, [0.2, 0.75]) }, STACK.cardTiltRight),
-      cardFlat: Object.assign({ enter: cardTrick(90, -190, [0.28, 0.83]) }, STACK.cardFlat),
-      cardTiltLeft: Object.assign({ enter: cardTrick(180, -9 + 210, [0.36, 0.91]) }, STACK.cardTiltLeft),
-      cardEnglish: Object.assign({ enter: Object.assign(cardTrick(270, -200, [0.44, 1]), { reveal: 0 }), exit: FLY_OFF }, CARD_TOP),
+      // A card trick: the stack swirls in as one deck, big and spinning, shrinking as it comes;
+      // as it lands the cards fan out like a hand of cards, then close to their angles.
+      // Hidden until the move starts.
+      cardTiltRight: Object.assign({ enter: cardTrick(9.19, 26, [0.1, 0.8]) }, STACK.cardTiltRight),
+      cardFlat: Object.assign({ enter: cardTrick(0, -10, [0.1, 0.8]) }, STACK.cardFlat),
+      cardTiltLeft: Object.assign({ enter: cardTrick(-9, -26, [0.1, 0.8]) }, STACK.cardTiltLeft),
+      cardEnglish: Object.assign({ enter: Object.assign(cardTrick(0, 0, [0.12, 0.85]), { reveal: 0 }), exit: FLY_OFF }, CARD_TOP),
       langEnglish: label("English", 129, 495, { enter: Object.assign({ at: [0.6, 1] }, fromLeft), exit: Object.assign({ at: [0, 0.45] }, fromLeft) }),
       wordEnglish: label("Unhappy", 1559, 495, { enter: Object.assign({ at: [0.65, 1] }, fromRight), exit: Object.assign({ at: [0, 0.45] }, fromRight) })
     }

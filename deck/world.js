@@ -354,6 +354,13 @@ window.World = (function () {
     return s;
   }
 
+  // Fanning out: an extra turn that swells in the second half of the entrance and settles
+  // back to nothing as it lands, so a stack spreads like a hand of cards, then closes to
+  // its final angles. Peaks at t = 0.75.
+  function fanBump(t) {
+    return Math.sin(Math.PI * clamp((t - 0.5) / 0.5, 0, 1));
+  }
+
   // Walking bob: little hops while an actor travels (walk = hop height in px)
   function walk(s, p, t) {
     if (p.walk && t > 0 && t < 1) s.y -= Math.abs(Math.sin(t * Math.PI * 4)) * p.walk;
@@ -448,6 +455,7 @@ window.World = (function () {
           const lt = local(t, pb.enter && pb.enter.at, [0.5, 1]);
           s = mix(offset(pb, pb.enter), pb, lt, pb.enter && pb.enter.pop, pb.enter && pb.enter.ease === "back");
           if (pb.enter && pb.enter.orbit) spiral(s, pb.enter.orbit, lt);
+          if (pb.enter && pb.enter.fan) s.rotate += pb.enter.fan * fanBump(lt);
         } else if (pa) {
           s = mix(pa, pa, 0);
         } else {

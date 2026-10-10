@@ -65,3 +65,4 @@ Work queue for the deck and demo.
 - [ ] APPROVED (2026-10-09, Michelle in chat): The background swirls on the opening and story slides keep moving while resting: a slow drift, sway and swell (idle loop), on top of the draw/rewind transitions.
 - [ ] APPROVED (2026-10-09, Michelle in chat): Story → "That's the learner" slide: the orange swirl doesn't slide to its new spot; it unswirls where it is, then swirls in at the new position.
 - [ ] APPROVED (2026-10-09, Michelle in chat): Cards enter the examples like a card trick: each starts big and swirls in, shrinking into the stack, one after another (replaces dealing from below). Fix: cards must not peek in at the bottom of Morphology 3.
+- [ ] APPROVED (2026-10-09, Michelle in chat): The card-trick entrance fans out like a hand of cards (the stack swirls in as one deck, then spreads and settles), and it plays faster.
