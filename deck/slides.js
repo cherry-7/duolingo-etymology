@@ -307,7 +307,7 @@ window.SLIDES = [
     ref: "Morphology Example - English",
     bg: C.blue,
     bgAt: [0.05, 0.6],
-    pace: 0.6, // quick and snappy
+    pace: 0.16, // the card trick (swirl in, fan out, settle) takes about 1 second
     actors: {
       // A card trick: the stack swirls in as one deck, big and spinning, shrinking as it comes;
       // as it lands the cards fan out like a hand of cards, then close to their angles.
