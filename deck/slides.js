@@ -165,6 +165,10 @@ function cardTrick(finalAngle, fan, at) {
 }
 const REVEAL = { reveal: 0, at: [0.15, 0.7] };
 
+// Interviews-1: the orange circle pulls the column up from below the screen (starts low
+// enough that the column's top, under the circle, is off screen)
+const PULL_UP = { dy: 1400, at: [0.05, 0.8] };
+
 // Interviews: a quote (white, 76.67px, the *word* gets the orange pill) and who said it.
 // Copy is still a placeholder in Figma, so it's [TBD] here.
 function quote(text, x, y, at) {
@@ -388,12 +392,15 @@ window.SLIDES = [
     bg: C.navy,
     pace: 0.3,
     actors: {
-      // The light-blue column slides up from the bottom carrying its three circles; the two
-      // circles from the previous slide roll down to the bottom row (one turns white)
-      column: { x: 84, y: 9, w: 509, h: 1671, color: C.blue, enter: { dy: 1250, at: [0.05, 0.7] } },
-      columnTop: { x: 105, y: -288, w: 468, h: 468, color: C.orange, enter: { dy: 1250, at: [0.1, 0.75] } },
-      columnMid: { x: 105, y: 238, w: 468, h: 469, color: C.white, enter: { dy: 1250, at: [0.14, 0.79] } },
-      columnBottom: { x: 105, y: 765, w: 468, h: 468, color: C.orange, enter: { dy: 1250, at: [0.18, 0.83] } },
+      // The top orange circle comes up from below the screen and pulls the light-blue column
+      // up behind it: the column's top edge stays tucked under the circle the whole way, and
+      // the circles sitting on the column ride along. Same move for all four, so they stay
+      // attached. The two circles from the previous slide roll down to the bottom row (one
+      // turns white).
+      column: { x: 84, y: 9, w: 509, h: 1671, color: C.blue, enter: PULL_UP },
+      columnTop: { x: 105, y: -288, w: 468, h: 468, color: C.orange, enter: PULL_UP },
+      columnMid: { x: 105, y: 238, w: 468, h: 469, color: C.white, enter: PULL_UP },
+      columnBottom: { x: 105, y: 765, w: 468, h: 468, color: C.orange, enter: PULL_UP },
       circleA: { x: 980, y: 885, w: 468, h: 468, color: C.blue, at: [0.15, 0.85] },
       circleB: { x: 1514, y: 885, w: 468, h: 468, color: C.white, at: [0.2, 0.9] },
       quoteC: quote("\u201C [TBD: expert *quote*] \u201D", 691, 346, [0.5, 1]),

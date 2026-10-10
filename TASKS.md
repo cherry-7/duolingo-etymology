@@ -67,3 +67,4 @@ Work queue for the deck and demo.
 - [ ] APPROVED (2026-10-09, Michelle in chat): Cards enter the examples like a card trick: each starts big and swirls in, shrinking into the stack, one after another (replaces dealing from below). Fix: cards must not peek in at the bottom of Morphology 3.
 - [ ] APPROVED (2026-10-09, Michelle in chat): The card-trick entrance fans out like a hand of cards (the stack swirls in as one deck, then spreads and settles), and it plays faster.
 - [ ] APPROVED (2026-10-09, Michelle in chat): The card trick's fan-out takes about 1 second.
+- [ ] APPROVED (2026-10-09, Michelle in chat): Interviews → Expert: the light-blue column comes up tucked under the top orange circle, which pulls it up (they move together, the column's top hidden under the circle).
