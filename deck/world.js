@@ -19,6 +19,14 @@ window.World = (function () {
   const lerp = (a, b, t) => a + (b - a) * t;
   const soft = (x) => (1 - Math.cos(Math.PI * x)) / 2; // gentle in-out, the spring does the rest
   const backOut = (x) => 1 + 2.2 * Math.pow(x - 1, 3) + 1.2 * Math.pow(x - 1, 2); // slight overshoot
+  // Lands and bounces a couple of times, smaller each time (things dropped onto the floor)
+  const bounceOut = (x) => {
+    const n = 7.5625, d = 2.75;
+    if (x < 1 / d) return n * x * x;
+    if (x < 2 / d) return n * (x -= 1.5 / d) * x + 0.75;
+    if (x < 2.5 / d) return n * (x -= 2.25 / d) * x + 0.9375;
+    return n * (x -= 2.625 / d) * x + 0.984375;
+  };
 
   function hex(c) {
     const n = parseInt(c.slice(1), 16);
@@ -66,7 +74,7 @@ window.World = (function () {
   const kinds = {
     img(def, layer) {
       // Outer layer travels; the image inside can have an idle loop (def.idle, e.g. "breathe")
-      const node = el("div", "actor actor-img", layer);
+      const node = el("div", "actor actor-img" + (def.className ? " " + def.className : ""), layer);
       const img = el("img", def.idle ? "idle-" + def.idle : null, node);
       img.src = def.src;
       img.alt = "";
@@ -130,6 +138,7 @@ window.World = (function () {
       path.setAttribute("fill", "none");
       path.setAttribute("stroke", def.stroke);
       path.setAttribute("stroke-width", def.width);
+      if (def.cap) path.setAttribute("stroke-linecap", def.cap);
       const length = path.getTotalLength();
       path.style.strokeDasharray = `${length} ${length}`;
       return (s) => {
@@ -222,6 +231,21 @@ window.World = (function () {
         }
         const sweep = soft(clamp((s.reveal - 0.6) / 0.4, 0, 1));
         pills.forEach((p) => p.style.setProperty("--sweep", sweep));
+      };
+    },
+
+    // Colour swatch: rounded block with its hex code near the bottom (Character Color slide)
+    swatch(def, layer) {
+      const node = el("div", "actor actor-swatch", layer);
+      const label = el("div", "swatch-label", node);
+      label.textContent = def.label;
+      label.style.color = def.labelColor;
+      node.style.background = def.color;
+      node.style.width = def.w + "px";
+      node.style.height = def.h + "px";
+      return (s) => {
+        node.style.opacity = s.opacity;
+        node.style.transform = `translate(${s.x}px, ${s.y}px) scale(${s.scale ?? 1})`;
       };
     },
 
@@ -348,7 +372,8 @@ window.World = (function () {
 
   function mix(p, q, t, pop, back) {
     const s = {};
-    const tt = back ? backOut(t) : t; // "back": a little overshoot, like a bounce
+    // "back": a little overshoot; "bounce": lands and bounces
+    const tt = back === "bounce" ? bounceOut(t) : back ? backOut(t) : t;
     NUMERIC.forEach((k) => {
       if (p[k] != null || q[k] != null) s[k] = lerp(p[k] ?? q[k], q[k] ?? p[k], k === "opacity" ? t : tt);
     });
@@ -477,7 +502,7 @@ window.World = (function () {
         } else if (pb) {
           // Enters: from its enter offset into its spot
           const lt = local(t, pb.enter && pb.enter.at, [0.5, 1]);
-          s = mix(offset(pb, pb.enter), pb, lt, pb.enter && pb.enter.pop, pb.enter && pb.enter.ease === "back");
+          s = mix(offset(pb, pb.enter), pb, lt, pb.enter && pb.enter.pop, pb.enter && (pb.enter.ease === "bounce" ? "bounce" : pb.enter.ease === "back"));
           if (pb.enter && pb.enter.orbit) spiral(s, pb.enter.orbit, lt);
           if (pb.enter && pb.enter.fan) s.rotate += pb.enter.fan * fanBump(lt);
           if (pb.enter && pb.enter.fade) s.opacity = pb.opacity * local(t, pb.enter.fade);

@@ -326,6 +326,22 @@ body {
   font-weight: 600;
   letter-spacing: -0.011em;
 }
+/* Character Color: swatches (radius and label measured from the Figma export) */
+.actor-swatch { box-sizing: border-box; border-radius: 58px; transform-origin: 50% 50%; }
+.swatch-label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 75.2%; /* Figma: label box 182px down a 242px swatch */
+  text-align: center;
+  font-family: ui-monospace, Menlo, "SF Mono", monospace; /* [TBD: exact font from Figma] */
+  font-size: 25px;
+  font-weight: 700;
+  line-height: 42px;
+}
+/* Character Color Research: cards cut from the Figma export, rounded, with their solid shadow */
+.research-card img { border-radius: 48px; box-shadow: 10px 10px 0 #18529C; }
+
 .actor-pill {
   display: grid;
   align-items: center;

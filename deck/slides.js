@@ -52,6 +52,8 @@ const C = {
   blue: "#1CB0F6",
   meaning: "#A9CBED", // pale blue word meanings on the cards
   navy: "#2B70C9", // Interviews background
+  ink2: "#363135", // twins' dark (palette and swatch labels)
+  shadowOnSquiggle: "#CA8A00",
   attribution: "#D5E2F4" // who said it, under each quote
 };
 
@@ -65,6 +67,14 @@ function word(text, x, y, size) {
 }
 function meaning(text, x, y, size) {
   return { text, x, y, size, color: "#A9CBED" };
+}
+
+// Character Color swatches and the Research cards (cut from the Figma export)
+function swatch(color, label, labelColor, w) {
+  return { type: "swatch", color, label, labelColor, w, h: 242, z: 6 };
+}
+function researchCard(n) {
+  return { type: "img", src: DECK_ART + "research-" + n + ".png", w: 481, h: 351, z: 7, className: "research-card" };
 }
 
 // Everything that can appear in the world, back to front (z)
@@ -139,7 +149,26 @@ window.WORLD_ACTORS = {
   quoteC: { type: "quote", font: "semibold", z: 45 },
   saidA: { type: "text", font: "semibold", z: 45 },
   saidB: { type: "text", font: "semibold", z: 45 },
-  saidC: { type: "text", font: "semibold", z: 45 }
+  saidC: { type: "text", font: "semibold", z: 45 },
+
+  // Characters (design/slides/Character Default.png, Character Color.png, Character Color
+  // Research.png). The twins come back here (they're the same actor as in the story).
+  squiggle: { type: "path", shape: "squiggle", stroke: "#FFC800", width: 200, cap: "round", z: 2.6 },
+  wave: { type: "ellipse", z: 2.7 },
+  titleColor: { type: "text", font: "heading", letters: true, z: 4.5 },
+  titlePalette: { type: "text", font: "heading", letters: true, z: 4.5 },
+  swatchSkin: swatch("#EAB991", "#EAB991", "#363135", 242),
+  swatchHair: swatch("#363135", "#363135", "#FFFFFF", 454),
+  swatchShirt: swatch("#F3EFE9", "#F3EFE9", "#363135", 454),
+  swatchOrange: swatch("#E48900", "#E48900", "#FFFFFF", 242),
+  swatchJeans: swatch("#B3C8DF", "#0084C2", "#363135", 454), // Figma fills this one #B3C8DF but labels it #0084C2
+  swatchBlue: swatch("#0063CF", "#0063CF", "#FFFFFF", 242),
+  research1: researchCard(1),
+  research2: researchCard(2),
+  research3: researchCard(3),
+  research4: researchCard(4),
+  research5: researchCard(5),
+  titleResearch: { type: "text", font: "heading", z: 8 }
 };
 
 // The lilac circle, fully open: centred on the stage, big enough to cover the corners
@@ -173,6 +202,16 @@ const REVEAL = { reveal: 0, at: [0.15, 0.7] };
 // enough down to stay hidden even on screens much taller than 16:9 (a 4:3 window shows
 // about 180px below the slide), so nothing peeks in before the move.
 const PULL_UP = { dy: 2100, at: [0.05, 0.8] };
+const PUSH_DOWN = { dy: 2100, at: [0, 0.6] }; // leaving for the characters: back down it goes
+
+// Character Color: swatches pop in one at a time (start = when, as a fraction of the move)
+function popIn(x, y, start) {
+  return { x, y, enter: { scale: 0, pop: true, at: [start, Math.min(1, start + 0.35)] }, exit: { scale: 0, at: [0, 0.35] } };
+}
+// Research: cards are dealt up from below, turned a little, landing with a small overshoot
+function dealUp(x, y, rotate, start) {
+  return { x, y, w: 481, enter: { dy: 1300, rotate, ease: "back", at: [start, Math.min(1, start + 0.4)] } };
+}
 
 // Interviews: a quote (white, 76.67px, the *word* gets the orange pill) and who said it.
 // Copy is still a placeholder in Figma, so it's [TBD] here.
@@ -405,17 +444,73 @@ window.SLIDES = [
       // turns white).
       // Starts at the orange circle's centre line (Figma: y 9), so its top is always behind
       // the circle, with no gap above it on screens taller than 16:9
-      column: { x: 84, y: -54, w: 509, h: 1734, color: C.blue, enter: PULL_UP },
+      column: { x: 84, y: -54, w: 509, h: 1734, color: C.blue, enter: PULL_UP, exit: PUSH_DOWN },
       // Above the slide (only seen on screens taller than 16:9): continues the column up to the
       // window edge, appearing only once everything has landed, so it never shows above the circle
-      columnAbove: { x: 84, y: -800, w: 509, h: 760, color: C.blue, enter: { opacity: 0, fade: [0.92, 1] } },
-      columnTop: { x: 105, y: -288, w: 468, h: 468, color: C.orange, enter: PULL_UP },
-      columnMid: { x: 105, y: 238, w: 468, h: 469, color: C.white, enter: PULL_UP },
-      columnBottom: { x: 105, y: 765, w: 468, h: 468, color: C.orange, enter: PULL_UP },
-      circleA: { x: 980, y: 885, w: 468, h: 468, color: C.blue, at: [0.15, 0.85] },
-      circleB: { x: 1514, y: 885, w: 468, h: 468, color: C.white, at: [0.2, 0.9] },
+      columnAbove: { x: 84, y: -800, w: 509, h: 760, color: C.blue, enter: { opacity: 0, fade: [0.92, 1] }, exit: { opacity: 0, at: [0, 0.05] } },
+      columnTop: { x: 105, y: -288, w: 468, h: 468, color: C.orange, enter: PULL_UP, exit: PUSH_DOWN },
+      columnMid: { x: 105, y: 238, w: 468, h: 469, color: C.white, enter: PULL_UP, exit: PUSH_DOWN },
+      columnBottom: { x: 105, y: 765, w: 468, h: 468, color: C.orange, enter: PULL_UP, exit: PUSH_DOWN },
+      circleA: { x: 980, y: 885, w: 468, h: 468, color: C.blue, at: [0.15, 0.85], exit: { dy: 1200, at: [0, 0.55] } },
+      circleB: { x: 1514, y: 885, w: 468, h: 468, color: C.white, at: [0.2, 0.9], exit: { dy: 1200, at: [0.05, 0.6] } },
       quoteC: quote("\u201C [TBD: expert *quote*] \u201D", 691, 346, [0.5, 1]),
       saidC: said("[TBD: name], Linguistic Expert", 1107, 635, 48, [0.6, 1])
+    }
+  },
+  {
+    id: "characters",
+    layout: "scene",
+    ref: "Character Default",
+    bg: C.orange,
+    bgAt: [0.15, 0.6],
+    pace: 0.3,
+    actors: {
+      // The yellow squiggle draws itself, then the twins drop in and bounce onto their shadow
+      squiggle: { x: 281, y: 29, enter: { draw: 0, at: [0.2, 0.9] }, exit: { draw: 0, at: [0, 0.6] } },
+      shadow: { x: 534, y: 718.6, w: 778.4, h: 161.8, color: C.shadowOnSquiggle, enter: { w: 0, h: 0, dx: 389, dy: 81, at: [0.45, 0.85] } },
+      twins: { x: 538.03, y: 200, w: 847.63, enter: { dy: -1500, ease: "bounce", at: [0.4, 1] } }
+    }
+  },
+  {
+    id: "characters-color",
+    layout: "scene",
+    ref: "Character Color",
+    bg: C.yellow,
+    bgAt: [0, 0.5],
+    pace: 0.3,
+    actors: {
+      // The light-blue wave sweeps in from the top right; the twins walk left; the title drops
+      // in letter by letter; the swatches pop in one by one
+      wave: { x: 802, y: -611, w: 1352, h: 1352, color: C.blue, enter: { dx: 1000, dy: -1000, at: [0.1, 0.75] },
+        // leaving for Research: it grows to fill the screen (centre stays put), then fades
+        exit: { w: 4400, h: 4400, dx: -1524, dy: -1524, at: [0, 0.6], fade: [0.85, 1] } },
+      titleColor: { x: -36, y: -125, size: 290, color: C.orange, text: "Color", enter: { letters: true, at: [0.35, 0.9] }, exit: { dy: -500, at: [0, 0.4] } },
+      titlePalette: { x: 874, y: -125, size: 290, color: C.yellow, text: "Palette", letterOffset: 5, enter: { letters: true, at: [0.35, 0.9] }, exit: { dy: -500, at: [0, 0.4] } },
+      shadow: { x: 143, y: 808.6, w: 778.4, h: 161.8, color: C.orange, at: [0.05, 0.8], exit: { opacity: 0, at: [0, 0.3] } },
+      twins: { x: 147.03, y: 290, w: 847.63, at: [0.05, 0.8], walk: 16, exit: { dx: -1700, at: [0, 0.55] } },
+      swatchSkin: popIn(1063, 200, 0.45),
+      swatchHair: popIn(1320.25, 200, 0.5),
+      swatchShirt: popIn(1063, 502.64, 0.55),
+      swatchOrange: popIn(1532.1, 502.64, 0.6),
+      swatchJeans: popIn(1063, 759.89, 0.65),
+      swatchBlue: popIn(1532.1, 759.89, 0.7)
+    }
+  },
+  {
+    id: "characters-research",
+    layout: "scene",
+    ref: "Character Color Research",
+    bg: C.blue,
+    bgAt: [0.3, 0.7], // changes behind the growing wave
+    pace: 0.3,
+    actors: {
+      // The cards are dealt up from below, one after another, then the title rises in
+      research1: dealUp(83, 112, -8, 0.3),
+      research2: dealUp(645, 112, 6, 0.37),
+      research3: dealUp(1207, 112, -5, 0.44),
+      research4: dealUp(83, 540, 7, 0.51),
+      research5: dealUp(645, 540, -6, 0.58),
+      titleResearch: { x: 600, y: 755, size: 280, color: C.yellow, text: "Research", enter: { dy: 500, at: [0.6, 1] } }
     }
   },
   {
