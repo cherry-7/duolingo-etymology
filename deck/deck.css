@@ -247,3 +247,64 @@ body {
   .layout-finale.owl-gone .owl,
   .layout-finale.show-qr .qr { transition: none; }
 }
+
+/* ---------- World: the continuous layer behind scene slides (deck/world.js) ---------- */
+
+.slide.is-scene { background: transparent; }
+
+.world {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  visibility: hidden;
+}
+
+/* Figma's 1920 x 1080 stage, scaled to fit (world.js sets the scale) */
+.world-stage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1920px;
+  height: 1080px;
+  transform-origin: 50% 50%;
+  overflow: hidden;
+}
+
+.actor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  will-change: transform, opacity;
+}
+
+.actor-img { display: block; user-select: none; -webkit-user-drag: none; }
+.actor-ellipse { width: 100px; height: 100px; border-radius: 50%; }
+.actor-frame { width: 1920px; height: 1080px; pointer-events: none; }
+.actor-path { overflow: visible; pointer-events: none; }
+
+/* Text: Fredoka; "condensed" is Fredoka Condensed (75% width) from the Figma spec */
+.actor-text { white-space: pre; line-height: 1.5; font-weight: 400; }
+.actor-text .text-b { position: absolute; inset: 0; }
+.condensed { font-stretch: 75%; font-variation-settings: "wdth" 75; letter-spacing: -0.011em; }
+.title { font-weight: 400; letter-spacing: -0.01em; }
+
+.actor-bubble { width: 0; height: 0; }
+.bubble-shape { position: absolute; top: 0; left: 0; overflow: visible; }
+.bubble-text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  display: grid;
+  align-items: center;
+  color: #4B4B4B;
+  line-height: 1.5;
+  font-weight: 400;
+  white-space: pre;
+}
+.bubble-text > div { grid-area: 1 / 1; }
+.bubble-text.measure { visibility: hidden; display: block; width: auto; height: auto; padding: 0; }
+
+/* deck/?ref: the Figma export on top, half see-through, for checking alignment */
+.world-ref { position: absolute; inset: 0; width: 1920px; height: 1080px; opacity: 0.5; pointer-events: none; z-index: 100; }
