@@ -69,12 +69,22 @@ function meaning(text, x, y, size) {
   return { text, x, y, size, color: "#A9CBED" };
 }
 
-// Character Color swatches and the Research cards (cut from the Figma export)
+// Character Color swatches
 function swatch(color, label, labelColor, w) {
   return { type: "swatch", color, label, labelColor, w, h: 242, z: 6 };
 }
-function researchCard(n) {
-  return { type: "img", src: DECK_ART + "research-" + n + ".png", w: 481, h: 351, z: 7, className: "research-card" };
+// Research cards, rebuilt from the layers in design/slides/svgs/Character Color Research Slides.
+// Coordinates are in Figma's 704x514 card frames (the slide shows them at 481 wide). Swatch
+// fills are read from the exported Rectangle SVGs; the hex labels and characters are the SVGs.
+const RESEARCH_ART = DECK_ART + "research/";
+function researchCard(character, art, group, fills, labels) {
+  // The swatch block: skin (square), hair (wide) on top, then two rows of wide + square
+  const [gx, gy] = group;
+  const at = [[0, 0, 104.17], [110.68, 0, 195.32], [0, 130.21, 195.32], [201.83, 130.21, 104.17], [0, 240.89, 195.32], [201.83, 240.89, 104.17]];
+  const swatches = fills.map((fill, i) => ({ x: gx + at[i][0], y: gy + at[i][1], w: at[i][2], h: 104.17, fill }));
+  const parts = labels.map(([hex, x, y]) => ({ src: RESEARCH_ART + "label-" + hex + ".svg", x, y: y + 4.5, w: 50, h: 9 }));
+  if (art) parts.unshift({ src: RESEARCH_ART + art + ".svg", x: character[0], y: character[1], w: character[2], h: character[3] });
+  return { type: "research", w: 481, z: 7, swatches, parts, placeholder: art ? null : "[TBD: card 1 layers not in the export]" };
 }
 
 // Everything that can appear in the world, back to front (z)
@@ -165,11 +175,20 @@ window.WORLD_ACTORS = {
   swatchOrange: swatch("#E48900", "#E48900", "#FFFFFF", 242),
   swatchJeans: swatch("#B3C8DF", "#0084C2", "#363135", 454), // Figma fills this one #B3C8DF but labels it #0084C2
   swatchBlue: swatch("#0063CF", "#0063CF", "#FFFFFF", 242),
-  research1: researchCard(1),
-  research2: researchCard(2),
-  research3: researchCard(3),
-  research4: researchCard(4),
-  research5: researchCard(5),
+  research1: researchCard(null, null, [317, 84], [], []),
+  research2: researchCard([67, 105, 226, 324], "card2-character", [317, 84],
+    ["#FFCBA3", "#3D3D3D", "#FEB101", "#FFF3F2", "#FF9501", "#FDCA9B"],
+    [["FFCBA3", 343, 159], ["3D3D3D", 493, 159], ["FEB101", 389, 291], ["FFF3F2", 545, 291], ["FF9501", 389, 399], ["FDCA9B", 545, 399]]),
+  research3: researchCard([73, 65, 211, 384], "card3-character", [325, 97],
+    ["#DA8F71", "#3C3E3D", "#FEAADF", "#A6653F", "#27E89F", "#20AFF3"],
+    [["DA8F71", 351, 177], ["3C3E3D", 507, 177], ["FEAADF", 397, 305], ["A6653F", 553, 305], ["27E89F", 397, 417], ["20AFF3", 553, 417]]),
+  research4: researchCard([51, 50, 239, 388], "card4-character", [317, 84],
+    ["#A1674A", "#3D3D3F", "#FAB327", "#FF4A4F", "#1CB0F6", "#4DC4FD"],
+    [["A36746", 343, 159], ["3D3D3F", 493, 159], ["FAB327", 389, 291], ["FF4A4F", 545, 291], ["1CB0F6", 389, 399], ["4DC4FD", 545, 399]]),
+  // card 5's image exported larger than its Figma box (234x380); sized to match the slide export
+  research5: researchCard([68, 59, 249, 398], "card5-character", [329, 84],
+    ["#C67962", "#3D3D3D", "#CD348E", "#AB0464", "#0084C2", "#00468E"],
+    [["C67962", 355, 159], ["3D3D3D", 505, 159], ["CD348E", 401, 291], ["AB0464", 557, 291], ["0084C2", 401, 399], ["00468E", 557, 399]]),
   titleResearch: { type: "text", font: "heading", z: 8 }
 };
 

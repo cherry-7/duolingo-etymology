@@ -86,6 +86,26 @@ window.World = (function () {
       };
     },
 
+    // Research card: a 704x514 Figma card frame (swatches, labels, character) shown at def.w wide
+    research(def, layer) {
+      const node = el("div", "actor research-card", layer);
+      def.swatches.forEach((p) => {
+        const sw = el("div", "research-swatch", node);
+        Object.assign(sw.style, { left: p.x + "px", top: p.y + "px", width: p.w + "px", height: p.h + "px", background: p.fill });
+      });
+      def.parts.forEach((p) => {
+        const img = el("img", null, node);
+        img.src = p.src;
+        img.alt = "";
+        Object.assign(img.style, { left: p.x + "px", top: p.y + "px", width: p.w + "px", height: p.h + "px" });
+      });
+      if (def.placeholder) el("div", "research-tbd", node).textContent = def.placeholder;
+      return (s) => {
+        node.style.opacity = s.opacity;
+        node.style.transform = `translate(${s.x}px, ${s.y}px) scale(${s.w / 704}) rotate(${s.rotate || 0}deg)`;
+      };
+    },
+
     ellipse(def, layer) {
       const node = el("div", "actor actor-ellipse", layer);
       return (s) => {
