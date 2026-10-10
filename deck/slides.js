@@ -140,11 +140,18 @@ const fromLeft = { dx: -450, opacity: 0 };
 const fromRight = { dx: 450, opacity: 0 };
 // Moving between examples: the top card flies off to the left, revealing the next one
 const FLY_OFF = { dx: -1500, dy: -90, rotate: -24, at: [0, 0.6] };
-const REVEAL = { reveal: 0, at: [0.25, 1] };
+// Card-trick entrance: starts 2.6x bigger, turned, out on a spiral (startAngle in degrees),
+// fading in quickly, then winds in to its spot
+function cardTrick(startAngle, rotate, at) {
+  return { scale: 2.6, rotate, opacity: 0, orbit: { r: 650, angle: startAngle, turns: 0.75 }, at };
+}
+const REVEAL = { reveal: 0, at: [0.15, 0.7] };
 
 // Morphology 2 and 3 share the split background (design/slides/Morphology 2.png)
-const PANEL = { x: 798, y: 0, w: 1122, h: 1080, color: C.purple };
-const DIVIDER = { x: 739, y: 0, w: 67, h: 1080, color: C.yellow };
+// They run past the top and bottom of the slide so they reach the window edges on screens
+// that are taller than 16:9 (the slide itself shows y 0-1080)
+const PANEL = { x: 798, y: -600, w: 1722, h: 2280, color: C.purple };
+const DIVIDER = { x: 739, y: -600, w: 67, h: 2280, color: C.yellow };
 
 // User Story layout, shared by its three bubble lines (design/slides/User Story.png)
 const storyActors = {
@@ -266,8 +273,8 @@ window.SLIDES = [
     actors: {
       wipe: WIPE_OPEN,
       // The purple half slides in from the right; the yellow divider grows top to bottom
-      panel: Object.assign({ enter: { dx: 1122, at: [0, 0.7] } }, PANEL),
-      divider: Object.assign({ enter: { h: 0, at: [0.35, 0.9] } }, DIVIDER),
+      panel: Object.assign({ enter: { dx: 1800, at: [0, 0.7] } }, PANEL),
+      divider: Object.assign({ enter: { h: 0, at: [0.35, 0.9] } }, DIVIDER), // grows down from the top
       morA: { x: 167, y: 360, size: 240, color: C.white, text: "Mor" },
       morB: { x: 858, y: 360, size: 240, color: C.white, text: "phology", letterOffset: 3 }
     }
@@ -282,7 +289,7 @@ window.SLIDES = [
       // Leaving for the examples: the lilac circle closes to the middle, the purple half
       // slides away, the words and pills drop out
       wipe: Object.assign({ exit: { w: 0, h: 0, dx: 1150, dy: 1150, at: [0.05, 0.6] } }, WIPE_OPEN),
-      panel: Object.assign({ exit: { dx: 1122, at: [0, 0.5] } }, PANEL),
+      panel: Object.assign({ exit: { dx: 1800, at: [0, 0.5] } }, PANEL),
       divider: Object.assign({ exit: { h: 0, at: [0, 0.4] } }, DIVIDER),
       morA: { x: 136, y: 323, size: 200, color: C.white, text: "Mor", exit: { dy: -140, opacity: 0, at: [0, 0.35] } },
       hyphenA: { x: 552.3, y: 323, size: 200, color: C.white, text: "-", enter: { dx: -70, opacity: 0, at: [0.3, 0.9] }, exit: { dy: -140, opacity: 0, at: [0, 0.35] } },
@@ -301,11 +308,12 @@ window.SLIDES = [
     bgAt: [0.05, 0.6],
     pace: 0.3,
     actors: {
-      // The cards are dealt in from below, one after another, and settle into the stack
-      cardTiltRight: Object.assign({ enter: { dy: 1000, rotate: 32, ease: "back", at: [0.25, 0.75] } }, STACK.cardTiltRight),
-      cardFlat: Object.assign({ enter: { dy: 1000, rotate: -12, ease: "back", at: [0.32, 0.82] } }, STACK.cardFlat),
-      cardTiltLeft: Object.assign({ enter: { dy: 1000, rotate: -30, ease: "back", at: [0.39, 0.89] } }, STACK.cardTiltLeft),
-      cardEnglish: Object.assign({ enter: { dy: 1000, rotate: 14, reveal: 0, ease: "back", at: [0.45, 1] }, exit: FLY_OFF }, CARD_TOP),
+      // A card trick: one after another, each card starts big and spinning, then spirals in,
+      // shrinking into its place in the stack. Hidden until its turn.
+      cardTiltRight: Object.assign({ enter: cardTrick(0, 9.19 + 200, [0.2, 0.75]) }, STACK.cardTiltRight),
+      cardFlat: Object.assign({ enter: cardTrick(90, -190, [0.28, 0.83]) }, STACK.cardFlat),
+      cardTiltLeft: Object.assign({ enter: cardTrick(180, -9 + 210, [0.36, 0.91]) }, STACK.cardTiltLeft),
+      cardEnglish: Object.assign({ enter: Object.assign(cardTrick(270, -200, [0.44, 1]), { reveal: 0 }), exit: FLY_OFF }, CARD_TOP),
       langEnglish: label("English", 129, 495, { enter: Object.assign({ at: [0.6, 1] }, fromLeft), exit: Object.assign({ at: [0, 0.45] }, fromLeft) }),
       wordEnglish: label("Unhappy", 1559, 495, { enter: Object.assign({ at: [0.65, 1] }, fromRight), exit: Object.assign({ at: [0, 0.45] }, fromRight) })
     }

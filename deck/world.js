@@ -178,7 +178,7 @@ window.World = (function () {
 
     // Card from the stack (design/slides/svgs/Card Stack): rounded blue card with a darker
     // outline. Rotates around its centre. def.texts makes it a flashcard whose words ride
-    // on it; reveal (0-1) brings those words up once the card has landed (second half).
+    // on it; reveal (0-1) brings those words up once the card has landed (last ~10%).
     card(def, layer) {
       const node = el("div", "actor actor-card", layer);
       node.style.width = def.w + "px";
@@ -196,7 +196,7 @@ window.World = (function () {
         node.style.opacity = s.opacity;
         node.style.transform = `translate(${s.x}px, ${s.y}px) rotate(${s.rotate || 0}deg) scale(${s.scale ?? 1})`;
         words.forEach((w, i) => {
-          const k = soft(clamp((s.reveal - 0.5 - i * 0.05) / 0.35, 0, 1));
+          const k = soft(clamp((s.reveal - 0.88 - i * 0.025) / 0.1, 0, 1));
           w.style.opacity = k;
           w.style.transform = k < 1 ? `translateY(${(1 - k) * 50}px)` : "";
         });
@@ -342,6 +342,18 @@ window.World = (function () {
     return s;
   }
 
+  // Spiral in, like a card trick: the actor circles its spot, the circle tightening to
+  // nothing as it arrives. orbit: { r: start radius (px), angle: start angle (deg),
+  // turns: how far it goes around }
+  function spiral(s, o, t) {
+    const left = 1 - t;
+    const a = ((o.angle || 0) + 360 * (o.turns || 0.75) * left) * Math.PI / 180;
+    s.x += Math.cos(a) * o.r * left;
+    s.y += Math.sin(a) * o.r * left;
+    s.opacity = clamp(t / 0.2, 0, 1); // fades in fast, then it's a solid card spinning in
+    return s;
+  }
+
   // Walking bob: little hops while an actor travels (walk = hop height in px)
   function walk(s, p, t) {
     if (p.walk && t > 0 && t < 1) s.y -= Math.abs(Math.sin(t * Math.PI * 4)) * p.walk;
@@ -435,6 +447,7 @@ window.World = (function () {
           // Enters: from its enter offset into its spot
           const lt = local(t, pb.enter && pb.enter.at, [0.5, 1]);
           s = mix(offset(pb, pb.enter), pb, lt, pb.enter && pb.enter.pop, pb.enter && pb.enter.ease === "back");
+          if (pb.enter && pb.enter.orbit) spiral(s, pb.enter.orbit, lt);
         } else if (pa) {
           s = mix(pa, pa, 0);
         } else {

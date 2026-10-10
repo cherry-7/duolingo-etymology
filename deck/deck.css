@@ -267,7 +267,7 @@ body {
   width: 1920px;
   height: 1080px;
   transform-origin: 50% 50%;
-  overflow: hidden;
+  overflow: visible; /* panels can reach the window edges on screens that aren't 16:9 */
 }
 
 .actor {
