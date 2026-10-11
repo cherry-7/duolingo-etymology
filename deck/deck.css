@@ -443,6 +443,13 @@ body {
   animation: dulo-bangs-arm 9s infinite, breathe-arm-translate 2.6s ease-in-out infinite;
 }
 .character-dulo.idle > .part-hair-ellipse-26 > div { animation: dulo-bangs-hair 9s infinite; }
+/* while she fixes them, she looks up at her bangs (up and to her left, where her hand is) */
+.character-dulo.idle :is(.group-eye-left, .group-eye-right) > * { animation: dulo-bangs-look 9s infinite; }
+@keyframes dulo-bangs-look {
+  0%, 70% { translate: 0 0; animation-timing-function: ease-out; }
+  73%, 81% { translate: 7px -9px; animation-timing-function: ease-in-out; }
+  85%, 100% { translate: 0 0; }
+}
 @keyframes breathe-arm-translate { 0%, 100% { translate: 0 0; } 45% { translate: 0 -7px; } }
 /* The arm turns about the shoulder, on top of its arms-down rest angle (62deg): clockwise,
    across her body, until +198deg brings the hand up to the bangs */
