@@ -80,3 +80,4 @@ Work queue for the deck and demo.
 - [ ] APPROVED (2026-10-11, Michelle in chat): Dulo's fingers sit under her sleeves but over her scarf.
 - [ ] APPROVED (2026-10-11, Michelle in chat): While Dulo fixes her bangs, she looks up at them, where her hand is.
 - [ ] APPROVED (2026-10-11, Michelle in chat): Mula and Dulo blink while idle.
+- [ ] APPROVED (2026-10-11, Michelle in chat): Dulo's sleeves and fingers go back behind her scarf (fingers still under the sleeves). Replaces the 'fingers over her scarf' entries above.

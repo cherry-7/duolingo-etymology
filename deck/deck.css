@@ -451,8 +451,8 @@ body {
 }
 
 /* Dulo: wide, immovable stance. Every so often she fixes her bangs in quick, decisive moves:
-   hand up to the bangs, one swipe, hand straight back down. Layers, back to front: scarf,
-   fingers (their own layers, moving with the arms), sleeves and hands, then her buttons.
+   hand up to the bangs, one swipe, hand straight back down. Layers, back to front: fingers
+   (their own layers, moving with the arms), sleeves and hands, then her scarf and buttons.
    The right arm swings up across the front of her body and is in front while it's up. */
 .character-dulo.idle > :is(.group-arm-right, .group-finger-right) {
   animation: dulo-bangs-arm 9s infinite, breathe-arm-translate 2.6s ease-in-out infinite;

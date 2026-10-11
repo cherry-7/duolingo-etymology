@@ -64,10 +64,6 @@ window.CHARACTER_PARTS = {
     {id: "boot-right", fill: "#3d3d3d", radius: 10, x: 293, y: 616, w: 55, h: 65},
     {id: "dress-top", src: "../assets/deck/dulo/dress-top.svg", x: 81, y: 315, w: 431.436, h: 291.089},
     {id: "dress-skirt", src: "../assets/deck/dulo/dress-skirt.svg", x: 81, y: 315, w: 431.436, h: 291.089},
-    {id: "sash-tail", src: "../assets/deck/dulo/sash-tail.svg", x: 311, y: 385, w: 92, h: 135.358, rot: 5.28, iw: 80.526, ih: 128.498},
-    {id: "collar", fill: "#cb6539", radius: 6, x: 271, y: 291, w: 54, h: 52},
-    {id: "collar-wide", fill: "#cb6539", radius: 6, x: 235, y: 318, w: 124, h: 52},
-    {id: "sash", fill: "#f2b866", radius: 6, x: 240, y: 402, w: 112, h: 30},
     {group: "finger-left", pivot: [250, 345], rest: -62, mirror: 169.3, parts: [
       {id: "rect-14", fill: "#d5a06e", radius: 14, x: 93.71, y: 331, w: 61.776, h: 53.54, rot: -55.78, iw: 25.929, ih: 57.076}
     ]},
@@ -82,6 +78,10 @@ window.CHARACTER_PARTS = {
       {id: "rect-17", fill: "#d5a06e", radius: 14, x: 435.74, y: 339, w: 82.747, h: 62.821, rot: -62.61, flip: true, iw: 30.706, ih: 77.286},
       {id: "sleeve-right", src: "../assets/deck/dulo/sleeve-right.svg", x: 81, y: 315, w: 431.436, h: 291.089}
     ]},
+    {id: "sash-tail", src: "../assets/deck/dulo/sash-tail.svg", x: 311, y: 385, w: 92, h: 135.358, rot: 5.28, iw: 80.526, ih: 128.498},
+    {id: "collar", fill: "#cb6539", radius: 6, x: 271, y: 291, w: 54, h: 52},
+    {id: "collar-wide", fill: "#cb6539", radius: 6, x: 235, y: 318, w: 124, h: 52},
+    {id: "sash", fill: "#f2b866", radius: 6, x: 240, y: 402, w: 112, h: 30},
     {id: "ear-left", src: "../assets/deck/dulo/ear-left.svg", x: 180, y: 213, w: 43, h: 43},
     {id: "ear-right", src: "../assets/deck/dulo/ear-right.svg", x: 370, y: 219, w: 43, h: 43},
     {id: "hair-crown", src: "../assets/deck/dulo/hair-crown.svg", x: 183, y: 81, w: 230, h: 230},
