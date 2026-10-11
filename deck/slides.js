@@ -102,7 +102,9 @@ window.WORLD_ACTORS = {
   title: { type: "text", font: "title", z: 2 },
   shadow: { type: "ellipse", z: 3 },
   saissha: { type: "img", src: DECK_ART + "saissha.png", w: 742, h: 963, z: 4, idle: "breathe" },
-  twins: { type: "img", src: DECK_ART + "twins.png", w: 1262, h: 944, z: 5 },
+  // Mula (left) and Dulo (right), built from their Figma parts; they take the old twins.png slot
+  // (same x, y and width, feet on the same line). box: the pair's outline in character units.
+  twins: { type: "pair", members: [{ who: "mula", dx: 0 }, { who: "dulo", dx: 520 }], box: [95, 60, 950, 666], slotAspect: 944 / 1262, z: 5 },
   bubble: { type: "bubble", z: 6 },
   names: { type: "text", font: "condensed", z: 7 },
   frame: { type: "frame", z: 8 },

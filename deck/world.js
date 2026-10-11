@@ -68,6 +68,33 @@ window.World = (function () {
       `A${r} ${r} 0 0 1 0 ${h - r}V${r}A${r} ${r} 0 0 1 ${r} 0Z`;
   }
 
+  // One character part from deck/characters.js: an outer box at x, y; inside it, an iw x ih box
+  // centred and rotated (rot / flip / skew); inside that, the SVG (at inset) or a rounded fill
+  function characterPart(p) {
+    const box = document.createElement("div");
+    box.className = "part part-" + p.id;
+    box.style.cssText = `position:absolute;left:${p.x}px;top:${p.y}px;width:${p.w}px;height:${p.h}px`;
+    const iw = p.iw ?? p.w;
+    const ih = p.ih ?? p.h;
+    const turn = document.createElement("div");
+    turn.style.cssText = `position:absolute;left:${(p.w - iw) / 2}px;top:${(p.h - ih) / 2}px;width:${iw}px;height:${ih}px;` +
+      `transform:rotate(${p.rot || 0}deg)${p.skew ? ` skewX(${p.skew}deg)` : ""}${p.flip ? " scaleY(-1)" : ""}`;
+    box.append(turn);
+    if (p.src) {
+      const [t, r, b, l] = p.inset || [0, 0, 0, 0];
+      const img = document.createElement("img");
+      img.src = p.src;
+      img.alt = "";
+      img.style.cssText = `position:absolute;display:block;max-width:none;top:${t}%;right:${r}%;bottom:${b}%;left:${l}%;` +
+        `width:${100 - l - r}%;height:${100 - t - b}%`;
+      turn.append(img);
+    } else {
+      turn.style.background = p.fill;
+      turn.style.borderRadius = p.radius + "px";
+    }
+    return box;
+  }
+
   // ---- Actor renderers -----------------------------------------------------
   // Each takes a resolved state (numbers already interpolated) and draws it.
 
@@ -83,6 +110,27 @@ window.World = (function () {
       return (s) => {
         node.style.opacity = s.opacity;
         node.style.transform = `translate(${s.x}px, ${s.y}px) scale(${s.w / def.w}) rotate(${s.rotate || 0}deg)`;
+      };
+    },
+
+    // Mula and Dulo side by side, each built from her Figma parts (deck/characters.js) so
+    // every part can move on its own later. def.box crops the pair to the characters
+    // ([x, y, w, h] in pair units); s.w is the shown width of that box.
+    pair(def, layer) {
+      const node = el("div", "actor actor-pair", layer);
+      const [bx, by, bw, bh] = def.box;
+      // slotAspect: the height/width of the art this replaces, so the feet stay where they were
+      const drop = def.slotAspect ? def.slotAspect - bh / bw : 0;
+      const inner = el("div", "pair-inner", node);
+      inner.style.cssText = `position:absolute;left:${-bx}px;top:${-by}px;transform-origin:0 0`;
+      def.members.forEach(({ who, dx }) => {
+        const frame = el("div", "character character-" + who, inner);
+        frame.style.cssText = `position:absolute;left:${dx}px;top:0;width:604px;height:774px`;
+        window.CHARACTER_PARTS[who].forEach((p) => frame.append(characterPart(p)));
+      });
+      return (s) => {
+        node.style.opacity = s.opacity;
+        node.style.transform = `translate(${s.x}px, ${s.y + s.w * drop}px) scale(${s.w / bw}) rotate(${s.rotate || 0}deg)`;
       };
     },
 
@@ -548,5 +596,5 @@ window.World = (function () {
     return { render, refresh: () => { measure(); render(lastPos); } };
   }
 
-  return { mount };
+  return { mount, characterPart };
 })();
