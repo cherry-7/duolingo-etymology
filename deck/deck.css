@@ -402,7 +402,7 @@ body {
 
 /* Both: heavy breathing. Everything above the legs rises and falls; the head a little more,
    and the shoulders lift the arms on each breath in. */
-.character.idle > :not(.group-leg-left, .group-leg-right, .part-shadow) {
+.character.idle > :not(.group-leg-left, .group-leg-right, .part-sole) {
   animation: breathe-body 2.6s ease-in-out infinite;
 }
 .character.idle > :is(.part-face, .part-ear-left, .part-ear-right, .part-hair-back, .part-hair-tuft,
@@ -419,6 +419,10 @@ body {
 @keyframes breathe-head { 0%, 100% { translate: 0 0; } 50% { translate: 0 -10px; } }
 @keyframes breathe-arm-right { 0%, 100% { translate: 0 0; rotate: 0deg; } 45% { translate: 0 -7px; rotate: -3deg; } }
 @keyframes breathe-arm-left { 0%, 100% { translate: 0 0; rotate: 0deg; } 45% { translate: 0 -7px; rotate: 3deg; } }
+
+/* The sole under both boots is one bar; while they run each foot carries its own half */
+.character:not(.running) :is(.part-sole-left, .part-sole-right),
+.character.running .part-sole { visibility: hidden; }
 
 /* Both: they blink now and then (Mula every 4.2s, Dulo every 5.3s, so never together). The eye
    whites and pupils squeeze shut about each eye's centre; Dulo's brows stay put. */

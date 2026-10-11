@@ -7,17 +7,21 @@
 //               down, Michelle's call; Figma has them out). Arms sit in front of the body.
 //   mirror      flip the arm over along its length (the line at this angle through pivot)
 //   mask        a group shown only inside this shape (pupils stay inside the eye whites)
+// The sole is one bar under both boots (Figma Rectangle 10); while running, each foot carries
+// its own half (sole-left / sole-right) instead.
 window.CHARACTER_PARTS = {
   mula: [
     {id: "pigtail-left", src: "../assets/deck/mula/pigtail-left.svg", x: 101, y: 225, w: 184.755, h: 184.755, rot: 32.95, iw: 133.584, ih: 133.584, inset: [9.73, 13.81, 25, 13.81]},
     {id: "pigtail-right", src: "../assets/deck/mula/pigtail-right.svg", x: 308, y: 226, w: 184.755, h: 184.755, rot: 147.05, flip: true, iw: 133.584, ih: 133.584, inset: [9.73, 13.81, 25, 13.81]},
     {group: "leg-right", pivot: [312, 480], parts: [
       {id: "leg-right", fill: "#d5a06e", radius: 6, x: 293, y: 476, w: 38, h: 130},
-      {id: "boot-right", fill: "#3d3d3d", radius: 10, x: 293, y: 616, w: 55, h: 65}
+      {id: "boot-right", fill: "#3d3d3d", radius: 10, x: 293, y: 616, w: 55, h: 65},
+      {id: "sole-right", fill: "#3d3d3d", radius: 14.5, x: 297.5, y: 694, w: 80.5, h: 29}
     ]},
     {group: "leg-left", pivot: [277, 480], parts: [
       {id: "leg-left", fill: "#d5a06e", radius: 6, x: 258, y: 474, w: 38, h: 132},
-      {id: "boot-left", src: "../assets/deck/mula/boot-left.svg", x: 245, y: 616, w: 55, h: 65}
+      {id: "boot-left", src: "../assets/deck/mula/boot-left.svg", x: 245, y: 616, w: 55, h: 65},
+      {id: "sole-left", fill: "#3d3d3d", radius: 14.5, x: 217, y: 694, w: 80.5, h: 29}
     ]},
     {id: "dress-top", src: "../assets/deck/mula/dress-top.svg", x: 118, y: 302, w: 439.553, h: 302.086},
     {id: "dress-skirt", src: "../assets/deck/mula/dress-skirt.svg", x: 118, y: 302, w: 439.553, h: 302.086},
@@ -43,7 +47,7 @@ window.CHARACTER_PARTS = {
     {id: "ellipse-25", src: "../assets/deck/mula/ellipse-25.svg", x: 312, y: 225, w: 69.298, h: 69.298, rot: -22.6, iw: 53, ih: 53, inset: [0, 0, 50, 0]},
     {id: "ellipse-28", src: "../assets/deck/mula/ellipse-28.svg", x: 319.75, y: 232.75, w: 53.807, h: 53.807, rot: -0.88, iw: 53, ih: 53, inset: [0, 0, 50, 0]},
     {id: "nose", src: "../assets/deck/mula/nose.svg", x: 287, y: 236.66, w: 22, h: 17, inset: [9.89, 7.6, 0, 7.6]},
-    {id: "shadow", src: "../assets/deck/mula/shadow.svg", x: 217, y: 694, w: 161, h: 29},
+    {id: "sole", src: "../assets/deck/mula/sole.svg", x: 217, y: 694, w: 161, h: 29},
     {id: "hair-tuft", src: "../assets/deck/mula/hair-tuft.svg", x: 192, y: 124, w: 37, h: 37},
     {id: "mouth", src: "../assets/deck/mula/mouth.svg", x: 267, y: 263, w: 45.119, h: 18.121, rot: 12.79, iw: 44.332, ih: 8.52, inset: [-35.21, -6.77, -35.21, -6.77]},
     {id: "hair-ellipse-4", src: "../assets/deck/mula/hair-ellipse-4.svg", x: 139, y: 70.51, w: 225.834, h: 227.872, rot: 135.57, skew: -0.51, iw: 160.395, ih: 160.46, inset: [50, 0.53, 0, 0.53]},
@@ -64,11 +68,13 @@ window.CHARACTER_PARTS = {
     {id: "hair-back", fill: "#3d3d3d", radius: 15, x: 194, y: 172, w: 207, h: 207},
     {group: "leg-right", pivot: [312, 480], parts: [
       {id: "leg-right", fill: "#d5a06e", radius: 6, x: 293, y: 476, w: 38, h: 130},
-      {id: "boot-right", fill: "#3d3d3d", radius: 10, x: 293, y: 616, w: 55, h: 65}
+      {id: "boot-right", fill: "#3d3d3d", radius: 10, x: 293, y: 616, w: 55, h: 65},
+      {id: "sole-right", fill: "#3d3d3d", radius: 14.5, x: 297.5, y: 694, w: 80.5, h: 29}
     ]},
     {group: "leg-left", pivot: [277, 480], parts: [
       {id: "leg-left", fill: "#d5a06e", radius: 6, x: 258, y: 474, w: 38, h: 132},
-      {id: "boot-left", src: "../assets/deck/dulo/boot-left.svg", x: 245, y: 616, w: 55, h: 65}
+      {id: "boot-left", src: "../assets/deck/dulo/boot-left.svg", x: 245, y: 616, w: 55, h: 65},
+      {id: "sole-left", fill: "#3d3d3d", radius: 14.5, x: 217, y: 694, w: 80.5, h: 29}
     ]},
     {id: "dress-top", src: "../assets/deck/dulo/dress-top.svg", x: 81, y: 315, w: 431.436, h: 291.089},
     {id: "dress-skirt", src: "../assets/deck/dulo/dress-skirt.svg", x: 81, y: 315, w: 431.436, h: 291.089},
@@ -114,7 +120,7 @@ window.CHARACTER_PARTS = {
     {id: "nose", src: "../assets/deck/dulo/nose.svg", x: 287, y: 236.66, w: 22, h: 17, inset: [9.89, 7.6, 0, 7.6]},
     {id: "mouth", src: "../assets/deck/dulo/mouth.svg", x: 272, y: 274, w: 44.894, h: 4.92, rot: -1.06, iw: 44.826, ih: 4.094, inset: [-73.3, -6.69, -73.3, -6.69]},
     {id: "mouth-corner", src: "../assets/deck/dulo/mouth-corner.svg", x: 317, y: 270, w: 6.69, h: 12.328, rot: 18.71, iw: 3, ih: 12, inset: [-25, -100.01, -25, -100.01]},
-    {id: "shadow", src: "../assets/deck/dulo/shadow.svg", x: 217, y: 694, w: 161, h: 29},
+    {id: "sole", src: "../assets/deck/dulo/sole.svg", x: 217, y: 694, w: 161, h: 29},
     {id: "hair-tuft", src: "../assets/deck/dulo/hair-tuft.svg", x: 192, y: 124, w: 37, h: 37},
     {id: "hair-ellipse-4", src: "../assets/deck/dulo/hair-ellipse-4.svg", x: 138, y: 71.83, w: 227.386, h: 227.386, rot: 136.29, iw: 160.827, ih: 160.827, inset: [50, 0.52, 0, 0.52]},
     {id: "hair-ellipse-26", src: "../assets/deck/dulo/hair-ellipse-26.svg", x: 226.61, y: 69, w: 227.386, h: 227.386, rot: 43.71, flip: true, iw: 160.827, ih: 160.827, inset: [50, 0.52, 0, 0.52]},
@@ -130,12 +136,13 @@ window.CHARACTER_PARTS = {
 window.CHARACTER_RUN = {
   right: { mula: 517, dulo: 124 },
   left: { mula: 4, dulo: 397 }, // both mirrored about their own frames
-  stride: 230, // pair units travelled per running step (one leg forward)
+  stride: 320, // pair units travelled per running step (one leg forward)
   legSwing: 26, // degrees each leg swings at the hip
   bob: 14, // hop height per step
   arms: {
     mula: { "arm-right": 0, "arm-left": 66 }, // pointing ahead (Figma pose); reaching back to Dulo
     dulo: { "arm-right": -10.9, "finger-right": -10.9, "arm-left": null, "finger-left": null } // null: stays at rest, swinging
   },
-  armSwing: 12
+  armSwing: 12,
+  look: 8 // pupils shift toward where they're running
 };

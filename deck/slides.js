@@ -274,7 +274,7 @@ const storyActors = {
   swirlOrange: { x: 726.7, y: 113.3, enter: { draw: 0, at: [0.1, 1] }, exit: { draw: 0, at: [0, 0.5] } },
   shadow: { x: 1183, y: 935, w: 629, h: 76, color: C.shadowOnYellow, at: [0.1, 0.9] },
   saissha: { x: 107, y: 117, w: 742, enter: { dx: -1300, at: [0.2, 0.8] } },
-  twins: { x: 1235, y: 540, w: 590.73, at: [0.1, 0.9] }
+  twins: { x: 1235, y: 540, w: 590.73, at: [0, 1] } // the run takes the whole move
 };
 
 // One example after English: the stack stays, the previous top card flies off to reveal
@@ -357,7 +357,7 @@ window.SLIDES = [
       swirlOrangeLearner: { x: -76.6, y: 42.1, enter: { draw: 0, at: [0.4, 1] }, exit: { draw: 0, at: [0, 0.7] } },
       shadow: { x: 794, y: 884, w: 1051, h: 127, color: C.shadowOnYellow, exit: { opacity: 0, at: [0, 0.4] } },
       saissha: { x: 107, y: 529.87, w: 424, exit: { dx: -1000, at: [0, 0.6] } },
-      twins: { x: 854, y: 254.93, w: 971.73, exit: { dx: 1700, at: [0, 0.6] } },
+      twins: { x: 854, y: 254.93, w: 971.73, exit: { dx: 1700, at: [0, 0.9] } },
       bubble: {
         x: 181, y: 198, w: 1061.83, h: 195, size: 80, tail: 1, padX: 61, // Figma's text starts with a space
         text: "That's the learner we're teaching for.",
@@ -524,7 +524,7 @@ window.SLIDES = [
       titleColor: { x: -36, y: -125, size: 290, color: C.orange, text: "Color", enter: { letters: true, at: [0.35, 0.9] }, exit: { dy: -500, at: [0, 0.4] } },
       titlePalette: { x: 874, y: -125, size: 290, color: C.yellow, text: "Palette", letterOffset: 5, enter: { letters: true, at: [0.35, 0.9] }, exit: { dy: -500, at: [0, 0.4] } },
       shadow: { x: 143, y: 808.6, w: 778.4, h: 161.8, color: C.orange, at: [0.05, 0.8], exit: { opacity: 0, at: [0, 0.3] } },
-      twins: { x: 147.03, y: 290, w: 847.63, at: [0.05, 0.8], exit: { dx: -1700, at: [0, 0.55] } },
+      twins: { x: 147.03, y: 290, w: 847.63, at: [0, 1], exit: { dx: -1700, at: [0, 0.9] } },
       swatchSkin: popIn(1063, 200, 0.45),
       swatchHair: popIn(1320.25, 200, 0.5),
       swatchShirt: popIn(1063, 502.64, 0.55),

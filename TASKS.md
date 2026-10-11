@@ -82,3 +82,4 @@ Work queue for the deck and demo.
 - [ ] APPROVED (2026-10-11, Michelle in chat): Mula and Dulo blink while idle.
 - [ ] APPROVED (2026-10-11, Michelle in chat): Dulo's sleeves and fingers go back behind her scarf (fingers still under the sleeves). Replaces the 'fingers over her scarf' entries above.
 - [ ] APPROVED (2026-10-11, Michelle in chat): Character step 3, Entrance/Moving: whenever the pair moves sideways between slides, Mula runs ahead pointing and pulls Dulo by the hand. Running left, both are mirrored to face that way; running right, Mula dashes past Dulo to the front, then they settle back to Mula-left, Dulo-right when they arrive.
+- [ ] APPROVED (2026-10-11, Michelle in chat): Running fixes: the bar under the boots is part of their shoes and moves with their feet; they run slower; their eyes look the way they're running.

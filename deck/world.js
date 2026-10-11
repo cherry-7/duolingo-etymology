@@ -159,8 +159,8 @@ window.World = (function () {
         const groups = {};
         frame.querySelectorAll(".part-group").forEach((g) => { groups[g.className.match(/group-(\S+)/)[1]] = g; });
         frame.classList.add("idle");
-        const shadow = frame.querySelector(".part-shadow"); // stays on the ground when they hop
-        return { who, dx, frame, groups, defs, shadow };
+        const pupils = frame.querySelectorAll(".group-eye-left > *, .group-eye-right > *");
+        return { who, dx, frame, groups, defs, pupils };
       });
       let wasRunning = null;
 
@@ -169,7 +169,8 @@ window.World = (function () {
         members.forEach((m) => {
           m.frame.style.transform = `translate(${m.dx}px, 0)`;
           m.frame.style.zIndex = "";
-          if (m.shadow) m.shadow.style.transform = "";
+          m.frame.classList.remove("running");
+          m.pupils.forEach((p) => { p.style.translate = ""; });
           for (const [name, g] of Object.entries(m.groups)) {
             const p = m.defs[name];
             if (p.pivot) g.style.transform = groupTransform(p, p.rest || 0, p.mirror != null ? -1 : 1);
@@ -189,11 +190,13 @@ window.World = (function () {
         const bob = Math.abs(Math.sin(phase * Math.PI)) * run.bob * w;
         members.forEach((m) => {
           m.frame.classList.toggle("idle", w === 0);
+          m.frame.classList.toggle("running", w > 0); // each foot carries its half of the sole
           const x = lerp(m.dx, run[dir][m.who], w);
           const turn = dir === "left" ? lerp(1, -1, w) : 1; // turns to face left, like a sprite
           m.frame.style.transform = `translate(${x}px, ${-bob}px) scaleX(${turn})`;
           m.frame.style.zIndex = m.who === "mula" ? 1 : ""; // Mula in front, holding Dulo's hand
-          if (m.shadow) m.shadow.style.transform = `translate(0, ${bob}px)`;
+          // eyes on where they're going (the frame is mirrored when running left)
+          m.pupils.forEach((p) => { p.style.translate = `${run.look * w}px 0`; });
           const legs = { "leg-left": swing * run.legSwing, "leg-right": -swing * run.legSwing };
           for (const [name, g] of Object.entries(m.groups)) {
             const p = m.defs[name];
