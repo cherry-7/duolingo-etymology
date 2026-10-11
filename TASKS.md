@@ -74,3 +74,4 @@ Work queue for the deck and demo.
 - [ ] APPROVED (2026-10-11, Michelle in chat): Mula and Dulo (design/slides/svgs/Character_Mula, Character_Dulo; spec in "Duolingo Character Analysis: Mula and Dulo" PDF) replace the twins PNG on every deck slide. Animate pose by pose, confirming each step with Michelle before moving on. The two always appear together. The PDF's empty Help/Teaching animations are dropped for now.
 - [ ] APPROVED (2026-10-11, Michelle in chat): The Color Palette slide shows Mula and Dulo's colours, taken from their layers in the character Figma file (it has no palette frame).
 - [ ] APPROVED (2026-10-11, Michelle in chat): Character step 2, Idle. Mula: heavy breathing, eyes sweep side to side now and then. Dulo: wide, immovable stance; now and then she fixes her bangs in quick, decisive moves.
+- [ ] APPROVED (2026-10-11, Michelle in chat): Mula and Dulo idle with both arms down (Figma has them out).

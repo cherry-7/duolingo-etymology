@@ -430,23 +430,21 @@ body {
 }
 
 /* Dulo: wide, immovable stance (only the faintest breath). Every so often she fixes her bangs
-   in quick, decisive moves: hand up to the bangs, one swipe, hand straight back down. */
+   in quick, decisive moves: hand up to the bangs, one swipe, hand straight back down. Arms hang down when idle. */
 .character-dulo.idle > :not(.part-leg-left, .part-leg-right, .part-boot-left, .part-boot-right, .part-shadow) {
   animation: dulo-breathe 4.5s ease-in-out infinite;
 }
 @keyframes dulo-breathe { 0%, 100% { translate: 0 0; } 50% { translate: 0 -2px; } }
 .character-dulo.idle > .group-arm-right { animation: dulo-bangs-arm 9s infinite; }
 .character-dulo.idle > .part-hair-ellipse-26 > div { animation: dulo-bangs-hair 9s infinite; }
-/* The arm turns about the shoulder (the group's pivot), and comes in front of her face only
-   while the hand is up */
+/* The arm turns about the shoulder (the group's pivot), on top of its arms-down rest angle
+   (62deg), so -162deg brings the hand up to the bangs */
 @keyframes dulo-bangs-arm {
-  0%, 70% { rotate: 0deg; z-index: 0; animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1); }
-  70.2% { z-index: 1; }
-  74% { rotate: -100deg; animation-timing-function: ease-in-out; }
-  77% { rotate: -94deg; animation-timing-function: ease-in-out; }
-  80% { rotate: -100deg; animation-timing-function: cubic-bezier(0.5, 0, 0.7, 1); }
-  83.8% { z-index: 1; }
-  84%, 100% { rotate: 0deg; z-index: 0; }
+  0%, 70% { rotate: 0deg; animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1); }
+  74% { rotate: -162deg; animation-timing-function: ease-in-out; }
+  77% { rotate: -156deg; animation-timing-function: ease-in-out; }
+  80% { rotate: -162deg; animation-timing-function: cubic-bezier(0.5, 0, 0.7, 1); }
+  84%, 100% { rotate: 0deg; }
 }
 @keyframes dulo-bangs-hair {
   0%, 76% { rotate: 0deg; }

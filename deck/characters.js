@@ -3,6 +3,8 @@
 //   x, y, w, h   the part's box; rot / flip / skew rotate an inner iw x ih box about its centre
 //   inset       where the image sits inside that box (top, right, bottom, left, in %)
 //   src | fill + radius   an exported SVG, or a plain rounded rectangle
+//   group       an arm (sleeve + hand) that turns about pivot; rest is its idle angle (arms
+//               down, Michelle's call; Figma has them out). Arms sit in front of the body.
 window.CHARACTER_PARTS = {
   mula: [
     {id: "pigtail-left", src: "../assets/deck/mula/pigtail-left.svg", x: 101, y: 225, w: 184.755, h: 184.755, rot: 32.95, iw: 133.584, ih: 133.584, inset: [9.73, 13.81, 25, 13.81]},
@@ -12,15 +14,6 @@ window.CHARACTER_PARTS = {
     {id: "boot-left", src: "../assets/deck/mula/boot-left.svg", x: 245, y: 616, w: 55, h: 65},
     {id: "boot-right", fill: "#3d3d3d", radius: 10, x: 293, y: 616, w: 55, h: 65},
     {id: "dress-top", src: "../assets/deck/mula/dress-top.svg", x: 118, y: 302, w: 439.553, h: 302.086},
-    {group: "arm-right", pivot: [343, 352], parts: [
-      {id: "hand-right", src: "../assets/deck/mula/hand-right.svg", x: 450, y: 353, w: 88.39, h: 88.386, rot: -44.85, iw: 63, ih: 62},
-      {id: "finger", fill: "#d5a06e", radius: 14, x: 495, y: 369, w: 57.292, h: 36.029, rot: -76.68, iw: 24.454, ih: 53.086},
-      {id: "sleeve-right", src: "../assets/deck/mula/sleeve-right.svg", x: 118, y: 302, w: 439.553, h: 302.086}
-    ]},
-    {group: "arm-left", pivot: [253, 347], parts: [
-      {id: "hand-left", src: "../assets/deck/mula/hand-left.svg", x: 148, y: 466, w: 63, h: 62},
-      {id: "sleeve-left", src: "../assets/deck/mula/sleeve-left.svg", x: 118, y: 302, w: 439.553, h: 302.086}
-    ]},
     {id: "dress-skirt", src: "../assets/deck/mula/dress-skirt.svg", x: 118, y: 302, w: 439.553, h: 302.086},
     {id: "scarf", fill: "#cb6539", radius: 6, x: 240, y: 291, w: 112, h: 52},
     {id: "ear-left", src: "../assets/deck/mula/ear-left.svg", x: 180, y: 213, w: 43, h: 43},
@@ -45,7 +38,17 @@ window.CHARACTER_PARTS = {
     {id: "mouth", src: "../assets/deck/mula/mouth.svg", x: 267, y: 263, w: 45.119, h: 18.121, rot: 12.79, iw: 44.332, ih: 8.52, inset: [-35.21, -6.77, -35.21, -6.77]},
     {id: "hair-ellipse-4", src: "../assets/deck/mula/hair-ellipse-4.svg", x: 139, y: 70.51, w: 225.834, h: 227.872, rot: 135.57, skew: -0.51, iw: 160.395, ih: 160.46, inset: [50, 0.53, 0, 0.53]},
     {id: "hair-ellipse-26", src: "../assets/deck/mula/hair-ellipse-26.svg", x: 227.01, y: 67, w: 225.751, h: 227.79, rot: 43.5, flip: true, skew: 0.51, iw: 160.395, ih: 160.46, inset: [50, 0.53, 0, 0.53]},
-    {id: "hair-ellipse-3", src: "../assets/deck/mula/hair-ellipse-3.svg", x: 234.89, y: 67.11, w: 137.589, h: 138.825, rot: 61.19, skew: 0.43, iw: 101.903, ih: 101.407, inset: [50, 0.88, 0, 0.88]}
+    {id: "hair-ellipse-3", src: "../assets/deck/mula/hair-ellipse-3.svg", x: 234.89, y: 67.11, w: 137.589, h: 138.825, rot: 61.19, skew: 0.43, iw: 101.903, ih: 101.407, inset: [50, 0.88, 0, 0.88]},
+    {group: "arm-right", pivot: [343, 352], rest: 55, parts: [
+      {id: "hand-right", src: "../assets/deck/mula/hand-right.svg", x: 450, y: 353, w: 88.39, h: 88.386, rot: -44.85, iw: 63, ih: 62},
+      {id: "finger", fill: "#d5a06e", radius: 14, x: 495, y: 369, w: 57.292, h: 36.029, rot: -76.68, iw: 24.454, ih: 53.086},
+      {id: "sleeve-right", src: "../assets/deck/mula/sleeve-right.svg", x: 118, y: 302, w: 439.553, h: 302.086}
+    ]},
+    {group: "arm-left", pivot: [253, 347], rest: -6, parts: [
+      {id: "hand-left", src: "../assets/deck/mula/hand-left.svg", x: 148, y: 466, w: 63, h: 62},
+      {id: "sleeve-left", src: "../assets/deck/mula/sleeve-left.svg", x: 118, y: 302, w: 439.553, h: 302.086}
+    ]},
+    {id: "scarf-tail", src: "../assets/deck/mula/scarf-tail.svg", x: 118, y: 302, w: 439.553, h: 302.086}
   ],
   dulo: [
     {id: "hair-back", fill: "#3d3d3d", radius: 15, x: 194, y: 172, w: 207, h: 207},
@@ -54,16 +57,6 @@ window.CHARACTER_PARTS = {
     {id: "boot-left", src: "../assets/deck/dulo/boot-left.svg", x: 245, y: 616, w: 55, h: 65},
     {id: "boot-right", fill: "#3d3d3d", radius: 10, x: 293, y: 616, w: 55, h: 65},
     {id: "dress-top", src: "../assets/deck/dulo/dress-top.svg", x: 81, y: 315, w: 431.436, h: 291.089},
-    {group: "arm-left", pivot: [250, 345], parts: [
-      {id: "rect-14", fill: "#d5a06e", radius: 14, x: 93.71, y: 331, w: 61.776, h: 53.54, rot: -55.78, iw: 25.929, ih: 57.076},
-      {id: "rect-15", fill: "#d5a06e", radius: 14, x: 67, y: 343, w: 82.747, h: 62.821, rot: -117.39, iw: 30.706, ih: 77.286},
-      {id: "sleeve-left", src: "../assets/deck/dulo/sleeve-left.svg", x: 81, y: 315, w: 431.436, h: 291.089}
-    ]},
-    {group: "arm-right", pivot: [345, 345], parts: [
-      {id: "rect-16", fill: "#d5a06e", radius: 14, x: 430, y: 327, w: 61.776, h: 53.54, rot: -124.22, flip: true, iw: 25.929, ih: 57.076},
-      {id: "rect-17", fill: "#d5a06e", radius: 14, x: 435.74, y: 339, w: 82.747, h: 62.821, rot: -62.61, flip: true, iw: 30.706, ih: 77.286},
-      {id: "sleeve-right", src: "../assets/deck/dulo/sleeve-right.svg", x: 81, y: 315, w: 431.436, h: 291.089}
-    ]},
     {id: "dress-skirt", src: "../assets/deck/dulo/dress-skirt.svg", x: 81, y: 315, w: 431.436, h: 291.089},
     {id: "sash-tail", src: "../assets/deck/dulo/sash-tail.svg", x: 311, y: 385, w: 92, h: 135.358, rot: 5.28, iw: 80.526, ih: 128.498},
     {id: "collar", fill: "#cb6539", radius: 6, x: 271, y: 291, w: 54, h: 52},
@@ -93,6 +86,16 @@ window.CHARACTER_PARTS = {
     {id: "hair-tuft", src: "../assets/deck/dulo/hair-tuft.svg", x: 192, y: 124, w: 37, h: 37},
     {id: "hair-ellipse-4", src: "../assets/deck/dulo/hair-ellipse-4.svg", x: 138, y: 71.83, w: 227.386, h: 227.386, rot: 136.29, iw: 160.827, ih: 160.827, inset: [50, 0.52, 0, 0.52]},
     {id: "hair-ellipse-26", src: "../assets/deck/dulo/hair-ellipse-26.svg", x: 226.61, y: 69, w: 227.386, h: 227.386, rot: 43.71, flip: true, iw: 160.827, ih: 160.827, inset: [50, 0.52, 0, 0.52]},
-    {id: "hair-ellipse-3", src: "../assets/deck/dulo/hair-ellipse-3.svg", x: 235.1, y: 69, w: 138.225, h: 138.225, rot: 61.44, iw: 101.908, ih: 101.908, inset: [50, 0.87, 0, 0.87]}
+    {id: "hair-ellipse-3", src: "../assets/deck/dulo/hair-ellipse-3.svg", x: 235.1, y: 69, w: 138.225, h: 138.225, rot: 61.44, iw: 101.908, ih: 101.908, inset: [50, 0.87, 0, 0.87]},
+    {group: "arm-left", pivot: [250, 345], rest: -62, parts: [
+      {id: "rect-14", fill: "#d5a06e", radius: 14, x: 93.71, y: 331, w: 61.776, h: 53.54, rot: -55.78, iw: 25.929, ih: 57.076},
+      {id: "rect-15", fill: "#d5a06e", radius: 14, x: 67, y: 343, w: 82.747, h: 62.821, rot: -117.39, iw: 30.706, ih: 77.286},
+      {id: "sleeve-left", src: "../assets/deck/dulo/sleeve-left.svg", x: 81, y: 315, w: 431.436, h: 291.089}
+    ]},
+    {group: "arm-right", pivot: [345, 345], rest: 62, parts: [
+      {id: "rect-16", fill: "#d5a06e", radius: 14, x: 430, y: 327, w: 61.776, h: 53.54, rot: -124.22, flip: true, iw: 25.929, ih: 57.076},
+      {id: "rect-17", fill: "#d5a06e", radius: 14, x: 435.74, y: 339, w: 82.747, h: 62.821, rot: -62.61, flip: true, iw: 30.706, ih: 77.286},
+      {id: "sleeve-right", src: "../assets/deck/dulo/sleeve-right.svg", x: 81, y: 315, w: 431.436, h: 291.089}
+    ]}
   ],
 };

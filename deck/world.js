@@ -75,7 +75,7 @@ window.World = (function () {
     if (p.group) {
       const g = document.createElement("div");
       g.className = "part-group group-" + p.group;
-      g.style.cssText = `position:absolute;left:0;top:0;width:604px;height:774px;transform-origin:${p.pivot[0]}px ${p.pivot[1]}px`;
+      g.style.cssText = `position:absolute;left:0;top:0;width:604px;height:774px;transform-origin:${p.pivot[0]}px ${p.pivot[1]}px;transform:rotate(${p.rest || 0}deg)`;
       p.parts.forEach((q) => g.append(characterPart(q)));
       return g;
     }
