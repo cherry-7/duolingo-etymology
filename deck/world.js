@@ -160,7 +160,8 @@ window.World = (function () {
         frame.querySelectorAll(".part-group").forEach((g) => { groups[g.className.match(/group-(\S+)/)[1]] = g; });
         frame.classList.add("idle");
         const pupils = frame.querySelectorAll(".group-eye-left > *, .group-eye-right > *");
-        return { who, dx, frame, groups, defs, pupils };
+        const soles = Object.keys(run.soles).map((id) => [frame.querySelector(".part-" + id), run.soles[id]]);
+        return { who, dx, frame, groups, defs, pupils, soles };
       });
       let wasRunning = null;
 
@@ -171,6 +172,7 @@ window.World = (function () {
           m.frame.style.zIndex = "";
           m.frame.classList.remove("running");
           m.pupils.forEach((p) => { p.style.translate = ""; });
+          m.soles.forEach(([el, [x]]) => { el.style.left = x + "px"; });
           for (const [name, g] of Object.entries(m.groups)) {
             const p = m.defs[name];
             if (p.pivot) g.style.transform = groupTransform(p, p.rest || 0, p.mirror != null ? -1 : 1);
@@ -197,6 +199,7 @@ window.World = (function () {
           m.frame.style.zIndex = m.who === "mula" ? 1 : ""; // Mula in front, holding Dulo's hand
           // eyes on where they're going (the frame is mirrored when running left)
           m.pupils.forEach((p) => { p.style.translate = `${run.look * w}px 0`; });
+          m.soles.forEach(([el, [x0, x1]]) => { el.style.left = lerp(x0, x1, w) + "px"; }); // toes forward
           const legs = { "leg-left": swing * run.legSwing, "leg-right": -swing * run.legSwing };
           for (const [name, g] of Object.entries(m.groups)) {
             const p = m.defs[name];

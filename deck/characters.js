@@ -144,5 +144,8 @@ window.CHARACTER_RUN = {
     dulo: { "arm-right": -10.9, "finger-right": -10.9, "arm-left": null, "finger-left": null } // null: stays at rest, swinging
   },
   armSwing: 12,
-  look: 8 // pupils shift toward where they're running
+  look: 8, // pupils shift toward where they're running
+  // While running both feet point forward: each sole half slides so its toe sticks out in front
+  // of its boot (standing, the left one sticks out left and the right one right, as in Figma)
+  soles: { "sole-left": [217, 245], "sole-right": [297.5, 293] } // x standing, x running
 };
