@@ -400,26 +400,32 @@ body {
    Parts are in 604x774 character units. Loops use the individual translate / rotate properties,
    so they never fight the parts' own placement. */
 
-/* Mula: heavy breathing. Everything above the legs rises and falls; the head a little more,
+/* Both: heavy breathing. Everything above the legs rises and falls; the head a little more,
    and the shoulders lift the arms on each breath in. */
-.character-mula.idle > :not(.part-leg-left, .part-leg-right, .part-boot-left, .part-boot-right, .part-shadow) {
-  animation: mula-breathe 2.6s ease-in-out infinite;
+.character.idle > :not(.part-leg-left, .part-leg-right, .part-boot-left, .part-boot-right, .part-shadow) {
+  animation: breathe-body 2.6s ease-in-out infinite;
 }
-.character-mula.idle > :is(.part-face, .part-ear-left, .part-ear-right, .part-hair-back, .part-hair-tuft,
-  .part-hair-ellipse-4, .part-hair-ellipse-26, .part-hair-ellipse-3, .part-ellipse-10, .part-eye-white-left,
-  .part-eye-white-right, .part-group-9, .part-pupil-left, .part-pupil-right, .part-nose, .part-nose-tip,
-  .part-mouth, .part-ellipse-24, .part-ellipse-25, .part-ellipse-28, .part-pigtail-left, .part-pigtail-right) {
-  animation-name: mula-breathe-head;
+.character.idle > :is(.part-face, .part-ear-left, .part-ear-right, .part-hair-back, .part-hair-tuft,
+  .part-hair-crown, .part-bun-left, .part-bun-right, .part-hair-ellipse-4, .part-hair-ellipse-26,
+  .part-hair-ellipse-3, .part-ellipse-10, .part-eye-white-left, .part-eye-white-right, .group-eye-left,
+  .group-eye-right, .part-nose, .part-nose-tip, .part-mouth, .part-mouth-corner, .part-ellipse-16-left,
+  .part-ellipse-16-right, .part-ellipse-24, .part-ellipse-25, .part-ellipse-28, .part-pigtail-left,
+  .part-pigtail-right) {
+  animation-name: breathe-head;
 }
-.character-mula.idle > .group-arm-right { animation-name: mula-breathe-arm-right; }
-.character-mula.idle > .group-arm-left { animation-name: mula-breathe-arm-left; }
-@keyframes mula-breathe { 0%, 100% { translate: 0 0; } 45% { translate: 0 -7px; } }
-@keyframes mula-breathe-head { 0%, 100% { translate: 0 0; } 50% { translate: 0 -10px; } }
-@keyframes mula-breathe-arm-right { 0%, 100% { translate: 0 0; rotate: 0deg; } 45% { translate: 0 -7px; rotate: -3deg; } }
-@keyframes mula-breathe-arm-left { 0%, 100% { translate: 0 0; rotate: 0deg; } 45% { translate: 0 -7px; rotate: 3deg; } }
+.character.idle > .group-arm-right { animation-name: breathe-arm-right; }
+.character.idle > .group-arm-left { animation-name: breathe-arm-left; }
+@keyframes breathe-body { 0%, 100% { translate: 0 0; } 45% { translate: 0 -7px; } }
+@keyframes breathe-head { 0%, 100% { translate: 0 0; } 50% { translate: 0 -10px; } }
+@keyframes breathe-arm-right { 0%, 100% { translate: 0 0; rotate: 0deg; } 45% { translate: 0 -7px; rotate: -3deg; } }
+@keyframes breathe-arm-left { 0%, 100% { translate: 0 0; rotate: 0deg; } 45% { translate: 0 -7px; rotate: 3deg; } }
 
-/* Mula: every now and then her eyes sweep to one side, then the other, then back */
-.character-mula.idle > :is(.part-group-9, .part-pupil-left, .part-pupil-right) > div {
+/* Mula: her pointing finger is tucked away while she's idle */
+.character-mula.idle .part-finger { visibility: hidden; }
+
+/* Mula: every now and then her eyes sweep to one side, then the other, then back. The pupils
+   are masked to the eye whites, so they never leave the eye. */
+.character-mula.idle :is(.group-eye-left, .group-eye-right) > * {
   animation: mula-glance 7s ease-in-out infinite;
 }
 @keyframes mula-glance {
@@ -429,22 +435,24 @@ body {
   93% { translate: 0 0; }
 }
 
-/* Dulo: wide, immovable stance (only the faintest breath). Every so often she fixes her bangs
-   in quick, decisive moves: hand up to the bangs, one swipe, hand straight back down. Arms hang down when idle. */
-.character-dulo.idle > :not(.part-leg-left, .part-leg-right, .part-boot-left, .part-boot-right, .part-shadow) {
-  animation: dulo-breathe 4.5s ease-in-out infinite;
+/* Dulo: wide, immovable stance. Every so often she fixes her bangs in quick, decisive moves:
+   hand up to the bangs, one swipe, hand straight back down. Her arms sit behind her scarf and
+   buttons; the right one comes in front of her face only while the hand is up. */
+.character-dulo.idle > .group-arm-right {
+  animation: dulo-bangs-arm 9s infinite, breathe-arm-translate 2.6s ease-in-out infinite;
 }
-@keyframes dulo-breathe { 0%, 100% { translate: 0 0; } 50% { translate: 0 -2px; } }
-.character-dulo.idle > .group-arm-right { animation: dulo-bangs-arm 9s infinite; }
 .character-dulo.idle > .part-hair-ellipse-26 > div { animation: dulo-bangs-hair 9s infinite; }
-/* The arm turns about the shoulder (the group's pivot), on top of its arms-down rest angle
-   (62deg), so -162deg brings the hand up to the bangs */
+@keyframes breathe-arm-translate { 0%, 100% { translate: 0 0; } 45% { translate: 0 -7px; } }
+/* The arm turns about the shoulder, on top of its arms-down rest angle (62deg), so -162deg
+   brings the hand up to the bangs */
 @keyframes dulo-bangs-arm {
-  0%, 70% { rotate: 0deg; animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1); }
+  0%, 70% { rotate: 0deg; z-index: 0; animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1); }
+  70.2% { z-index: 1; }
   74% { rotate: -162deg; animation-timing-function: ease-in-out; }
   77% { rotate: -156deg; animation-timing-function: ease-in-out; }
   80% { rotate: -162deg; animation-timing-function: cubic-bezier(0.5, 0, 0.7, 1); }
-  84%, 100% { rotate: 0deg; }
+  83.8% { z-index: 1; }
+  84%, 100% { rotate: 0deg; z-index: 0; }
 }
 @keyframes dulo-bangs-hair {
   0%, 76% { rotate: 0deg; }

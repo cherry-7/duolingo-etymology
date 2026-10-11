@@ -5,6 +5,8 @@
 //   src | fill + radius   an exported SVG, or a plain rounded rectangle
 //   group       an arm (sleeve + hand) that turns about pivot; rest is its idle angle (arms
 //               down, Michelle's call; Figma has them out). Arms sit in front of the body.
+//   mirror      flip the arm over along its length (the line at this angle through pivot)
+//   mask        a group shown only inside this shape (pupils stay inside the eye whites)
 window.CHARACTER_PARTS = {
   mula: [
     {id: "pigtail-left", src: "../assets/deck/mula/pigtail-left.svg", x: 101, y: 225, w: 184.755, h: 184.755, rot: 32.95, iw: 133.584, ih: 133.584, inset: [9.73, 13.81, 25, 13.81]},
@@ -23,9 +25,13 @@ window.CHARACTER_PARTS = {
     {id: "ellipse-10", src: "../assets/deck/mula/ellipse-10.svg", x: 244, y: 139, w: 147.565, h: 150.815, rot: -102.09, iw: 127.769, ih: 123.54, inset: [50, 1.32, 0, 1.32]},
     {id: "eye-white-left", src: "../assets/deck/mula/eye-white-left.svg", x: 237, y: 179, w: 52.627, h: 74.157},
     {id: "eye-white-right", src: "../assets/deck/mula/eye-white-right.svg", x: 306.37, y: 179, w: 52.627, h: 74.157},
-    {id: "group-9", src: "../assets/deck/mula/group-9.svg", x: 311.08, y: 202.37, w: 20.532, h: 33.5},
-    {id: "pupil-left", src: "../assets/deck/mula/pupil-left.svg", x: 253.1, y: 195.82, w: 30.547, h: 40.592},
-    {id: "pupil-right", src: "../assets/deck/mula/pupil-right.svg", x: 303.98, y: 195.75, w: 30.547, h: 40.592},
+    {group: "eye-right", mask: {src: "../assets/deck/mula/eye-white-right.svg", x: 306.37, y: 179, w: 52.627, h: 74.157}, parts: [
+      {id: "group-9", src: "../assets/deck/mula/group-9.svg", x: 311.08, y: 202.37, w: 20.532, h: 33.5},
+      {id: "pupil-right", src: "../assets/deck/mula/pupil-right.svg", x: 303.98, y: 195.75, w: 30.547, h: 40.592}
+    ]},
+    {group: "eye-left", mask: {src: "../assets/deck/mula/eye-white-left.svg", x: 237, y: 179, w: 52.627, h: 74.157}, parts: [
+      {id: "pupil-left", src: "../assets/deck/mula/pupil-left.svg", x: 253.1, y: 195.82, w: 30.547, h: 40.592}
+    ]},
     {id: "nose-tip", src: "../assets/deck/mula/nose-tip.svg", x: 288, y: 245.66, w: 20, h: 19},
     {id: "button-1", src: "../assets/deck/mula/button-1.svg", x: 243, y: 438, w: 15, h: 14},
     {id: "button-2", src: "../assets/deck/mula/button-2.svg", x: 242, y: 458, w: 15, h: 14},
@@ -58,6 +64,16 @@ window.CHARACTER_PARTS = {
     {id: "boot-right", fill: "#3d3d3d", radius: 10, x: 293, y: 616, w: 55, h: 65},
     {id: "dress-top", src: "../assets/deck/dulo/dress-top.svg", x: 81, y: 315, w: 431.436, h: 291.089},
     {id: "dress-skirt", src: "../assets/deck/dulo/dress-skirt.svg", x: 81, y: 315, w: 431.436, h: 291.089},
+    {group: "arm-left", pivot: [250, 345], rest: -62, mirror: 169.3, parts: [
+      {id: "rect-14", fill: "#d5a06e", radius: 14, x: 93.71, y: 331, w: 61.776, h: 53.54, rot: -55.78, iw: 25.929, ih: 57.076},
+      {id: "rect-15", fill: "#d5a06e", radius: 14, x: 67, y: 343, w: 82.747, h: 62.821, rot: -117.39, iw: 30.706, ih: 77.286},
+      {id: "sleeve-left", src: "../assets/deck/dulo/sleeve-left.svg", x: 81, y: 315, w: 431.436, h: 291.089}
+    ]},
+    {group: "arm-right", pivot: [345, 345], rest: 62, mirror: 10.7, parts: [
+      {id: "rect-16", fill: "#d5a06e", radius: 14, x: 430, y: 327, w: 61.776, h: 53.54, rot: -124.22, flip: true, iw: 25.929, ih: 57.076},
+      {id: "rect-17", fill: "#d5a06e", radius: 14, x: 435.74, y: 339, w: 82.747, h: 62.821, rot: -62.61, flip: true, iw: 30.706, ih: 77.286},
+      {id: "sleeve-right", src: "../assets/deck/dulo/sleeve-right.svg", x: 81, y: 315, w: 431.436, h: 291.089}
+    ]},
     {id: "sash-tail", src: "../assets/deck/dulo/sash-tail.svg", x: 311, y: 385, w: 92, h: 135.358, rot: 5.28, iw: 80.526, ih: 128.498},
     {id: "collar", fill: "#cb6539", radius: 6, x: 271, y: 291, w: 54, h: 52},
     {id: "collar-wide", fill: "#cb6539", radius: 6, x: 235, y: 318, w: 124, h: 52},
@@ -71,9 +87,13 @@ window.CHARACTER_PARTS = {
     {id: "ellipse-10", src: "../assets/deck/dulo/ellipse-10.svg", x: 244, y: 139, w: 147.565, h: 150.815, rot: -102.09, iw: 127.769, ih: 123.54, inset: [50, 1.32, 0, 1.32]},
     {id: "eye-white-left", src: "../assets/deck/dulo/eye-white-left.svg", x: 237, y: 179, w: 52.627, h: 74.157},
     {id: "eye-white-right", src: "../assets/deck/dulo/eye-white-right.svg", x: 306.37, y: 179, w: 52.627, h: 74.157},
-    {id: "group-9", src: "../assets/deck/dulo/group-9.svg", x: 311.08, y: 202.37, w: 20.532, h: 33.5},
-    {id: "pupil-left", src: "../assets/deck/dulo/pupil-left.svg", x: 253.1, y: 195.82, w: 30.547, h: 40.592},
-    {id: "pupil-right", src: "../assets/deck/dulo/pupil-right.svg", x: 303.98, y: 195.75, w: 30.547, h: 40.592},
+    {group: "eye-right", mask: {src: "../assets/deck/dulo/eye-white-right.svg", x: 306.37, y: 179, w: 52.627, h: 74.157}, parts: [
+      {id: "group-9", src: "../assets/deck/dulo/group-9.svg", x: 311.08, y: 202.37, w: 20.532, h: 33.5},
+      {id: "pupil-right", src: "../assets/deck/dulo/pupil-right.svg", x: 303.98, y: 195.75, w: 30.547, h: 40.592}
+    ]},
+    {group: "eye-left", mask: {src: "../assets/deck/dulo/eye-white-left.svg", x: 237, y: 179, w: 52.627, h: 74.157}, parts: [
+      {id: "pupil-left", src: "../assets/deck/dulo/pupil-left.svg", x: 253.1, y: 195.82, w: 30.547, h: 40.592}
+    ]},
     {id: "nose-tip", src: "../assets/deck/dulo/nose-tip.svg", x: 288, y: 245.66, w: 20, h: 19},
     {id: "button-1", src: "../assets/deck/dulo/button-1.svg", x: 243, y: 381, w: 15, h: 14},
     {id: "button-2", src: "../assets/deck/dulo/button-2.svg", x: 243, y: 361, w: 15, h: 14},
@@ -86,16 +106,6 @@ window.CHARACTER_PARTS = {
     {id: "hair-tuft", src: "../assets/deck/dulo/hair-tuft.svg", x: 192, y: 124, w: 37, h: 37},
     {id: "hair-ellipse-4", src: "../assets/deck/dulo/hair-ellipse-4.svg", x: 138, y: 71.83, w: 227.386, h: 227.386, rot: 136.29, iw: 160.827, ih: 160.827, inset: [50, 0.52, 0, 0.52]},
     {id: "hair-ellipse-26", src: "../assets/deck/dulo/hair-ellipse-26.svg", x: 226.61, y: 69, w: 227.386, h: 227.386, rot: 43.71, flip: true, iw: 160.827, ih: 160.827, inset: [50, 0.52, 0, 0.52]},
-    {id: "hair-ellipse-3", src: "../assets/deck/dulo/hair-ellipse-3.svg", x: 235.1, y: 69, w: 138.225, h: 138.225, rot: 61.44, iw: 101.908, ih: 101.908, inset: [50, 0.87, 0, 0.87]},
-    {group: "arm-left", pivot: [250, 345], rest: -62, parts: [
-      {id: "rect-14", fill: "#d5a06e", radius: 14, x: 93.71, y: 331, w: 61.776, h: 53.54, rot: -55.78, iw: 25.929, ih: 57.076},
-      {id: "rect-15", fill: "#d5a06e", radius: 14, x: 67, y: 343, w: 82.747, h: 62.821, rot: -117.39, iw: 30.706, ih: 77.286},
-      {id: "sleeve-left", src: "../assets/deck/dulo/sleeve-left.svg", x: 81, y: 315, w: 431.436, h: 291.089}
-    ]},
-    {group: "arm-right", pivot: [345, 345], rest: 62, parts: [
-      {id: "rect-16", fill: "#d5a06e", radius: 14, x: 430, y: 327, w: 61.776, h: 53.54, rot: -124.22, flip: true, iw: 25.929, ih: 57.076},
-      {id: "rect-17", fill: "#d5a06e", radius: 14, x: 435.74, y: 339, w: 82.747, h: 62.821, rot: -62.61, flip: true, iw: 30.706, ih: 77.286},
-      {id: "sleeve-right", src: "../assets/deck/dulo/sleeve-right.svg", x: 81, y: 315, w: 431.436, h: 291.089}
-    ]}
+    {id: "hair-ellipse-3", src: "../assets/deck/dulo/hair-ellipse-3.svg", x: 235.1, y: 69, w: 138.225, h: 138.225, rot: 61.44, iw: 101.908, ih: 101.908, inset: [50, 0.87, 0, 0.87]}
   ],
 };

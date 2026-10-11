@@ -75,3 +75,4 @@ Work queue for the deck and demo.
 - [ ] APPROVED (2026-10-11, Michelle in chat): The Color Palette slide shows Mula and Dulo's colours, taken from their layers in the character Figma file (it has no palette frame).
 - [ ] APPROVED (2026-10-11, Michelle in chat): Character step 2, Idle. Mula: heavy breathing, eyes sweep side to side now and then. Dulo: wide, immovable stance; now and then she fixes her bangs in quick, decisive moves.
 - [ ] APPROVED (2026-10-11, Michelle in chat): Mula and Dulo idle with both arms down (Figma has them out).
+- [ ] APPROVED (2026-10-11, Michelle in chat): Idle fixes: Mula's pupils stay inside her eyes when she glances; Dulo breathes the same way as Mula; Mula's pointing finger is hidden while idle; Dulo's arms are flipped the other way; Dulo's scarf and buttons stay visible on her dress.

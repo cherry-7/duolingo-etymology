@@ -75,7 +75,19 @@ window.World = (function () {
     if (p.group) {
       const g = document.createElement("div");
       g.className = "part-group group-" + p.group;
-      g.style.cssText = `position:absolute;left:0;top:0;width:604px;height:774px;transform-origin:${p.pivot[0]}px ${p.pivot[1]}px;transform:rotate(${p.rest || 0}deg)`;
+      g.style.cssText = "position:absolute;left:0;top:0;width:604px;height:774px";
+      if (p.pivot) {
+        // rest: idle angle at the shoulder; mirror: flip the arm over along its own length
+        const flip = p.mirror != null ? ` rotate(${p.mirror}deg) scaleY(-1) rotate(${-p.mirror}deg)` : "";
+        g.style.transformOrigin = `${p.pivot[0]}px ${p.pivot[1]}px`;
+        g.style.transform = `rotate(${p.rest || 0}deg)${flip}`;
+      }
+      if (p.mask) {
+        const m = p.mask;
+        const mask = `url("${m.src}") ${m.x}px ${m.y}px / ${m.w}px ${m.h}px no-repeat`;
+        g.style.webkitMask = mask;
+        g.style.mask = mask;
+      }
       p.parts.forEach((q) => g.append(characterPart(q)));
       return g;
     }
