@@ -11,10 +11,14 @@ window.CHARACTER_PARTS = {
   mula: [
     {id: "pigtail-left", src: "../assets/deck/mula/pigtail-left.svg", x: 101, y: 225, w: 184.755, h: 184.755, rot: 32.95, iw: 133.584, ih: 133.584, inset: [9.73, 13.81, 25, 13.81]},
     {id: "pigtail-right", src: "../assets/deck/mula/pigtail-right.svg", x: 308, y: 226, w: 184.755, h: 184.755, rot: 147.05, flip: true, iw: 133.584, ih: 133.584, inset: [9.73, 13.81, 25, 13.81]},
-    {id: "leg-right", fill: "#d5a06e", radius: 6, x: 293, y: 476, w: 38, h: 130},
-    {id: "leg-left", fill: "#d5a06e", radius: 6, x: 258, y: 474, w: 38, h: 132},
-    {id: "boot-left", src: "../assets/deck/mula/boot-left.svg", x: 245, y: 616, w: 55, h: 65},
-    {id: "boot-right", fill: "#3d3d3d", radius: 10, x: 293, y: 616, w: 55, h: 65},
+    {group: "leg-right", pivot: [312, 480], parts: [
+      {id: "leg-right", fill: "#d5a06e", radius: 6, x: 293, y: 476, w: 38, h: 130},
+      {id: "boot-right", fill: "#3d3d3d", radius: 10, x: 293, y: 616, w: 55, h: 65}
+    ]},
+    {group: "leg-left", pivot: [277, 480], parts: [
+      {id: "leg-left", fill: "#d5a06e", radius: 6, x: 258, y: 474, w: 38, h: 132},
+      {id: "boot-left", src: "../assets/deck/mula/boot-left.svg", x: 245, y: 616, w: 55, h: 65}
+    ]},
     {id: "dress-top", src: "../assets/deck/mula/dress-top.svg", x: 118, y: 302, w: 439.553, h: 302.086},
     {id: "dress-skirt", src: "../assets/deck/mula/dress-skirt.svg", x: 118, y: 302, w: 439.553, h: 302.086},
     {id: "scarf", fill: "#cb6539", radius: 6, x: 240, y: 291, w: 112, h: 52},
@@ -58,10 +62,14 @@ window.CHARACTER_PARTS = {
   ],
   dulo: [
     {id: "hair-back", fill: "#3d3d3d", radius: 15, x: 194, y: 172, w: 207, h: 207},
-    {id: "leg-right", fill: "#d5a06e", radius: 6, x: 293, y: 476, w: 38, h: 130},
-    {id: "leg-left", fill: "#d5a06e", radius: 6, x: 258, y: 474, w: 38, h: 132},
-    {id: "boot-left", src: "../assets/deck/dulo/boot-left.svg", x: 245, y: 616, w: 55, h: 65},
-    {id: "boot-right", fill: "#3d3d3d", radius: 10, x: 293, y: 616, w: 55, h: 65},
+    {group: "leg-right", pivot: [312, 480], parts: [
+      {id: "leg-right", fill: "#d5a06e", radius: 6, x: 293, y: 476, w: 38, h: 130},
+      {id: "boot-right", fill: "#3d3d3d", radius: 10, x: 293, y: 616, w: 55, h: 65}
+    ]},
+    {group: "leg-left", pivot: [277, 480], parts: [
+      {id: "leg-left", fill: "#d5a06e", radius: 6, x: 258, y: 474, w: 38, h: 132},
+      {id: "boot-left", src: "../assets/deck/dulo/boot-left.svg", x: 245, y: 616, w: 55, h: 65}
+    ]},
     {id: "dress-top", src: "../assets/deck/dulo/dress-top.svg", x: 81, y: 315, w: 431.436, h: 291.089},
     {id: "dress-skirt", src: "../assets/deck/dulo/dress-skirt.svg", x: 81, y: 315, w: 431.436, h: 291.089},
     {group: "finger-left", pivot: [250, 345], rest: -62, mirror: 169.3, parts: [
@@ -112,4 +120,22 @@ window.CHARACTER_PARTS = {
     {id: "hair-ellipse-26", src: "../assets/deck/dulo/hair-ellipse-26.svg", x: 226.61, y: 69, w: 227.386, h: 227.386, rot: 43.71, flip: true, iw: 160.827, ih: 160.827, inset: [50, 0.52, 0, 0.52]},
     {id: "hair-ellipse-3", src: "../assets/deck/dulo/hair-ellipse-3.svg", x: 235.1, y: 69, w: 138.225, h: 138.225, rot: 61.44, iw: 101.908, ih: 101.908, inset: [50, 0.87, 0, 0.87]}
   ],
+};
+
+// Running together (character step 3, Entrance/Moving): Mula runs ahead pointing and pulls Dulo
+// along by the hand. Angles are added to each group's Figma pose at its pivot; x is each
+// character frame's left edge inside the pair while running (standing: Mula 0, Dulo 520).
+// Running right, Mula dashes past Dulo to the front; running left, both are mirrored.
+// Mula's back hand (86, 341) meets Dulo's front hand (479, 345), so Mula is 393 ahead of Dulo.
+window.CHARACTER_RUN = {
+  right: { mula: 517, dulo: 124 },
+  left: { mula: 4, dulo: 397 }, // both mirrored about their own frames
+  stride: 230, // pair units travelled per running step (one leg forward)
+  legSwing: 26, // degrees each leg swings at the hip
+  bob: 14, // hop height per step
+  arms: {
+    mula: { "arm-right": 0, "arm-left": 66 }, // pointing ahead (Figma pose); reaching back to Dulo
+    dulo: { "arm-right": -10.9, "finger-right": -10.9, "arm-left": null, "finger-left": null } // null: stays at rest, swinging
+  },
+  armSwing: 12
 };

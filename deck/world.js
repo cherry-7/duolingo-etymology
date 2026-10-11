@@ -68,6 +68,13 @@ window.World = (function () {
       `A${r} ${r} 0 0 1 0 ${h - r}V${r}A${r} ${r} 0 0 1 ${r} 0Z`;
   }
 
+  // A group's turn at its pivot: angle (degrees from its Figma pose), and flip, the scale across
+  // the arm's own length (-1 mirrors it along the line at p.mirror degrees, 1 is as drawn)
+  function groupTransform(p, angle, flip) {
+    const m = p.mirror || 0;
+    return `rotate(${angle}deg)` + (flip === 1 ? "" : ` rotate(${m}deg) scaleY(${flip}) rotate(${-m}deg)`);
+  }
+
   // One character part from deck/characters.js: an outer box at x, y; inside it, an iw x ih box
   // centred and rotated (rot / flip / skew); inside that, the SVG (at inset) or a rounded fill
   function characterPart(p) {
@@ -77,10 +84,8 @@ window.World = (function () {
       g.className = "part-group group-" + p.group;
       g.style.cssText = "position:absolute;left:0;top:0;width:604px;height:774px";
       if (p.pivot) {
-        // rest: idle angle at the shoulder; mirror: flip the arm over along its own length
-        const flip = p.mirror != null ? ` rotate(${p.mirror}deg) scaleY(-1) rotate(${-p.mirror}deg)` : "";
         g.style.transformOrigin = `${p.pivot[0]}px ${p.pivot[1]}px`;
-        g.style.transform = `rotate(${p.rest || 0}deg)${flip}`;
+        g.style.transform = groupTransform(p, p.rest || 0, p.mirror != null ? -1 : 1);
       }
       if (p.mask) {
         const m = p.mask;
@@ -143,15 +148,78 @@ window.World = (function () {
       const drop = def.slotAspect ? def.slotAspect - bh / bw : 0;
       const inner = el("div", "pair-inner", node);
       inner.style.cssText = `position:absolute;left:${-bx}px;top:${-by}px;transform-origin:0 0`;
-      def.members.forEach(({ who, dx }) => {
+      const run = window.CHARACTER_RUN;
+      const members = def.members.map(({ who, dx }) => {
         const frame = el("div", "character character-" + who, inner);
-        frame.style.cssText = `position:absolute;left:${dx}px;top:0;width:604px;height:774px`;
+        frame.style.cssText = `position:absolute;left:0;top:0;width:604px;height:774px;transform-origin:302px 0`;
+        const defs = {};
+        const collect = (list) => list.forEach((p) => { if (p.group) { defs[p.group] = p; collect(p.parts); } });
+        collect(window.CHARACTER_PARTS[who]);
         window.CHARACTER_PARTS[who].forEach((p) => frame.append(characterPart(p)));
+        const groups = {};
+        frame.querySelectorAll(".part-group").forEach((g) => { groups[g.className.match(/group-(\S+)/)[1]] = g; });
         frame.classList.add("idle");
+        const shadow = frame.querySelector(".part-shadow"); // stays on the ground when they hop
+        return { who, dx, frame, groups, defs, shadow };
       });
+      let wasRunning = null;
+
+      // Standing still: the Figma spots (Mula 0, Dulo 520) and the CSS idle loops
+      function stand() {
+        members.forEach((m) => {
+          m.frame.style.transform = `translate(${m.dx}px, 0)`;
+          m.frame.style.zIndex = "";
+          if (m.shadow) m.shadow.style.transform = "";
+          for (const [name, g] of Object.entries(m.groups)) {
+            const p = m.defs[name];
+            if (p.pivot) g.style.transform = groupTransform(p, p.rest || 0, p.mirror != null ? -1 : 1);
+          }
+          m.frame.classList.add("idle");
+        });
+      }
+
+      // Running (step 3): w blends from standing into the run at the start of the move and back at
+      // the end; the legs cycle with the distance covered, so scrolling back plays it in reverse.
+      function runPose(move) {
+        const t = clamp(move.t, 0, 1);
+        const w = soft(clamp(t / 0.2, 0, 1)) * soft(clamp((1 - t) / 0.2, 0, 1));
+        const dir = move.dir > 0 ? "right" : "left";
+        const phase = (t * move.dist) / run.stride; // steps taken
+        const swing = Math.sin(phase * Math.PI) * w; // -1..1, one leg forward per step
+        const bob = Math.abs(Math.sin(phase * Math.PI)) * run.bob * w;
+        members.forEach((m) => {
+          m.frame.classList.toggle("idle", w === 0);
+          const x = lerp(m.dx, run[dir][m.who], w);
+          const turn = dir === "left" ? lerp(1, -1, w) : 1; // turns to face left, like a sprite
+          m.frame.style.transform = `translate(${x}px, ${-bob}px) scaleX(${turn})`;
+          m.frame.style.zIndex = m.who === "mula" ? 1 : ""; // Mula in front, holding Dulo's hand
+          if (m.shadow) m.shadow.style.transform = `translate(0, ${bob}px)`;
+          const legs = { "leg-left": swing * run.legSwing, "leg-right": -swing * run.legSwing };
+          for (const [name, g] of Object.entries(m.groups)) {
+            const p = m.defs[name];
+            if (!p.pivot) continue;
+            if (legs[name] != null) { g.style.transform = `rotate(${legs[name]}deg)`; continue; }
+            const target = run.arms[m.who][name];
+            const rest = p.rest || 0;
+            const restFlip = p.mirror != null ? -1 : 1;
+            if (target == null) {
+              g.style.transform = groupTransform(p, rest + (name.endsWith("left") ? 1 : -1) * swing * run.armSwing, restFlip);
+            } else {
+              // into the drawn Figma pose (unflips Dulo's arm as it comes up)
+              g.style.transform = groupTransform(p, lerp(rest, target, w), lerp(restFlip, 1, w));
+            }
+          }
+        });
+      }
+
+      stand();
       return (s) => {
         node.style.opacity = s.opacity;
         node.style.transform = `translate(${s.x}px, ${s.y + s.w * drop}px) scale(${s.w / bw}) rotate(${s.rotate || 0}deg)`;
+        const running = !!s.move && s.move.t > 0 && s.move.t < 1;
+        if (running) runPose(s.move);
+        else if (wasRunning !== false) stand();
+        wasRunning = running;
       };
     },
 
@@ -561,9 +629,11 @@ window.World = (function () {
 
     const isScene = (i) => !!slides[i] && slides[i].layout === "scene";
     let lastPos = 0;
+    let travel = 1; // which way the deck last moved: 1 forward, -1 back
 
     // pos: the deck position in slides (fractional mid-move)
     function render(pos) {
+      if (lastPos != null && pos !== lastPos) travel = pos > lastPos ? 1 : -1;
       lastPos = pos;
       let i = Math.floor(pos);
       let t = pos - i;
@@ -592,10 +662,12 @@ window.World = (function () {
           const lt = local(t, pb.at || (actors[key].type === "bubble" ? BUBBLE_AT : null));
           s = walk(mix(pa, pb, lt), pb, lt);
           s.raw = t; // text fades follow the whole move
+          if (actors[key].type === "pair") s.move = running(pb.x - pa.x, lt);
         } else if (pa && B) {
           // Exits: from its spot toward its exit offset
           const lt = local(t, pa.exit && pa.exit.at, [0, 0.5]);
           s = mix(pa, offset(pa, pa.exit), lt);
+          if (actors[key].type === "pair" && pa.exit) s.move = running(pa.exit.dx || 0, lt);
           // fade: [start, end] fades out on its own schedule (e.g. only at the very end)
           if (pa.exit && pa.exit.fade) s.opacity = pa.opacity * (1 - local(t, pa.exit.fade));
         } else if (pb) {
@@ -612,6 +684,13 @@ window.World = (function () {
         }
         draw[key](s);
       });
+    }
+
+    // A pair moving sideways runs (character step 3); dir is the way it goes on screen, which
+    // flips when the deck is scrolled back
+    function running(dx, lt) {
+      if (Math.abs(dx) < 100) return null;
+      return { t: lt, dist: Math.abs(dx), dir: Math.sign(dx) * travel };
     }
 
     return { render, refresh: () => { measure(); render(lastPos); } };

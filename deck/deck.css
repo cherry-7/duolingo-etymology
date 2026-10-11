@@ -402,7 +402,7 @@ body {
 
 /* Both: heavy breathing. Everything above the legs rises and falls; the head a little more,
    and the shoulders lift the arms on each breath in. */
-.character.idle > :not(.part-leg-left, .part-leg-right, .part-boot-left, .part-boot-right, .part-shadow) {
+.character.idle > :not(.group-leg-left, .group-leg-right, .part-shadow) {
   animation: breathe-body 2.6s ease-in-out infinite;
 }
 .character.idle > :is(.part-face, .part-ear-left, .part-ear-right, .part-hair-back, .part-hair-tuft,
