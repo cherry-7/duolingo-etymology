@@ -493,6 +493,8 @@ window.SLIDES = [
   {
     id: "characters",
     layout: "scene",
+    // Character step 4: they high-five once they've landed. [TBD: Michelle to confirm the slide]
+    react: "correct",
     ref: "Character Default",
     bg: C.orange,
     bgAt: [0.58, 0.6], // swaps while the bloom covers the screen (a navy-to-orange fade goes brown)

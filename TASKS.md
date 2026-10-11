@@ -86,3 +86,4 @@ Work queue for the deck and demo.
 - [ ] APPROVED (2026-10-11, Michelle in chat): While they run, both soles face the same way (toes forward).
 - [ ] APPROVED (2026-10-11, Michelle in chat): Mula's finger swings up and appears naturally (and curls away naturally) instead of popping in; both girls' hair swishes away from the way they're running.
 - [ ] APPROVED (2026-10-11, Michelle in chat): Running hair only leans back, away from where they're running (no back-and-forth).
+- [ ] APPROVED (2026-10-11, Michelle in chat: 'continue'): Character step 4, Correct answer: jumping high five, Mula shocked -> smile, fast 3-frame claps, hands back down; Dulo claps, snaps into crossed arms, 1-degree lip twitch. Plays once on arriving at a slide with react: "correct". [TBD: which slide; on Character Default for now]

@@ -241,6 +241,21 @@ window.World = (function () {
         });
       }
 
+      // Reactions (step 4, "correct"): a CSS sequence played once on arrival, then back to idle
+      let reacting = null;
+      let reactTimer = 0;
+      function react(name) {
+        if (name === reacting) return;
+        clearTimeout(reactTimer);
+        members.forEach((m) => m.frame.classList.remove("react-" + reacting));
+        reacting = name;
+        if (!name) { members.forEach((m) => m.frame.classList.add("idle")); return; }
+        members.forEach((m) => { m.frame.classList.remove("idle"); m.frame.classList.add("react-" + name); });
+        reactTimer = setTimeout(() => {
+          members.forEach((m) => { m.frame.classList.remove("react-" + name); m.frame.classList.add("idle"); });
+        }, 3400);
+      }
+
       stand();
       return (s) => {
         node.style.opacity = s.opacity;
@@ -249,6 +264,7 @@ window.World = (function () {
         if (running) runPose(s.move);
         else if (wasRunning !== false) stand();
         wasRunning = running;
+        react(running ? null : s.react || null);
       };
     },
 
@@ -710,6 +726,11 @@ window.World = (function () {
           s = mix(pa, pa, 0);
         } else {
           s = { opacity: 0, x: -9999, y: 0, w: 1, h: 1, draw: 0, width: 0, size: 1, scale: 1, tail: 0, padX: 0, textA: "" };
+        }
+        // A pair reacts (e.g. the correct-answer high five) once the deck has arrived on its slide
+        if (actors[key].type === "pair") {
+          const near = Math.round(pos);
+          s.react = Math.abs(pos - near) < 0.02 && slides[near] && slides[near].react && slides[near].actors[key] ? slides[near].react : null;
         }
         draw[key](s);
       });
