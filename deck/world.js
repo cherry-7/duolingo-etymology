@@ -161,7 +161,18 @@ window.World = (function () {
         frame.classList.add("idle");
         const pupils = frame.querySelectorAll(".group-eye-left > *, .group-eye-right > *");
         const soles = Object.keys(run.soles).map((id) => [frame.querySelector(".part-" + id), run.soles[id]]);
-        return { who, dx, frame, groups, defs, pupils, soles };
+        // parts that move while running, each with its transform-origin in its own box
+        const partAt = {};
+        const index = (list) => list.forEach((p) => (p.group ? index(p.parts) : (partAt[p.id] = p)));
+        index(window.CHARACTER_PARTS[who]);
+        const hold = (id, [ox, oy]) => {
+          const el = frame.querySelector(".part-" + id);
+          if (el) el.style.transformOrigin = `${ox - partAt[id].x}px ${oy - partAt[id].y}px`;
+          return el;
+        };
+        const hair = (run.hair[who] || []).map((h) => [hold(h.id, h.origin), h]).filter(([el]) => el);
+        const finger = partAt.finger ? hold("finger", run.finger.knuckle) : null;
+        return { who, dx, frame, groups, defs, pupils, soles, hair, finger };
       });
       let wasRunning = null;
 
@@ -173,6 +184,8 @@ window.World = (function () {
           m.frame.classList.remove("running");
           m.pupils.forEach((p) => { p.style.translate = ""; });
           m.soles.forEach(([el, [x]]) => { el.style.left = x + "px"; });
+          m.hair.forEach(([el]) => { el.style.transform = ""; });
+          if (m.finger) { m.finger.style.transform = ""; m.finger.style.visibility = ""; }
           for (const [name, g] of Object.entries(m.groups)) {
             const p = m.defs[name];
             if (p.pivot) g.style.transform = groupTransform(p, p.rest || 0, p.mirror != null ? -1 : 1);
@@ -200,6 +213,17 @@ window.World = (function () {
           // eyes on where they're going (the frame is mirrored when running left)
           m.pupils.forEach((p) => { p.style.translate = `${run.look * w}px 0`; });
           m.soles.forEach(([el, [x0, x1]]) => { el.style.left = lerp(x0, x1, w) + "px"; }); // toes forward
+          // hair streams back, fluttering with the steps
+          const flutter = Math.sin(phase * Math.PI * 2) * run.hairFlutter * w;
+          m.hair.forEach(([el, h]) => {
+            el.style.transform = h.skew ? `skewX(${h.skew * w + flutter}deg)` : `rotate(${(h.rot + Math.sign(h.rot) * flutter) * w}deg)`;
+          });
+          // Mula's finger uncurls out of her hand in the second half of the blend
+          if (m.finger) {
+            const f = soft(clamp((w - 0.35) / 0.65, 0, 1));
+            m.finger.style.visibility = f > 0 ? "visible" : "hidden";
+            m.finger.style.transform = `rotate(${(1 - f) * run.finger.curl}deg) scale(${0.25 + 0.75 * f})`;
+          }
           const legs = { "leg-left": swing * run.legSwing, "leg-right": -swing * run.legSwing };
           for (const [name, g] of Object.entries(m.groups)) {
             const p = m.defs[name];

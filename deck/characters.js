@@ -147,5 +147,29 @@ window.CHARACTER_RUN = {
   look: 8, // pupils shift toward where they're running
   // While running both feet point forward: each sole half slides so its toe sticks out in front
   // of its boot (standing, the left one sticks out left and the right one right, as in Figma)
-  soles: { "sole-left": [217, 245], "sole-right": [297.5, 293] } // x standing, x running
+  soles: { "sole-left": [217, 245], "sole-right": [297.5, 293] }, // x standing, x running
+  // Mula's finger uncurls out of her hand as the run starts (and curls back as she stops),
+  // turning about her knuckle
+  finger: { knuckle: [510, 390], curl: 75 },
+  // Hair streams back, away from where they're running, and flutters with each step.
+  // origin: what it turns about (character units); rot: degrees (+ swings it back); skew: degrees.
+  // The bangs only tilt a little, so they never slide over the eyes.
+  hair: {
+    mula: [
+      { id: "pigtail-left", origin: [230, 300], rot: 18 },
+      { id: "pigtail-right", origin: [370, 300], rot: -12 },
+      { id: "hair-ellipse-4", origin: [298, 75], rot: 1.5 },
+      { id: "hair-ellipse-26", origin: [298, 75], rot: 1.5 },
+      { id: "hair-ellipse-3", origin: [298, 75], rot: 1.5 },
+      { id: "hair-tuft", origin: [298, 75], rot: 1.5 }
+    ],
+    dulo: [
+      { id: "hair-back", origin: [297, 172], skew: -9 },
+      { id: "hair-ellipse-4", origin: [298, 75], rot: 1.5 },
+      { id: "hair-ellipse-26", origin: [298, 75], rot: 1.5 },
+      { id: "hair-ellipse-3", origin: [298, 75], rot: 1.5 },
+      { id: "hair-tuft", origin: [298, 75], rot: 1.5 }
+    ]
+  },
+  hairFlutter: 3 // extra degrees back and forth with each step
 };
