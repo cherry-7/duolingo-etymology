@@ -213,10 +213,9 @@ window.World = (function () {
           // eyes on where they're going (the frame is mirrored when running left)
           m.pupils.forEach((p) => { p.style.translate = `${run.look * w}px 0`; });
           m.soles.forEach(([el, [x0, x1]]) => { el.style.left = lerp(x0, x1, w) + "px"; }); // toes forward
-          // hair streams back, fluttering with the steps
-          const flutter = Math.sin(phase * Math.PI * 2) * run.hairFlutter * w;
+          // hair streams back, away from where they're running (steady, no flutter)
           m.hair.forEach(([el, h]) => {
-            el.style.transform = h.skew ? `skewX(${h.skew * w + flutter}deg)` : `rotate(${(h.rot + Math.sign(h.rot) * flutter) * w}deg)`;
+            el.style.transform = h.skew ? `skewX(${h.skew * w}deg)` : `rotate(${h.rot * w}deg)`;
           });
           // Mula's finger uncurls out of her hand in the second half of the blend
           if (m.finger) {

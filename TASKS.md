@@ -85,3 +85,4 @@ Work queue for the deck and demo.
 - [ ] APPROVED (2026-10-11, Michelle in chat): Running fixes: the bar under the boots is part of their shoes and moves with their feet; they run slower; their eyes look the way they're running.
 - [ ] APPROVED (2026-10-11, Michelle in chat): While they run, both soles face the same way (toes forward).
 - [ ] APPROVED (2026-10-11, Michelle in chat): Mula's finger swings up and appears naturally (and curls away naturally) instead of popping in; both girls' hair swishes away from the way they're running.
+- [ ] APPROVED (2026-10-11, Michelle in chat): Running hair only leans back, away from where they're running (no back-and-forth).

@@ -151,7 +151,7 @@ window.CHARACTER_RUN = {
   // Mula's finger uncurls out of her hand as the run starts (and curls back as she stops),
   // turning about her knuckle
   finger: { knuckle: [510, 390], curl: 75 },
-  // Hair streams back, away from where they're running, and flutters with each step.
+  // Hair streams back, away from where they're running, and holds there (no flutter).
   // origin: what it turns about (character units); rot: degrees (+ swings it back); skew: degrees.
   // The bangs only tilt a little, so they never slide over the eyes.
   hair: {
@@ -170,6 +170,5 @@ window.CHARACTER_RUN = {
       { id: "hair-ellipse-3", origin: [298, 75], rot: 1.5 },
       { id: "hair-tuft", origin: [298, 75], rot: 1.5 }
     ]
-  },
-  hairFlutter: 3 // extra degrees back and forth with each step
+  }
 };
