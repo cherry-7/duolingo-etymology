@@ -71,6 +71,14 @@ window.World = (function () {
   // One character part from deck/characters.js: an outer box at x, y; inside it, an iw x ih box
   // centred and rotated (rot / flip / skew); inside that, the SVG (at inset) or a rounded fill
   function characterPart(p) {
+    // A group (an arm: sleeve plus hand) is a frame-sized layer that turns about its pivot
+    if (p.group) {
+      const g = document.createElement("div");
+      g.className = "part-group group-" + p.group;
+      g.style.cssText = `position:absolute;left:0;top:0;width:604px;height:774px;transform-origin:${p.pivot[0]}px ${p.pivot[1]}px`;
+      p.parts.forEach((q) => g.append(characterPart(q)));
+      return g;
+    }
     const box = document.createElement("div");
     box.className = "part part-" + p.id;
     box.style.cssText = `position:absolute;left:${p.x}px;top:${p.y}px;width:${p.w}px;height:${p.h}px`;
@@ -127,6 +135,7 @@ window.World = (function () {
         const frame = el("div", "character character-" + who, inner);
         frame.style.cssText = `position:absolute;left:${dx}px;top:0;width:604px;height:774px`;
         window.CHARACTER_PARTS[who].forEach((p) => frame.append(characterPart(p)));
+        frame.classList.add("idle");
       });
       return (s) => {
         node.style.opacity = s.opacity;

@@ -396,5 +396,68 @@ body {
   .idle-breathe, .idle-drift { animation: none; }
 }
 
+/* ---- Mula and Dulo idle (character step 2; spec: "Duolingo Character Analysis: Mula and Dulo")
+   Parts are in 604x774 character units. Loops use the individual translate / rotate properties,
+   so they never fight the parts' own placement. */
+
+/* Mula: heavy breathing. Everything above the legs rises and falls; the head a little more,
+   and the shoulders lift the arms on each breath in. */
+.character-mula.idle > :not(.part-leg-left, .part-leg-right, .part-boot-left, .part-boot-right, .part-shadow) {
+  animation: mula-breathe 2.6s ease-in-out infinite;
+}
+.character-mula.idle > :is(.part-face, .part-ear-left, .part-ear-right, .part-hair-back, .part-hair-tuft,
+  .part-hair-ellipse-4, .part-hair-ellipse-26, .part-hair-ellipse-3, .part-ellipse-10, .part-eye-white-left,
+  .part-eye-white-right, .part-group-9, .part-pupil-left, .part-pupil-right, .part-nose, .part-nose-tip,
+  .part-mouth, .part-ellipse-24, .part-ellipse-25, .part-ellipse-28, .part-pigtail-left, .part-pigtail-right) {
+  animation-name: mula-breathe-head;
+}
+.character-mula.idle > .group-arm-right { animation-name: mula-breathe-arm-right; }
+.character-mula.idle > .group-arm-left { animation-name: mula-breathe-arm-left; }
+@keyframes mula-breathe { 0%, 100% { translate: 0 0; } 45% { translate: 0 -7px; } }
+@keyframes mula-breathe-head { 0%, 100% { translate: 0 0; } 50% { translate: 0 -10px; } }
+@keyframes mula-breathe-arm-right { 0%, 100% { translate: 0 0; rotate: 0deg; } 45% { translate: 0 -7px; rotate: -3deg; } }
+@keyframes mula-breathe-arm-left { 0%, 100% { translate: 0 0; rotate: 0deg; } 45% { translate: 0 -7px; rotate: 3deg; } }
+
+/* Mula: every now and then her eyes sweep to one side, then the other, then back */
+.character-mula.idle > :is(.part-group-9, .part-pupil-left, .part-pupil-right) > div {
+  animation: mula-glance 7s ease-in-out infinite;
+}
+@keyframes mula-glance {
+  0%, 52%, 100% { translate: 0 0; }
+  58%, 68% { translate: -8px 0; }
+  76%, 86% { translate: 8px 0; }
+  93% { translate: 0 0; }
+}
+
+/* Dulo: wide, immovable stance (only the faintest breath). Every so often she fixes her bangs
+   in quick, decisive moves: hand up to the bangs, one swipe, hand straight back down. */
+.character-dulo.idle > :not(.part-leg-left, .part-leg-right, .part-boot-left, .part-boot-right, .part-shadow) {
+  animation: dulo-breathe 4.5s ease-in-out infinite;
+}
+@keyframes dulo-breathe { 0%, 100% { translate: 0 0; } 50% { translate: 0 -2px; } }
+.character-dulo.idle > .group-arm-right { animation: dulo-bangs-arm 9s infinite; }
+.character-dulo.idle > .part-hair-ellipse-26 > div { animation: dulo-bangs-hair 9s infinite; }
+/* The arm turns about the shoulder (the group's pivot), and comes in front of her face only
+   while the hand is up */
+@keyframes dulo-bangs-arm {
+  0%, 70% { rotate: 0deg; z-index: 0; animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1); }
+  70.2% { z-index: 1; }
+  74% { rotate: -100deg; animation-timing-function: ease-in-out; }
+  77% { rotate: -94deg; animation-timing-function: ease-in-out; }
+  80% { rotate: -100deg; animation-timing-function: cubic-bezier(0.5, 0, 0.7, 1); }
+  83.8% { z-index: 1; }
+  84%, 100% { rotate: 0deg; z-index: 0; }
+}
+@keyframes dulo-bangs-hair {
+  0%, 76% { rotate: 0deg; }
+  78% { rotate: 4deg; }
+  81% { rotate: -1deg; }
+  83%, 100% { rotate: 0deg; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .character.idle *, .character.idle > * { animation: none !important; }
+}
+
 /* deck/?ref: the Figma export on top, half see-through, for checking alignment */
 .world-ref { position: absolute; inset: 0; width: 1920px; height: 1080px; opacity: 0.5; pointer-events: none; z-index: 100; }

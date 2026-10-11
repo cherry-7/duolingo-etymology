@@ -176,12 +176,15 @@ window.WORLD_ACTORS = {
   wave: { type: "ellipse", z: 2.7 },
   titleColor: { type: "text", font: "heading", letters: true, z: 4.5 },
   titlePalette: { type: "text", font: "heading", letters: true, z: 4.5, kern: { 5: -0.179, 6: -0.066 } }, // Figma sets "tt" tighter than the web font
-  swatchSkin: swatch("#EAB991", "#EAB991", "#363135", 242),
-  swatchHair: swatch("#363135", "#363135", "#FFFFFF", 454),
-  swatchShirt: swatch("#F3EFE9", "#F3EFE9", "#363135", 454),
-  swatchOrange: swatch("#E48900", "#E48900", "#FFFFFF", 242),
-  swatchJeans: swatch("#B3C8DF", "#0084C2", "#363135", 454), // Figma fills this one #B3C8DF but labels it #0084C2
-  swatchBlue: swatch("#0063CF", "#0063CF", "#FFFFFF", 242),
+  // Mula and Dulo's colours, taken from their layers in the character Figma file (no palette frame
+  // there): skin, hair and boots, Mula's dress / Dulo's sash, Dulo's dress / Mula's scarf, white
+  // (eyes, buttons), nose and brows. Swatch sizes and spots are the Figma Color Palette slide's.
+  swatchSkin: swatch("#D5A06E", "#D5A06E", "#3D3D3D", 242),
+  swatchHair: swatch("#3D3D3D", "#3D3D3D", "#FFFFFF", 454),
+  swatchShirt: swatch("#F2B866", "#F2B866", "#3D3D3D", 454),
+  swatchOrange: swatch("#CB6539", "#CB6539", "#FFFFFF", 242),
+  swatchJeans: swatch("#FFFFFF", "#FFFFFF", "#3D3D3D", 454),
+  swatchBlue: swatch("#AE703E", "#AE703E", "#FFFFFF", 242),
   research1: researchCardFromExport("card1-from-export.png"),
   research2: researchCard([67, 105, 226, 324], "card2-character", [317, 84],
     ["#FFCBA3", "#3D3D3D", "#FEB101", "#FFF3F2", "#FF9501", "#FDCA9B"],
