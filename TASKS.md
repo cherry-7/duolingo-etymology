@@ -79,3 +79,4 @@ Work queue for the deck and demo.
 - [ ] APPROVED (2026-10-11, Michelle in chat): Only Dulo's finger sits on top of her scarf (sleeve and hand stay behind). Her bangs fix swings the arm up from the other side.
 - [ ] APPROVED (2026-10-11, Michelle in chat): Dulo's fingers sit under her sleeves but over her scarf.
 - [ ] APPROVED (2026-10-11, Michelle in chat): While Dulo fixes her bangs, she looks up at them, where her hand is.
+- [ ] APPROVED (2026-10-11, Michelle in chat): Mula and Dulo blink while idle.

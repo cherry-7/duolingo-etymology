@@ -420,6 +420,21 @@ body {
 @keyframes breathe-arm-right { 0%, 100% { translate: 0 0; rotate: 0deg; } 45% { translate: 0 -7px; rotate: -3deg; } }
 @keyframes breathe-arm-left { 0%, 100% { translate: 0 0; rotate: 0deg; } 45% { translate: 0 -7px; rotate: 3deg; } }
 
+/* Both: they blink now and then (Mula every 4.2s, Dulo every 5.3s, so never together). The eye
+   whites and pupils squeeze shut about each eye's centre; Dulo's brows stay put. */
+.character.idle > :is(.part-eye-white-left, .part-eye-white-right, .group-eye-left, .group-eye-right) {
+  animation: breathe-head 2.6s ease-in-out infinite, blink var(--blink-every) linear infinite;
+}
+.character-mula { --blink-every: 4.2s; }
+.character-dulo { --blink-every: 5.3s; }
+.character .group-eye-left { transform-origin: 263.3px 216.1px; }
+.character .group-eye-right { transform-origin: 332.7px 216.1px; }
+@keyframes blink {
+  0%, 93% { scale: 1 1; }
+  95.5% { scale: 1 0.08; }
+  98%, 100% { scale: 1 1; }
+}
+
 /* Mula: her pointing finger is tucked away while she's idle */
 .character-mula.idle .part-finger { visibility: hidden; }
 
