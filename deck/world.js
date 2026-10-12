@@ -362,17 +362,41 @@ window.World = (function () {
 
       // Nod (Saissha's speech bubbles): once a bubble has appeared, both heads dip once and come
       // back up, twice. Added on top of the breathing, so it never fights the idle loop.
-      const NOD = { dip: 16, duration: 1100 };
+      // On each dip the head also flattens a little (squashes toward the chin), and their eyes
+      // stay closed through both nods, shutting like a blink.
+      const NOD = { dip: 16, flat: 0.07, chin: 311, eyesShut: 0.08, duration: 1100 };
       const heads = members.flatMap((m) => [...m.frame.querySelectorAll(":scope > :is(" + HEAD_PARTS + ")")]);
+      const EYES = ".part-eye-white-left, .part-eye-white-right, .group-eye-left, .group-eye-right";
+      const track = (keys, t) => {
+        for (let i = 1; i < keys.length; i++) {
+          const [t0, v0] = keys[i - 1];
+          const [t1, v1] = keys[i];
+          if (t <= t1) return lerp(v0, v1, (t - t0) / (t1 - t0));
+        }
+        return keys[keys.length - 1][1];
+      };
+      const DIPS = [[0, 0], [0.22, 1], [0.48, 0], [0.72, 1], [1, 0]];
+      const LIDS = [[0, 1], [0.12, NOD.eyesShut], [0.88, NOD.eyesShut], [1, 1]];
+      const NOD_AT = [0, 0.12, 0.22, 0.35, 0.48, 0.6, 0.72, 0.88, 1];
       let nodded = null;
       function nod() {
         const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
         if (reduce || !heads[0] || !heads[0].animate) return;
-        heads.forEach((h) => h.animate(
-          [{ translate: "0 0" }, { translate: `0 ${NOD.dip}px`, offset: 0.22 }, { translate: "0 0", offset: 0.48 },
-            { translate: `0 ${NOD.dip}px`, offset: 0.72 }, { translate: "0 0" }],
-          { duration: NOD.duration, easing: "ease-in-out", composite: "add" }
-        ));
+        heads.forEach((h) => {
+          // each part scales about its own origin; shift it so the head squashes about the chin
+          const originY = h.offsetTop + parseFloat(getComputedStyle(h).transformOrigin.split(" ")[1]);
+          const eye = h.matches(EYES);
+          h.animate(NOD_AT.map((t) => {
+            const d = track(DIPS, t);
+            const sy = 1 - NOD.flat * d;
+            return {
+              offset: t,
+              translate: `0 ${NOD.dip * d + (1 - sy) * (NOD.chin - originY)}px`,
+              scale: `1 ${sy * (eye ? track(LIDS, t) : 1)}`,
+              easing: "ease-in-out" // per beat
+            };
+          }), { duration: NOD.duration, composite: "add" });
+        });
       }
 
       stand();
