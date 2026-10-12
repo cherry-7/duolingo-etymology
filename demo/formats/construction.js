@@ -1,5 +1,5 @@
 // Match each word to the way its meaningful parts are constructed.
-import { h, shuffle } from "../util.js";
+import { h, shuffle, promptEl } from "../util.js";
 
 export function render(q, ctx) {
   ctx.useCheck(false);
@@ -41,5 +41,5 @@ export function render(q, ctx) {
   }
 
   const grid = h("div", { class: "match-grid" }, left, right);
-  return h("div", { class: "format format-construction" }, h("p", { class: "prompt" }, q.prompt), grid);
+  return h("div", { class: "format format-construction" }, promptEl(q.prompt), grid);
 }

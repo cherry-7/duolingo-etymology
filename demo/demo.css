@@ -319,6 +319,10 @@ button.tile:active:not(:disabled) { transform: translateY(2px); border-bottom-wi
   transition: border-color 0.15s, background 0.15s;
 }
 .compound .root { font-size: 28px; font-weight: 700; }
+/* radical questions: the two pieces merge into the finished character */
+.compound.is-merged { cursor: default; }
+.compound .merged-glyph { font-size: 44px; color: var(--duo-green-dark); animation: glyph-in 0.35s ease both; }
+@keyframes glyph-in { from { transform: scale(0.7); opacity: 0; } to { transform: none; opacity: 1; } }
 .dropzone .attached { display: flex; }
 .dropzone .attached .tile { background: var(--duo-green-light); border-color: var(--duo-green-edge); color: var(--duo-green-dark); margin: -3px; }
 .dropzone.is-over,

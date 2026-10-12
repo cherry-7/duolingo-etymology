@@ -1,5 +1,5 @@
 // Choose the English word whose construction does not match the others.
-import { h, shuffle } from "../util.js";
+import { h, shuffle, promptEl } from "../util.js";
 
 export function render(q, ctx) {
   let selected = null;
@@ -41,5 +41,5 @@ export function render(q, ctx) {
   }
 
   ctx.useCheck(true, null);
-  return h("div", { class: "format format-odd" }, h("p", { class: "prompt" }, q.prompt), list);
+  return h("div", { class: "format format-odd" }, promptEl(q.prompt), list);
 }
