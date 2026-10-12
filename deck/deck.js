@@ -121,8 +121,10 @@
     return qr;
   }
 
-  // The same code as qrSvg, with each dark tile its own square, so the tiles can fade in one by
-  // one (in a random order, over QR_BUILD ms)
+  // The same code as qrSvg, with every cell its own square (the light ones and the quiet-zone
+  // border too, as "qr-light"), so the tiles can click in one by one (random order, over
+  // QR_BUILD ms) and the light ones can open up as gaps. Light tiles are black like the rest;
+  // where they're hidden (the default), it's an ordinary QR.
   const QR_BUILD = 1600;
   function qrTiles(text) {
     const qr = qrcode(0, "M");
@@ -130,14 +132,14 @@
     qr.make();
     const n = qr.getModuleCount();
     const cell = 4;
-    const margin = 2;
-    const size = n * cell + 2 * margin;
+    const quiet = 2; // cells of border
+    const size = (n + 2 * quiet) * cell;
     let tiles = "";
-    for (let r = 0; r < n; r++) {
-      for (let c = 0; c < n; c++) {
-        if (!qr.isDark(r, c)) continue;
+    for (let r = -quiet; r < n + quiet; r++) {
+      for (let c = -quiet; c < n + quiet; c++) {
+        const dark = r >= 0 && c >= 0 && r < n && c < n && qr.isDark(r, c);
         const delay = Math.round(Math.random() * QR_BUILD);
-        tiles += `<rect class="qr-tile" x="${c * cell + margin}" y="${r * cell + margin}" width="${cell + 0.05}" height="${cell + 0.05}" style="transition-delay:${delay}ms"/>`;
+        tiles += `<rect class="qr-tile${dark ? "" : " qr-light"}" x="${(c + quiet) * cell}" y="${(r + quiet) * cell}" width="${cell + 0.05}" height="${cell + 0.05}" style="transition-delay:${delay}ms"/>`;
       }
     }
     // just the black tiles, no white square behind them (Michelle)
@@ -254,6 +256,7 @@
     if (prevQr) prevQr.style.visibility = t > 0 && t < 1 && fromCode ? "hidden" : "";
     if (t >= 1 || !code || !fromCode) {
       if (qr) qr.style.transform = qr.style.opacity = "";
+      if (qr) qr.style.removeProperty("--light");
       rows.forEach((row) => { row.style.transform = row.style.opacity = ""; });
       if (status) status.style.opacity = "";
       return;
@@ -282,6 +285,9 @@
     // the code on the sign is tilted: it starts straight (like the finale's) and tilts as it goes
     const tilt = parseFloat(getComputedStyle(code).rotate) || 0;
     qr.style.transform = `translate(${fullDx * (1 - q)}px, ${fullDy * (1 - q)}px) rotate(${-tilt * (1 - q)}deg) scale(${scale * (1 - 0.08 * click)})`;
+    // it starts as the finale's black screen (every cell black) and the light cells open up
+    // into gaps as it shrinks, so the black turns into the code on the sign
+    qr.style.setProperty("--light", prev.querySelector(".layout-finale") ? 1 - soft(clamp((t - 0.05) / 0.6, 0, 1)) : 0);
     // If the QR hadn't appeared on the previous slide yet, fade it in on the way
     const shown = prev.querySelector(".show-qr") || !prev.querySelector(".layout-finale");
     qr.style.opacity = shown ? "" : q;

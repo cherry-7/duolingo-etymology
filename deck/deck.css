@@ -126,9 +126,12 @@ body {
   border-radius: 12%;
 }
 
-/* Layout: finale (over "Who are they?", a very enlarged QR's black tiles click in one by one) */
+/* Layout: finale (over "Who are they?", giant black tiles click in everywhere until the screen
+   is black: the QR at a size that covers the whole slide, every cell black) */
 .slide-finale { background: transparent; }
-.layout-finale .qr-code { width: 53cqw; } /* nearly the slide's full height */
+.slide-finale:has(.show-qr) { background: #000; transition: background 0.3s 1.6s; } /* the window's edges too */
+.slide-finale:has(.qr-built) { transition: none; }
+.layout-finale .qr-code { width: 100cqw; } /* wider than the slide is tall, so it covers it all */
 .layout-finale {
   place-items: center;
   padding: 0;
@@ -143,6 +146,10 @@ body {
 /* Transitions only run on the way in; leaving the slide resets instantly. Each tile clicks in:
    it fades in as it settles from a little larger to its size */
 .layout-finale .qr-tile { opacity: 0; transform-box: fill-box; transform-origin: center; scale: 1.6; }
+/* light cells: black while the QR is a black screen (--light 1), gaps otherwise */
+.qr-light { opacity: var(--light, 0); }
+.layout-finale .qr-light { opacity: 0; }
+.layout-finale.show-qr .qr-light { opacity: 1; }
 .layout-finale.show-qr .qr-tile { opacity: 1; scale: 1; transition: opacity 0.25s ease-out, scale 0.25s cubic-bezier(.3, 1.6, .5, 1); }
 .layout-finale.qr-built .qr-tile { transition: none; }
 
