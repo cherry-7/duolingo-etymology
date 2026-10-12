@@ -3,10 +3,13 @@
 // so the list updates the moment a phone submits. No Firebase SDK needed.
 //
 // Ranking: score (high first), then mistakes (low first), then who finished first.
-// When scores change live, rows slide to their new rank and new entries pop in.
+// When scores change live, the row whose score changed is dragged to its new rank (it lifts,
+// glides there and drops into place) while the rows it passes slide out of its way; new
+// entries pop in.
 (function () {
   const AVATARS = "../assets/characters/";
   const scores = {}; // key -> entry
+  const seen = {}; // key -> the entry as last drawn, to tell which rows changed
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   function el(tag, className, text) {
@@ -35,11 +38,21 @@
     return box;
   }
 
-  // animate: slide rows that changed rank (FLIP) and pop in new ones
+  const DRAG = 1100; // ms: lift, glide, drop
+  // animate: drag rows that changed rank (FLIP) and pop in new ones
   function render(list, limit, status, animate) {
     const before = new Map();
     list.querySelectorAll(".board-row").forEach((row) => before.set(row.dataset.key, row.getBoundingClientRect().top));
-    const top = ranked().slice(0, limit);
+    const all = ranked();
+    const top = all.slice(0, limit);
+    // rows whose own entry changed since the last draw are the ones being dragged
+    const changed = new Set();
+    all.forEach(([key, entry]) => {
+      const now = JSON.stringify(entry);
+      if (seen[key] !== undefined && seen[key] !== now) changed.add(key);
+      seen[key] = now;
+    });
+    Object.keys(seen).forEach((key) => { if (!scores[key]) delete seen[key]; });
     list.replaceChildren();
     if (top.length === 0) {
       list.append(el("li", "board-empty", "[TBD: no scores yet]"));
@@ -67,11 +80,29 @@
           );
           return;
         }
-        const shift = was - row.getBoundingClientRect().top;
-        if (Math.abs(shift) > 1) {
+        // the board sits in the leaderboard's scaled 1920-wide canvas: screen px -> canvas px
+        const box = row.getBoundingClientRect();
+        const shift = (was - box.top) * (box.height ? row.offsetHeight / box.height : 1);
+        if (Math.abs(shift) < 1) return;
+        if (changed.has(row.dataset.key)) {
+          // Dragged: it lifts (a little bigger, in front), glides to its new place, then drops in
+          row.style.position = "relative";
+          row.style.zIndex = 2;
+          const drag = row.animate(
+            [
+              { transform: `translateY(${shift}px) scale(1)`, easing: "ease-out" },
+              { transform: `translateY(${shift}px) scale(1.06)`, offset: 0.18, easing: "cubic-bezier(0.65, 0, 0.35, 1)" },
+              { transform: "translateY(0) scale(1.06)", offset: 0.82, easing: "ease-in" },
+              { transform: "none" }
+            ],
+            { duration: DRAG }
+          );
+          drag.onfinish = drag.oncancel = () => { row.style.position = row.style.zIndex = ""; };
+        } else {
+          // Pushed aside: slides into its new place while the dragged row passes over it
           row.animate(
             [{ transform: `translateY(${shift}px)` }, { transform: "none" }],
-            { duration: 500, easing: "cubic-bezier(0.65, 0, 0.35, 1)" }
+            { duration: DRAG * 0.64, delay: DRAG * 0.18, easing: "cubic-bezier(0.65, 0, 0.35, 1)", fill: "backwards" }
           );
         }
       });
