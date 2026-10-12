@@ -34,90 +34,49 @@
     "answerMeaning": "Words can be built with prefixes, suffixes, or compounds."
   },
   {
-    "type": "match",
-    "language": "Chinese",
-    "prompt": "Match each Chinese character to the components that combine to form it.",
-    "pairs": [
-      {
-        "part": "明 (míng): bright",
-        "meaning": "日 (sun) + 月 (moon)"
-      },
-      {
-        "part": "林 (lín): grove",
-        "meaning": "木 (wood) + 木 (wood)"
-      },
-      {
-        "part": "森 (sēn): forest",
-        "meaning": "木 (wood) + 木 (wood) + 木 (wood)"
-      }
-    ]
-  },
-  {
     "type": "radical",
     "language": "Chinese",
-    "prompt": "Complete the character by dragging the missing radical into the empty spot.",
-    "character": "明 (míng): bright",
-    "root": "月",
+    "prompt": "Build the character for “mom”\nStart with 马 (mǎ), which contribute to the pronunciation of the character. add the radical for “mom”. Parentheses show the meaning of the semantic radicals.",
+    "character": "妈 (mā): mom",
+    "root": "马",
     "radicals": [
-      {
-        "text": "日",
-        "meaning": "Sun",
-        "isCorrect": true
-      },
-      {
-        "text": "木",
-        "meaning": "Wood",
-        "isCorrect": false
-      },
-      {
-        "text": "山",
-        "meaning": "Mountain",
-        "isCorrect": false
-      }
+      { "text": "口", "meaning": "Mouth", "isCorrect": false },
+      { "text": "女", "meaning": "Female", "isCorrect": true },
+      { "text": "石", "meaning": "Rock", "isCorrect": false },
+      { "text": "虫", "meaning": "Bug", "isCorrect": false }
     ],
-    "answerMeaning": "明 (míng): bright. 日 (sun) joins 月 (moon) to form the character for bright."
-  },
-  {
-    "type": "order",
-    "language": "Chinese",
-    "prompt": "Use the compound 火山 (volcano) as a building block. Put it before 岩 (rock) to form volcanic rock. Leave out the extra tile.",
-    "parts": [
-      {
-        "text": "岩",
-        "meaning": "Rock",
-        "order": 2
-      },
-      {
-        "text": "木",
-        "meaning": "Wood",
-        "order": null
-      },
-      {
-        "text": "火山",
-        "meaning": "Volcano",
-        "order": 1
-      }
-    ],
-    "answerMeaning": "火山岩 (huǒshānyán): volcanic rock. A compound, 火山, combines with 岩 to form another compound."
+    "answerMeaning": "妈 (mā): mom"
   },
   {
     "type": "choice",
     "language": "Chinese",
-    "prompt": "Which meaningful part tells you that 火山岩 names a kind of rock?",
-    "word": "火山岩 (huǒshānyán)",
+    "prompt": "Choose the right meaning for this character:\nClick the correct the answer block.",
+    "word": "妈",
     "options": [
-      {
-        "text": "火山 (volcano)",
-        "isCorrect": false
-      },
-      {
-        "text": "火 (fire)",
-        "isCorrect": false
-      },
-      {
-        "text": "岩 (rock)",
-        "isCorrect": true
-      }
+      { "text": "Mom", "isCorrect": true },
+      { "text": "Dad", "isCorrect": false },
+      { "text": "Horse", "isCorrect": false },
+      { "text": "Good", "isCorrect": false }
+    ]
+  },
+  {
+    "type": "choice",
+    "language": "Chinese",
+    "prompt": "Which part of the character indicate the gender of 妈?\nClick the correct the answer block.",
+    "word": "妈",
+    "options": [
+      { "text": "女 Semantic Radical · Meaning: Female · Pronunciation: nǚ", "isCorrect": true },
+      { "text": "马 Phonetic Component · Meaning: Horse · Pronunciation: mǎ", "isCorrect": false }
+    ]
+  },
+  {
+    "type": "choice",
+    "language": "Chinese",
+    "prompt": "Which part of the character indicate the pronunciation of 妈 (mā)?\nClick the correct the answer block.",
+    "word": "妈",
+    "options": [
+      { "text": "女 Semantic Radical · Meaning: Female · Pronunciation: nǚ", "isCorrect": false },
+      { "text": "马 Phonetic Component · Meaning: Horse · Pronunciation: mǎ", "isCorrect": true }
     ]
   },
   {

@@ -124,3 +124,4 @@ Work queue for the deck and demo.
   3. Reactions play in the top-left twins: wrong → scared animation, right → high five, back to idle after "Got it".
   4. Finish screen: the twins high-five with a bubble saying "We're so proud of you!" (there is no clapping animation; Michelle: it's the high five).
   The high five is the deck's own react: "correct" (Michelle's call), played by the deck engine (deck/characters.js + deck/world.js) in demo/twins.html, shown in a small frame.
+- [ ] (2026-10-12, Nina in chat, needs Michelle's APPROVED before merge): Replace the four Chinese demo questions with the ones on the Figma "Demo Question" page (Duolingo Design Board, frames "Slide 16:9 - 8, 10, 11, 12"): build 妈 from 马 with 口/女/石/虫, the meaning of 妈 (Mom/Dad/Horse/Good), which part shows its gender (女), which part shows its pronunciation (马). Same interfaces as now (radical + choice formats); only the question content changes.
