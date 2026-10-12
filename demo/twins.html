@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Twins</title>
+  <!-- Mula and Dulo from the deck, played by the deck's own engine (deck/characters.js +
+       deck/world.js), so the demo's high five is the deck's react: "correct" exactly.
+       The demo shows this page in a small frame and calls play() / idle() on it.
+       ?play starts the high five as soon as the page loads (the finish screen). -->
+  <link rel="stylesheet" href="../deck/deck.css">
+  <style>
+    html, body { margin: 0; background: transparent; overflow: hidden; }
+    .world { background: transparent !important; }
+  </style>
+</head>
+<body>
+  <script src="../deck/shapes.js"></script>
+  <script src="../deck/characters.js"></script>
+  <script src="../deck/world.js"></script>
+  <script>
+    (function () {
+      // Same pair as the deck (deck/slides.js "twins"), filling the 1920 x 1080 stage
+      const twins = { type: "pair", members: [{ who: "mula", dx: 65 }, { who: "dulo", dx: 455 }], box: [95, 60, 950, 666], slotAspect: 944 / 1262 };
+      const spot = { x: 260, y: 0, w: 1400 };
+      // Two identical scenes; the second is tagged react: "correct", so arriving on it plays
+      // the high five (after the deck's half-second pause), then they go back to idle
+      const slides = [
+        { layout: "scene", bg: "#FFFFFF", actors: { twins: spot } },
+        { layout: "scene", bg: "#FFFFFF", actors: { twins: spot }, react: "correct" }
+      ];
+      const world = window.World.mount(document.body, slides, { twins });
+      world.render(0);
+      window.idle = () => world.render(0);
+      window.play = () => { world.render(0); world.render(1); };
+      if (/[?&]play\b/.test(location.search)) window.play();
+    })();
+  </script>
+</body>
+</html>

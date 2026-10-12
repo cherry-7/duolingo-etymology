@@ -16,16 +16,12 @@ export const STRINGS = {
   correctionTitle: "Incorrect",
   gotIt: "Got it",
 
-  // Twins lines fall back to these when content/twins-lines.json is missing.
-  twinsFirstQuestion: "[TBD: twins encouragement – first question]",
-  twinsAfterMistake: "[TBD: twins encouragement – after mistake]",
-  twinsFinish: "[TBD: twins finish line]",
-  twinsHighFive: "[TBD: twins high-five]",
 
   swipeToNext: "[TBD: swipe to next language]",
   nextLanguage: "[TBD: next language button]",
 
   finishTitle: "You did it!",
+  finishBubble: "We're so proud of you!", // the twins say this on the finish screen
   statFirstTry: "Great job!",
   submitting: "[TBD: sending score…]",
   submitted: "[TBD: score is on the leaderboard]",

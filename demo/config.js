@@ -11,6 +11,15 @@ export const CONFIG = {
     sounds: "../assets/sounds/"
   },
 
+  // Twins animations (self-contained looping SVGs from the deck chat). A missing file shows a
+  // labeled placeholder, so high-five and clapping appear as soon as these files exist.
+  twinsAnimations: {
+    idle: { src: "../assets/deck/idle-think/idle-think.svg", label: "[TBD: twins idle/thinking]" },
+    scared: { src: "../assets/deck/scared/scared.svg", label: "[TBD: twins scared]" },
+  },
+  // The high five is the deck's own react: "correct", played by the deck engine in this page
+  twinsHighFive: "twins.html",
+
   // Questions per language set, in file order. 10 total.
   lessonSplit: [3, 4, 3],
 

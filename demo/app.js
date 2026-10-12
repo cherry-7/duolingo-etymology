@@ -52,7 +52,8 @@ const state = {
   mistakes: 0,
   hadMistake: false,
   retryUsed: false,
-  twins: {}
+  twinsStage: null, // the top-left box the twins animate in
+  twinsPose: null
 };
 
 const $ = (id) => document.getElementById(id);
@@ -197,16 +198,6 @@ async function loadLesson() {
   banner.hidden = unique.length === 0;
 }
 
-async function loadTwinsLines() {
-  const lines = (await loadJson(CONFIG.twinsLinesUrl)) || {};
-  state.twins = {
-    firstQuestion: lines.firstQuestion || STRINGS.twinsFirstQuestion,
-    afterMistake: lines.afterMistake || STRINGS.twinsAfterMistake,
-    finish: lines.finish || STRINGS.twinsFinish,
-    highFive: lines.highFive || STRINGS.twinsHighFive
-  };
-}
-
 /* ---------- screens ---------- */
 
 function show(id) {
@@ -221,9 +212,39 @@ function avatarEl(character, size) {
   );
 }
 
-function twinsEl(pose) {
-  return assetImg(`${CONFIG.assets.twins}${pose}.png`, `[TBD: twins ${pose}]`, "twins");
+// The twins strip above the question: their animation box (top left) and a speech bubble.
+// Built once and kept for the whole lesson, because the high-five frame would reload if moved.
+//   idle / scared: looping SVGs; highFive: the deck's react: "correct" (demo/twins.html)
+function buildTwinsStrip() {
+  if (state.twinsStage) return;
+  const img = h("img", { class: "twins-img", alt: "", draggable: "false" });
+  const frame = h("iframe", { class: "twins-frame", src: CONFIG.twinsHighFive, title: "Mula and Dulo", tabindex: "-1", "aria-hidden": "true" });
+  const stage = h("div", { class: "twins-stage" }, img, frame);
+  const bubble = h("div", { class: "speech" });
+  $("twins-row").replaceChildren(stage, bubble);
+  state.twinsStage = { stage, img, frame, bubble };
 }
+
+function setTwins(pose) {
+  const t = state.twinsStage;
+  if (!t || state.twinsPose === pose) return;
+  state.twinsPose = pose;
+  const high = pose === "highFive";
+  t.stage.classList.toggle("is-high-five", high);
+  const win = t.frame.contentWindow;
+  if (high) {
+    win?.play?.();
+  } else {
+    t.img.src = CONFIG.twinsAnimations[pose].src;
+    win?.idle?.();
+  }
+}
+
+// Load the looping animations ahead of time so reactions show instantly
+function preloadTwins() {
+  for (const { src } of Object.values(CONFIG.twinsAnimations)) new Image().src = src;
+}
+
 
 function initNickname() {
   $("nick-title").textContent = STRINGS.nicknameTitle;
@@ -298,12 +319,14 @@ function renderQuestion({ preserveMistake = false, animate = true } = {}) {
   const body = $("lesson-body");
   body.classList.remove("is-locked", "is-boundary");
   const format = FORMATS[item.q.type || "drag"];
-  const nodes = [];
-  if (state.i === 0) {
-    nodes.push(h("div", { class: "twins-bubble" }, twinsEl("encourage"), h("p", {}, state.twins.firstQuestion)));
-  }
-  nodes.push(format.render(item.q, makeCtx(item.q)));
-  body.replaceChildren(...nodes);
+  const formatEl = format.render(item.q, makeCtx(item.q));
+  // The twins ask the question: the prompt moves into their speech bubble
+  buildTwinsStrip();
+  const prompt = formatEl.querySelector(".prompt");
+  state.twinsStage.bubble.replaceChildren(...(prompt ? [prompt] : []));
+  $("twins-row").hidden = false;
+  setTwins("idle");
+  body.replaceChildren(formatEl);
   if (animate) slideIn(body);
   else body.classList.remove("slide-in", "slide-out");
   if (item.q.type === "drag" || !item.q.type) preloadAnimation(item.q);
@@ -327,6 +350,7 @@ function makeCtx(q) {
     wrong(reset) {
       state.mistakes++;
       state.hadMistake = true;
+      setTwins("scared");
       if (!state.retryUsed) {
         state.retryUsed = true;
         showSheet("wrong", () => {
@@ -339,6 +363,7 @@ function makeCtx(q) {
     },
     complete({ animationSlot, detail }) {
       if (!state.hadMistake) state.firstTry++;
+      setTwins("highFive");
       playSound(SOUNDS.correct);
       playAnimation(q, animationSlot);
       showSheet("correct", null, detail, q);
@@ -364,10 +389,8 @@ function showSheet(kind, retry, detail, q) {
       sheetText(
         "correct",
         STRINGS.correctTitle,
-        detail ? h("p", { class: "sheet-detail" }, detail) : null,
-        h("p", { class: "sheet-line" }, state.twins.highFive)
-      ),
-      twinsEl("high-five")
+        detail ? h("p", { class: "sheet-detail" }, detail) : null
+      )
     );
     btn.textContent = STRINGS.continue;
     btn.onclick = () => next();
@@ -376,10 +399,8 @@ function showSheet(kind, retry, detail, q) {
     sheet.replaceChildren(
       sheetText(
         "wrong",
-        STRINGS.wrongTitle,
-        h("p", { class: "sheet-line" }, state.twins.afterMistake)
-      ),
-      twinsEl("encourage")
+        STRINGS.wrongTitle
+      )
     );
     btn.textContent = STRINGS.tryAgain;
     btn.classList.add("is-neutral");
@@ -394,10 +415,8 @@ function showSheet(kind, retry, detail, q) {
       sheetText(
         "wrong",
         STRINGS.correctionTitle,
-        h("p", { class: "sheet-detail" }, correctAnswer(q)),
-        h("p", { class: "sheet-line" }, state.twins.afterMistake)
-      ),
-      twinsEl("encourage")
+        h("p", { class: "sheet-detail" }, correctAnswer(q))
+      )
     );
     btn.textContent = STRINGS.gotIt;
     btn.classList.add("is-retry-correct");
@@ -446,6 +465,7 @@ let swipeHandler = null;
 
 function showBoundary(nxt) {
   hideSheet();
+  $("twins-row").hidden = true;
   const body = $("lesson-body");
   body.classList.add("is-boundary");
   body.replaceChildren(
@@ -598,7 +618,13 @@ function finish() {
       { class: "stats" },
       h("div", {}, h("span", { class: "stat-n" }, `${state.firstTry}/${state.lesson.length}`), h("span", {}, STRINGS.statFirstTry))
     ),
-    h("div", { class: "twins-bubble" }, twinsEl("idle"), h("p", {}, state.twins.finish)),
+    h(
+      "div",
+      { class: "twins-row" },
+      h("div", { class: "twins-stage is-high-five" },
+        h("iframe", { class: "twins-frame", src: `${CONFIG.twinsHighFive}?play`, title: "Mula and Dulo", tabindex: "-1", "aria-hidden": "true" })),
+      h("div", { class: "speech" }, h("p", { class: "speech-line" }, STRINGS.finishBubble))
+    ),
     h("p", { id: "submit-status", class: "muted submit-status" }, STRINGS.submitting)
   );
   show("screen-finish");
@@ -618,7 +644,8 @@ async function boot() {
   document.addEventListener("touchstart", () => {}, { passive: true });
   initNickname();
   show("screen-nickname");
-  await Promise.all([loadLesson(), loadTwinsLines()]);
+  await loadLesson();
+  preloadTwins();
 }
 
 boot();
