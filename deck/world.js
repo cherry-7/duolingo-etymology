@@ -279,7 +279,8 @@ window.World = (function () {
             const p = m.defs[name];
             if (!p.pivot) continue;
             const arm = name.replace("finger", "arm"); // Dulo's fingers move with her arms
-            const flip = p.mirror != null ? -1 : 1;
+            // flip-*: turn the arm over along its length (-1), e.g. Mula's top arm in the high five
+            const flip = v("flip-" + arm, p.mirror != null ? -1 : 1);
             g.style.transform = groupTransform(p, v(arm, p.rest || 0), flip, v("stretch-" + arm, 1));
             if (arm.startsWith("arm")) g.style.zIndex = v("front", 0) ? 1 : "";
           }

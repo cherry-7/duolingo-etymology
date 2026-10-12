@@ -92,3 +92,4 @@ Work queue for the deck and demo.
 - [ ] APPROVED (2026-10-11, Michelle in chat): Idle, thinking: animate the parts of Michelle's vectorized SVG (design/slides/svgs/Character_Mula_IdleThink) so Dulo writes on her clipboard and both feel alive. [TBD: which slide it goes on]
 - [ ] APPROVED (2026-10-11, Michelle in chat): Idle, thinking fixes: no gaps between body parts and clothing as they move; Dulo's writing hand is covered by her sleeve (Claude may draw on top of the vector).
 - [ ] APPROVED (2026-10-11, Michelle in chat): Idle, thinking blinks: the eyelids come down over the eyes (instead of the eyes squashing).
+- [ ] APPROVED (2026-10-11, Michelle in chat): Step 4 high five: Mula's top arm flips upside down for the high five so it flows.
