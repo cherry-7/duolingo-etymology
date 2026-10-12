@@ -1,8 +1,8 @@
 // Drag word parts onto the root. The picture moves through stage images
 // toward the complete picture as correct parts are dropped.
 // Tap-to-place also works: tap a part, then tap the root (or use Enter/Space).
-import { h, shuffle, buzz, promptEl } from "../util.js";
-import { makeDraggable } from "../drag.js";
+import { h, shuffle, buzz, promptEl } from "../util.js?v=20261012c";
+import { makeDraggable } from "../drag.js?v=20261012c";
 
 export function render(q, ctx) {
   ctx.useCheck(false);

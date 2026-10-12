@@ -1,5 +1,5 @@
 // Match each word to the way its meaningful parts are constructed.
-import { h, shuffle, promptEl } from "../util.js";
+import { h, shuffle, promptEl } from "../util.js?v=20261012c";
 
 export function render(q, ctx) {
   ctx.useCheck(false);

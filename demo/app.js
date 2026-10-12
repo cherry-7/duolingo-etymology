@@ -1,15 +1,15 @@
 // Demo flow: nickname → lesson (10 questions, 3 language sets) → finish.
-import { CONFIG } from "./config.js";
-import { STRINGS } from "./strings.js";
-import { h, placeholder, assetImg, glyphImg, fileExists, playSound } from "./util.js";
-import * as drag from "./formats/drag.js";
-import * as choice from "./formats/choice.js";
-import * as match from "./formats/match.js";
-import * as order from "./formats/order.js";
-import * as split from "./formats/split.js";
-import * as odd from "./formats/odd.js";
-import * as construction from "./formats/construction.js";
-import * as radical from "./formats/radical.js";
+import { CONFIG } from "./config.js?v=20261012c";
+import { STRINGS } from "./strings.js?v=20261012c";
+import { h, placeholder, assetImg, glyphImg, fileExists, playSound } from "./util.js?v=20261012c";
+import * as drag from "./formats/drag.js?v=20261012c";
+import * as choice from "./formats/choice.js?v=20261012c";
+import * as match from "./formats/match.js?v=20261012c";
+import * as order from "./formats/order.js?v=20261012c";
+import * as split from "./formats/split.js?v=20261012c";
+import * as odd from "./formats/odd.js?v=20261012c";
+import * as construction from "./formats/construction.js?v=20261012c";
+import * as radical from "./formats/radical.js?v=20261012c";
 
 const FORMATS = { drag, choice, match, order, split, odd, construction, radical };
 

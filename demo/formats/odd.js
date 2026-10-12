@@ -1,5 +1,5 @@
 // Choose the English word whose construction does not match the others.
-import { h, shuffle, promptEl } from "../util.js";
+import { h, shuffle, promptEl } from "../util.js?v=20261012c";
 
 export function render(q, ctx) {
   let selected = null;

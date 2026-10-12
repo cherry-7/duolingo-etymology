@@ -1,5 +1,5 @@
 // Tap parts into slots in the right order, then check.
-import { h, shuffle, promptEl } from "../util.js";
+import { h, shuffle, promptEl } from "../util.js?v=20261012c";
 
 export function render(q, ctx) {
   const answer = q.parts.filter((p) => p.order != null).sort((a, b) => a.order - b.order);
