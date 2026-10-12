@@ -479,6 +479,15 @@
     e.preventDefault();
   });
 
+  // Mouse click (or a tap) anywhere = next, like a clicker; Shift+click goes back.
+  // Links and controls keep their own clicks.
+  document.addEventListener("click", (e) => {
+    if (e.button !== 0 || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.target.closest("a, button, input, select, textarea, label")) return;
+    if (String(window.getSelection && window.getSelection()).length) return; // selecting text
+    go(rest + (e.shiftKey ? -1 : 1));
+  });
+
   // Mouse wheel / trackpad
   window.addEventListener("wheel", (e) => {
     e.preventDefault();
