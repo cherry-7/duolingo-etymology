@@ -55,7 +55,7 @@ const C = {
   shadowOnSquiggle: "#CA8A00",
   navy: "#18529C", // "CHARACTER POSES" on the blue bar
   glow: "#AA6401", // the dark glow behind the twins (Character Default, second version)
-  cream: "#FFEA9C" // the twins' tile on "Who is he?"
+  cream: "#FFEA9C" // the twins' tile on "Who are they?"
 };
 
 // Flashcard helpers: text positions are Figma's (stage coordinates); the card's top-left is (446, 204)
@@ -411,10 +411,10 @@ const OPENING = {
   }
 };
 
-// "Who is he?": the heading and the ten Duolingo characters rise in one after another, then the
+// "Who are they?": the heading and the ten Duolingo characters rise in one after another, then the
 // twins' tile
 const WHO = Object.assign({
-  titleWho: riseIn({ x: 129, y: 68, size: 100, color: C.white, text: "Who is he?" }, 0, 12),
+  titleWho: riseIn({ x: 129, y: 68, size: 100, color: C.white, text: "Who are they?" }, 0, 12),
   twinsTile: riseIn({ x: 1267, y: 646, w: 387, h: 248, color: C.cream }, 11, 12)
 }, ...[
   ["whoDuo", 127, 272], ["whoBea", 410, 273], ["whoEddy", 693, 272], ["whoJunior", 975, 272],
@@ -699,7 +699,7 @@ window.SLIDES = [
     pace: 0.3,
     actors: {
       // The glow fades up and the twins drop in and bounce, as on the first Character Default slide,
-      // but as a black silhouette (Michelle); on to "Who is he?" it shrinks into the twins' tile
+      // but as a black silhouette (Michelle); on to "Who are they?" it shrinks into the twins' tile
       glow: { x: 581, y: 192, w: 727, h: 727, color: C.glow, enter: { opacity: 0, at: [0.2, 0.8] } },
       twinsShadow: { x: 538.03, y: 200, w: 847.63, enter: { dy: -1500, ease: "bounce", at: [0.4, 1] } }
     }
