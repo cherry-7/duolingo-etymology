@@ -384,8 +384,8 @@ window.SLIDES = [
     ref: "Opening",
     bg: C.orange,
     pace: 0.05, // slow: the light finds "This", then the black slowly fades away (about 4s)
-    // After a few seconds of idling, Mula and Dulo switch into the yin-yang hug (Michelle)
-    swap: { from: "twins", to: "yinyang", after: 3000 },
+    // After 0.5s of idling, Mula and Dulo switch into the yin-yang hug (Michelle)
+    swap: { from: "twins", to: "yinyang", after: 500 },
     actors: Object.assign({}, OPENING, {
       dark: { x: SPOT.x, y: SPOT.y, w: SPOT.r, reveal: 1, at: [0, 1] },
       // hidden until the swap; the yin-yang drawing at the pair's size and feet line (Dulo's bun
