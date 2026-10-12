@@ -16,6 +16,7 @@ export const CONFIG = {
   twinsAnimations: {
     idle: { src: "../assets/deck/idle-think/idle-think.svg", label: "[TBD: twins idle/thinking]" },
     scared: { src: "../assets/deck/scared/scared.svg", label: "[TBD: twins scared]" },
+    yinYang: { src: "../assets/deck/yin-yang/yin-yang.svg", label: "[TBD: twins yin-yang]" },
   },
   // The high five is the deck's own react: "correct", played by the deck engine in this page
   twinsHighFive: "twins.html",
