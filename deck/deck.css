@@ -438,16 +438,14 @@ body {
   95.5% { scale: 1 0.08; }
   98%, 100% { scale: 1 1; }
 }
-/* Dulo's eyelids close with her blinks: each stretches down from its top edge to the eye's
-   centre line as the eye squeezes shut */
-.character-dulo :is(.part-ellipse-16-left, .part-ellipse-16-right) { transform-origin: 50% 0; }
+/* Dulo's tinted eyelids go away while her eyes are shut, fading with the blink */
 .character-dulo.idle > :is(.part-ellipse-16-left, .part-ellipse-16-right) {
   animation: breathe-head 2.6s ease-in-out infinite, blink-lid var(--blink-every) linear infinite;
 }
 @keyframes blink-lid {
-  0%, 93% { scale: 1 1; }
-  95.5% { scale: 1 1.43; }
-  98%, 100% { scale: 1 1; }
+  0%, 93.5% { opacity: 1; }
+  95%, 96.5% { opacity: 0; }
+  98%, 100% { opacity: 1; }
 }
 
 /* Mula: her pointing finger is tucked away while she's idle */

@@ -380,8 +380,7 @@ window.World = (function () {
       const NOD = { dip: 16, flat: 0.07, chin: 311, duration: 1100 };
       const heads = members.flatMap((m) => [...m.frame.querySelectorAll(":scope > :is(" + HEAD_PARTS + ")")]);
       const EYES = ".part-eye-white-left, .part-eye-white-right, .group-eye-left, .group-eye-right";
-      const LIDS_DOWN = ".part-ellipse-16-left, .part-ellipse-16-right"; // Dulo's eyelids
-      const LID_CLOSED = 1.43; // stretched from their top edge down to the eye's centre line
+      const TINT = ".part-ellipse-16-left, .part-ellipse-16-right"; // Dulo's tinted eyelids: gone while her eyes are shut
       const track = (keys, t) => {
         for (let i = 1; i < keys.length; i++) {
           const [t0, v0] = keys[i - 1];
@@ -403,18 +402,18 @@ window.World = (function () {
           // each part scales about its own origin; shift it so the head squashes about the chin
           const originY = h.offsetTop + parseFloat(getComputedStyle(h).transformOrigin.split(" ")[1]);
           const eye = h.matches(EYES);
-          const lid = h.matches(LIDS_DOWN);
           h.animate(NOD_AT.map((t) => {
             const d = track(DIPS, t);
             const sy = 1 - NOD.flat * d;
             return {
               offset: t,
               translate: `0 ${NOD.dip * d + (1 - sy) * (NOD.chin - originY)}px`,
-              scale: `1 ${sy * (eye ? track(LIDS, t) : lid ? lerp(LID_CLOSED, 1, track(LIDS, t)) : 1)}`,
+              scale: `1 ${sy * (eye ? track(LIDS, t) : 1)}`,
               easing: "ease-in-out" // per beat
             };
           }), { duration: NOD.duration, composite: "add" });
           if (h.matches(".part-eye-shut")) h.animate(LINE, { duration: NOD.duration });
+          if (h.matches(TINT)) h.animate(LINE.map((k) => Object.assign({}, k, { opacity: 1 - k.opacity })), { duration: NOD.duration });
         });
       }
 
