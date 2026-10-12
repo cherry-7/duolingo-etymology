@@ -24,9 +24,13 @@ const shapes = [...src.matchAll(/<path ([^>]*)>/g)].map((m) => {
 
 // ---- Who moves how -----------------------------------------------------------------------
 const set = (s) => new Set(s.split(" "));
-// Mula: everything above her legs shakes; her pupils also dart side to side
-const MULA_BODY = set("2 3 4 5 6 7 8 9 10 11 12 14 15 17 18 39 40");
+// Mula: her body and shoulders (dress, sleeves, scarf, hands) tremble; her head stays, and her
+// pupils dart side to side
+const MULA_BODY = set("3 4 5 6 7 8 9 10 11");
 const MULA_PUPILS = { "13": "12", "16": "15" }; // pupil -> its eye white
+// Mula's boots and legs sit under her dress (drawn before it, boots first, as in the drawing),
+// so the hem covers the tops of her legs as she taps
+const UNDER_DRESS = ["45", "50", "46", "47", "52"];
 // Mula's raised leg and boot tap; the marks beside it flash on each tap
 const MULA_LEG = set("46 47"); // her raised leg: swings down from the hip and stretches a little
 const MULA_BOOT = set("45"); // ...so the boot at its end reaches the ground
@@ -36,20 +40,28 @@ const DULO_HEAD = set("23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 41 42");
 const DULO_TAP = set("49");
 const DULO_MARKS = set("54 55");
 
-// The brown layer under both girls is one traced shape: Mula's part shakes with her, Dulo's head
-// part shakes with her head, the rest stays. Each moving part reaches past the cut into the part
-// that stays, so no gap opens along it.
-const MULA_HAIR_OUT = "M0 0H655V230L700 300V1199H0Z";
-const MULA_HAIR_IN = "M0 0H640V230L680 300V1199H0Z";
-const DULO_HEAD_OUT = "M655 0H1312V525H676V300L655 230Z";
-const DULO_HEAD_IN = "M655 0H1312V480H700V300L655 230Z"; // above y 300 there's background between them, so no overlap there
-const STAYS = `M-10 -10H1322V1209H-10Z ${MULA_HAIR_IN} ${DULO_HEAD_IN}`; // evenodd: all but the inner parts
+// The brown layer under both girls is one traced shape, cut exactly (no overlaps) into Mula's
+// part (shakes with her), Dulo's head part (turns with her head) and the rest (stays). The cuts
+// meet the outline only where there's background between the girls. Under all three lies a copy
+// shrunk 12 units in from every edge: it fills the seams as the parts move, and never reaches
+// the outline, so no edge shows twice.
+// Dulo's head part: from the gap above Mula's hair, under her ear and along the left edge of her
+// face, so the cut is hidden as it turns
+const DULO_HEAD_CUT = "M655 0H1312V500H742V385L722 380V318L700 300L655 230Z";
+const STAYS = `M-10 -10H1322V1209H-10Z ${DULO_HEAD_CUT}`; // evenodd: all but her head part
+const SHRINK = 12;
+// The drawing has two small gaps of background between Mula's dress and Dulo (beside and below
+// the hair); Dulo's hair fills them, under both dresses
+const GAP_FILL = "M625 515H700L748 630V840H662Z"; // down to where the skirts meet
 
 // ---- Motion ------------------------------------------------------------------------------
 const NECK = [870, 505]; // Dulo's head turns about here
 const MULA_HIP = [500, 840]; // Mula's raised leg swings from here
 const TAP = { angle: -18, reach: 58, leg: 100 }; // leg: hip to boot top
-const DULO_ANKLE = [930, 1000]; // Dulo's raised toe comes down, her foot turning at the ankle until the sole is flat
+const DULO_ANKLE = [935, 965]; // Dulo's raised toe comes down, her boot turning about its top (inside her leg) until the sole is flat
+// Dulo's neck and wrist stay put while her head turns: a still copy of the lower part of her
+// face and hand lies under the turning one
+const NECK_AND_WRIST = "M740 455H960V425H1060V560H740Z"; // a little higher at the wrist
 const css = `
 .mula-shake { animation: mula-shake 0.2s linear infinite; }
 @keyframes mula-shake { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-3px, 0.5px); } 75% { transform: translate(3px, -0.5px); } }
@@ -62,7 +74,7 @@ const css = `
 @keyframes mula-boot { 0%, 100% { transform: none; } 45% { transform: rotate(${TAP.angle}deg) translate(0, ${TAP.reach}px); } }
 .mula-marks { animation: marks 0.36s ease-out infinite; }
 .dulo-head { transform-origin: ${NECK[0]}px ${NECK[1]}px; animation: dulo-head 1.8s ease-in-out infinite; }
-@keyframes dulo-head { 0%, 100% { transform: none; } 25% { transform: rotate(-3deg); } 75% { transform: rotate(3deg); } }
+@keyframes dulo-head { 0%, 100% { transform: none; } 25% { transform: rotate(-2.5deg); } 75% { transform: rotate(2.5deg); } }
 /* now and then: two taps, then a rest */
 .dulo-tap { transform-origin: ${DULO_ANKLE[0]}px ${DULO_ANKLE[1]}px; animation: dulo-tap 3.2s ease-in-out infinite; }
 @keyframes dulo-tap { 0%, 22%, 100% { transform: none; } 5.5%, 16.5% { transform: rotate(15deg); } 11% { transform: none; } }
@@ -76,19 +88,24 @@ const css = `
 // ---- SVG -----------------------------------------------------------------------------------
 const clips = [];
 const clip = (id, d, rule) => { clips.push(`<clipPath id="${id}" clipPathUnits="userSpaceOnUse"><path d="${d}"${rule ? ` clip-rule="${rule}"` : ""}/></clipPath>`); return `clip-path="url(#${id})"`; };
-const body = shapes.map((p) => {
+const draw = (p, under) => {
   const path = (cls = "", extra = "") => `<path${cls ? ` class="${cls}"` : ""} d="${p.d}" fill="${p.fill}"${extra}/>`;
   if (p.id === "1") {
+    clips.push(`<mask id="shrunk" maskUnits="userSpaceOnUse" x="-10" y="-10" width="1332" height="1219"><path d="${p.d}" fill="#fff" stroke="#000" stroke-width="${SHRINK * 2}"/></mask>`);
     return [
+      `<path d="${p.d}" fill="${p.fill}" mask="url(#shrunk)"/>`,
       `<g ${clip("stays", STAYS, "evenodd")}>${path()}</g>`,
-      `<g class="mula-shake"><g ${clip("mula-hair", MULA_HAIR_OUT)}>${path()}</g></g>`,
-      `<g class="dulo-head"><g ${clip("dulo-hair", DULO_HEAD_OUT)}>${path()}</g></g>`
+      `<path d="${GAP_FILL}" fill="${p.fill}"/>`,
+      `<g class="dulo-head"><g ${clip("dulo-hair", DULO_HEAD_CUT)}>${path()}</g></g>`
     ].join("\n");
   }
+  if (p.id === "2") return path() + "\n" + UNDER_DRESS.map((id) => draw(shapes.find((q) => q.id === id), true)).join("\n");
+  if (UNDER_DRESS.includes(p.id) && !under) return "";
+  if (p.id === "23") return `<g ${clip("neck", NECK_AND_WRIST)}>${path()}</g>\n` + path("dulo-head");
   if (MULA_PUPILS[p.id]) {
     // inside the eye white, which shakes with her; the pupil darts within it
     const white = shapes.find((q) => q.id === MULA_PUPILS[p.id]);
-    return `<g class="mula-shake"><g ${clip("eye-" + p.id, white.d)}>${path("mula-look")}</g></g>`;
+    return `<g ${clip("eye-" + p.id, white.d)}>${path("mula-look")}</g>`;
   }
   if (MULA_BODY.has(p.id)) return path("mula-shake");
   if (MULA_LEG.has(p.id)) return path("mula-leg");
@@ -98,7 +115,8 @@ const body = shapes.map((p) => {
   if (DULO_TAP.has(p.id)) return path("dulo-tap");
   if (DULO_MARKS.has(p.id)) return path("dulo-marks");
   return path();
-}).join("\n");
+};
+const body = shapes.map((p) => draw(p)).join("\n");
 
 const [, , w, h] = VIEW.split(" ");
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${VIEW}" width="${w}" height="${h}" fill="none">
