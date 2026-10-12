@@ -39,11 +39,13 @@
     "prompt": "Build the character for “mom”\nStart with 马 (mǎ), which contribute to the pronunciation of the character. add the radical for “mom”. Parentheses show the meaning of the semantic radicals.",
     "character": "妈 (mā): mom",
     "root": "马",
+    "rootImage": "ma-horse.svg",
+    "characterImage": "ma-mom.svg",
     "radicals": [
-      { "text": "口", "meaning": "Mouth", "isCorrect": false },
-      { "text": "女", "meaning": "Female", "isCorrect": true },
-      { "text": "石", "meaning": "Rock", "isCorrect": false },
-      { "text": "虫", "meaning": "Bug", "isCorrect": false }
+      { "text": "口", "image": "radical-kou.svg", "meaning": "Mouth", "isCorrect": false },
+      { "text": "女", "image": "radical-nv.svg", "meaning": "Female", "isCorrect": true },
+      { "text": "石", "image": "radical-shi.svg", "meaning": "Rock", "isCorrect": false },
+      { "text": "虫", "image": "radical-chong.svg", "meaning": "Bug", "isCorrect": false }
     ],
     "answerMeaning": "妈 (mā): mom"
   },
@@ -62,21 +64,21 @@
   {
     "type": "choice",
     "language": "Chinese",
-    "prompt": "Which part of the character indicate the gender of 妈?\nClick the correct the answer block.",
+    "prompt": "Which part of the character indicate the __gender__ of 妈?\nClick the correct the answer block.",
     "word": "妈",
     "options": [
-      { "text": "女 Semantic Radical · Meaning: Female · Pronunciation: nǚ", "isCorrect": true },
-      { "text": "马 Phonetic Component · Meaning: Horse · Pronunciation: mǎ", "isCorrect": false }
+      { "text": "女 Semantic Radical · Meaning: Female · Pronunciation: nǚ", "image": "radical-nv.svg", "title": "Semantic Radical", "lines": ["Meaning: Female", "Pronunciation: nǚ"], "isCorrect": true },
+      { "text": "马 Phonetic Component · Meaning: Horse · Pronunciation: mǎ", "image": "ma-horse.svg", "title": "Phonetic Component", "lines": ["Meaning: Horse", "Pronunciation: mǎ"], "isCorrect": false }
     ]
   },
   {
     "type": "choice",
     "language": "Chinese",
-    "prompt": "Which part of the character indicate the pronunciation of 妈 (mā)?\nClick the correct the answer block.",
+    "prompt": "Which part of the character indicate the __pronunciation__ of 妈 (mā)?\nClick the correct the answer block.",
     "word": "妈",
     "options": [
-      { "text": "女 Semantic Radical · Meaning: Female · Pronunciation: nǚ", "isCorrect": false },
-      { "text": "马 Phonetic Component · Meaning: Horse · Pronunciation: mǎ", "isCorrect": true }
+      { "text": "女 Semantic Radical · Meaning: Female · Pronunciation: nǚ", "image": "radical-nv.svg", "title": "Semantic Radical", "lines": ["Meaning: Female", "Pronunciation: nǚ"], "isCorrect": false },
+      { "text": "马 Phonetic Component · Meaning: Horse · Pronunciation: mǎ", "image": "ma-horse.svg", "title": "Phonetic Component", "lines": ["Meaning: Horse", "Pronunciation: mǎ"], "isCorrect": true }
     ]
   },
   {

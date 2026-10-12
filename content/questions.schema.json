@@ -25,7 +25,7 @@
     },
     "prompt": {
       "type": "string",
-      "description": "Instruction shown to the player."
+      "description": "Instruction shown to the player. Wrap a word in __double underscores__ to underline it."
     },
     "image": {
       "type": "string",
@@ -126,6 +126,10 @@
             "additionalProperties": false,
             "properties": {
               "text": { "type": "string" },
+              "image": { "$ref": "#/$defs/image", "description": "Optional SVG drawn at the left of a card option." },
+              "title": { "type": "string", "description": "Bold title; an option with a title is drawn as a card." },
+              "lines": { "type": "array", "items": { "type": "string" }, "description": "Detail lines under the card title." },
+              "icon": { "$ref": "#/$defs/image", "description": "Optional icon at the right of a card option; a labeled placeholder until it exists." },
               "isCorrect": { "type": "boolean" }
             }
           }
@@ -287,6 +291,8 @@
         "prompt": { "$ref": "#/$defs/prompt" },
         "character": { "type": "string" },
         "root": { "type": "string" },
+        "rootImage": { "$ref": "#/$defs/image", "description": "Optional SVG of the given part, drawn instead of the root text." },
+        "characterImage": { "$ref": "#/$defs/image", "description": "Optional SVG of the finished character, shown once the pieces merge." },
         "radicals": {
           "type": "array",
           "minItems": 2,
@@ -297,6 +303,7 @@
             "properties": {
               "text": { "type": "string" },
               "meaning": { "type": "string" },
+              "image": { "$ref": "#/$defs/image", "description": "Optional SVG of the radical as it looks inside the character, drawn instead of the text; the meaning shows under it in parentheses." },
               "isCorrect": { "type": "boolean" }
             }
           }

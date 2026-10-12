@@ -38,17 +38,45 @@ export function assetImg(src, label, extraClass = "") {
   return wrap;
 }
 
+// Glyph drawn from an SVG file (a radical or character), inlined so it takes the
+// surrounding text colour (gray, then green/red with its tile). Missing file: labeled box.
+const svgCache = new Map();
+export function glyphImg(src, label, extraClass = "") {
+  const wrap = h("span", { class: `glyph ${extraClass}`.trim(), "aria-hidden": "true" });
+  if (!src) {
+    console.warn(`Missing glyph: ${label}`);
+    return placeholder(label, extraClass);
+  }
+  if (!svgCache.has(src)) svgCache.set(src, fetch(src).then((r) => (r.ok ? r.text() : Promise.reject(r.status))));
+  svgCache.get(src).then(
+    (text) => (wrap.innerHTML = text),
+    () => {
+      console.warn(`Missing glyph: ${src}`);
+      wrap.replaceWith(placeholder(label, extraClass));
+    }
+  );
+  return wrap;
+}
+
+// Text with __word__ marks rendered underlined (e.g. "the __gender__ of 妈").
+function marked(text) {
+  return String(text)
+    .split(/__(.+?)__/)
+    .map((part, i) => (i % 2 ? h("u", {}, part) : part))
+    .filter((part) => part !== "");
+}
+
 // Question prompt: the first line (a line break in the text) or else the first sentence
 // is bold; the rest is regular weight underneath (Michelle, TASKS.md).
 export function promptEl(text) {
   const str = String(text || "");
   const m = str.match(/^([^\n]+)\n+([\s\S]+)$/) || str.match(/^([\s\S]+?[.!?])\s+([\s\S]+)$/);
-  if (!m) return h("p", { class: "prompt" }, h("span", { class: "prompt-main" }, str));
+  if (!m) return h("p", { class: "prompt" }, h("span", { class: "prompt-main" }, marked(str)));
   return h(
     "p",
     { class: "prompt" },
-    h("span", { class: "prompt-main" }, m[1].trim()),
-    h("span", { class: "prompt-rest" }, m[2].trim())
+    h("span", { class: "prompt-main" }, marked(m[1].trim())),
+    h("span", { class: "prompt-rest" }, marked(m[2].trim()))
   );
 }
 

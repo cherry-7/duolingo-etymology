@@ -417,3 +417,27 @@ button.tile:active:not(:disabled) { transform: translateY(2px); border-bottom-wi
 }
 
 .footer:has(> .btn:only-child[hidden]) { display: none; }
+
+/* SVG glyphs (radicals and characters drawn from /assets/questions); they take the text colour */
+.glyph { display: inline-flex; align-items: center; justify-content: center; }
+.glyph svg { display: block; width: auto; height: 100%; }
+.compound .root .glyph { height: 48px; }
+.compound .merged-glyph .glyph { height: 64px; }
+/* Radical tiles: the radical on top, its meaning in parentheses underneath (Figma Demo Question) */
+.tile.part.has-glyph { flex-direction: column; gap: 6px; width: 96px; height: 96px; padding: 10px 8px 8px; }
+.tile.part.has-glyph .glyph { height: 50px; }
+.part-meaning { font-size: 13px; font-weight: 400; color: var(--gray-600); line-height: 1; }
+.tile.is-correct .part-meaning, .dropzone .attached .part-meaning { color: inherit; }
+/* Figma lays the four radicals out two by two */
+.format-radical .tray:has(.has-glyph) { display: grid; grid-template-columns: repeat(2, 104px); justify-content: center; gap: 14px 28px; }
+.format-radical .tray .tile.part.has-glyph { width: 104px; height: 104px; }
+.compound .root .glyph { height: 64px; }
+/* Tapping a radical tile sinks it like the buttons */
+.format-radical .tile.part:active:not(.is-locked) { transform: translateY(2px); border-bottom-width: 2px; margin-bottom: 2px; }
+/* Card options: radical | bold title + detail lines | icon */
+.options .tile.option-card { justify-content: flex-start; gap: 14px; min-height: 112px; padding: 14px 14px; text-align: left; }
+.option-card > .glyph { flex: none; height: 56px; width: 44px; }
+.card-text { flex: 1; display: flex; flex-direction: column; gap: 2px; font-size: 15px; font-weight: 400; line-height: 1.35; }
+.card-title { font-weight: 700; font-size: 16px; }
+.option-card .card-icon { flex: none; width: 72px; height: 48px; min-height: 0; padding: 4px; font-size: 10px; }
+.prompt u { text-decoration-thickness: 2px; text-underline-offset: 3px; }
