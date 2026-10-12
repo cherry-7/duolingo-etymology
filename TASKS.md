@@ -94,3 +94,4 @@ Work queue for the deck and demo.
 - [ ] APPROVED (2026-10-11, Michelle in chat): Idle, thinking blinks: the eyelids come down over the eyes (instead of the eyes squashing).
 - [ ] APPROVED (2026-10-11, Michelle in chat): Step 4 high five: Mula's top arm makes a mirrored L (upper arm out level toward Dulo, forearm straight up). Replaces the upside-down flip.
 - [ ] APPROVED (2026-10-11, Michelle in chat): Mula and Dulo's clothing colours change to #87D2FB (light blue, replacing #F2B866) and #638CD9 (dark blue, replacing #CB6539); their hair changes to #6E4533 (brown). Everywhere they appear, including Idle, thinking and the Color Palette swatches.
+- [ ] APPROVED (2026-10-11, Michelle in chat): Remove the user quotes and expert quote slides (Interviews). Spanish now goes straight to Character Default.
