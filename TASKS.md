@@ -149,3 +149,4 @@ Work queue for the deck and demo.
 - 2026-10-12 — APPROVED (Michelle, in chat): the language-change screen uses the twins talking animation (assets/deck/talking/talking.svg from the deck chat, copied unchanged from deck/talking) instead of idle/thinking.
 - 2026-10-12 — APPROVED (Michelle, in chat): pressing Start animates to the next screen (the nickname form slides out left and the "Hi, {name}!" greeting slides in from the right — the same slide used between questions).
 - 2026-10-12 — APPROVED (Michelle, in chat): merge demo/boundary-talking into main (talking twins on the language-change screen; Start slides to the greeting).
+- 2026-10-12 — FIX (restoring approved content): PR #28 replaced the prompts of the two Chinese questions (radical 妈, choice 妈) with its new animationId lines, which dropped both questions (split 3/2/3, "content mismatch" banner). Restored the two prompts exactly as approved earlier; the new animationIds stay.
