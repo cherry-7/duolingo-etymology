@@ -108,6 +108,8 @@ window.WORLD_ACTORS = {
   // Dulo 520): each moved 65 inward, so the gap between them is halved and the pair stays centred. box: the pair's outline in character units.
   twins: { type: "pair", members: [{ who: "mula", dx: 65 }, { who: "dulo", dx: 455 }], box: [95, 60, 950, 666], slotAspect: 944 / 1262, z: 5 },
   bubble: { type: "bubble", z: 6 },
+  // Mula and Dulo chatting (assets/deck/talking: arms gesturing, mouths moving; a looping SVG)
+  talking: { type: "img", src: DECK_ART + "talking/talking.svg", w: 1217, h: 1112, z: 5 },
   names: { type: "text", font: "condensed", z: 7 },
   frame: { type: "frame", z: 8 },
   // Morphology: a lilac circle opens over the story, then the word splits in two
@@ -326,7 +328,8 @@ const storyActors = {
   swirlOrange: { x: 726.7, y: 113.3, enter: { draw: 0, at: [0.1, 1] }, exit: { draw: 0, at: [0, 0.5] } },
   shadow: { x: 1183, y: 935, w: 629, h: 76, color: C.shadowOnYellow, at: [0.1, 0.9] },
   saissha: { x: 107, y: 117, w: 742, enter: { dx: -1300, at: [0.2, 0.8] } },
-  twins: { x: 1235, y: 540, w: 590.73, at: [0, 1] } // the run takes the whole move
+  // the run takes the whole move; on to the learner slide they fade into the talking pair
+  twins: { x: 1235, y: 540, w: 590.73, at: [0, 1], exit: { opacity: 0, at: [0.15, 0.55] } }
 };
 
 // One example after English: the stack stays, the previous top card flies off to reveal
@@ -404,8 +407,6 @@ window.SLIDES = [
   {
     id: "learner",
     layout: "scene",
-    // Character step 4: once they've run in, Mula and Dulo high-five (Michelle's pick)
-    react: "correct",
     ref: "User Story-1",
     bg: C.yellow,
     pace: 0.3,
@@ -414,7 +415,9 @@ window.SLIDES = [
       swirlOrangeLearner: { x: -76.6, y: 42.1, enter: { draw: 0, at: [0.4, 1] }, exit: { draw: 0, at: [0, 0.7] } },
       shadow: { x: 794, y: 884, w: 1051, h: 127, color: C.shadowOnYellow, exit: { opacity: 0, at: [0, 0.4] } },
       saissha: { x: 107, y: 529.87, w: 424, exit: { dx: -1000, at: [0, 0.6] } },
-      twins: { x: 854, y: 254.93, w: 971.73, exit: { dx: 1700, at: [0, 0.9] } },
+      // Mula and Dulo chat here (Michelle's pick, replacing the run-in and high five): the standing
+      // pair fades out and the talking pair fades in, same height and feet line as the pair here
+      talking: { x: 895.5, y: 246.5, w: 866, enter: { opacity: 0, at: [0.15, 0.55] }, exit: { opacity: 0, at: [0, 0.3] } },
       bubble: {
         x: 181, y: 198, w: 1061.83, h: 195, size: 80, tail: 1, padX: 61, // Figma's text starts with a space
         text: "That's the learner we're teaching for.",
