@@ -334,10 +334,19 @@
     if (world) world.render(pos);
   }
 
+  // ms from arriving on the finale to moving on: the build (QR_BUILD + the last tile's 0.25s
+  // click) and the background's fade to black (1.6s + 0.3s), then a moment of black
+  const FINALE_HOLD = 2300;
+  let autoTimer = null;
+
   function settle() {
     const index = Math.round(pos);
     history.replaceState(null, "", "#" + sections[index].id);
     if (finaleOf(index)) playFinale(finaleOf(index));
+    // Once the tiles have turned the screen black, it zooms out into the leaderboard on its
+    // own (Michelle), unless the presenter has already moved on
+    clearTimeout(autoTimer);
+    if (finaleOf(index) && handsOff(index + 1)) autoTimer = setTimeout(() => { if (rest === index) go(index + 1); }, FINALE_HOLD);
     if (handsOff(index) && finaleOf(index - 1)) finishFinale(finaleOf(index - 1));
   }
 
