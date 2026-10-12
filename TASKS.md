@@ -211,3 +211,4 @@ Work queue for the deck and demo.
   - The purple wave sits 40px lower.
 
   The girl, title, bars and circle are unchanged.
+- [ ] APPROVED (2026-10-12, Michelle in chat): "Make the names of the poses in the character poses come up automatically one by one instead of me clicking." Each Character Poses Animation slide now raises its three labels by itself, one after another, as the ovals land. The six click-per-label steps are gone; each slide is one click.

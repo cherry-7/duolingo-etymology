@@ -320,7 +320,8 @@ function dealUp(x, y, rotate, start) {
 function dropIn(x, y, size, start) {
   return { x, y, w: size, h: size, enter: { dy: -1400, ease: "back", at: [start, Math.min(1, start + 0.35)] } };
 }
-// Character Poses Animation: the three ovals drop in together; each label rises on its own step
+// Character Poses Animation: the three ovals drop in together, then the labels rise in on their
+// own, one after another (Michelle: no click per label)
 const OVALS = {
   gifWrong: { x: 140, y: 154, w: 417, h: 515, enter: { dy: -1400, ease: "back", at: [0.3, 0.85] } },
   gifCorrect: { x: 686, y: 154, w: 417, h: 515, enter: { dy: -1400, ease: "back", at: [0.3, 0.85] } },
@@ -339,7 +340,8 @@ const OVALS_2 = {
 };
 // the pairs in their ovals: as big as the drawings in the other ovals, feet on the same line (y 547)
 const PAIR_IN_OVAL = (ovalX) => ({ x: ovalX + 8, y: 248, w: 400, enter: { opacity: 0, at: [0.6, 0.95] }, exit: { opacity: 0, at: [0, 0.3] } });
-const LABEL_RISE = { dy: 120, opacity: 0, at: [0, 1] };
+const LABEL_RISE = (at) => ({ dy: 120, opacity: 0, at });
+const LABEL_AT = [[0.55, 0.8], [0.65, 0.9], [0.75, 1]]; // after the ovals have mostly landed (0.85)
 const POSE_LABELS = {
   labelWrong: { x: 348, y: 753, align: "center", size: 72, color: C.white, text: "Wrong\nAnswer" },
   labelCorrect: { x: 895, y: 753, align: "center", size: 72, color: C.white, text: "Correct\nAnswer" },
@@ -348,12 +350,11 @@ const POSE_LABELS = {
   labelWalking: { x: 895, y: 753, align: "center", size: 72, color: C.white, text: "Walking" },
   labelTalking: { x: 1441.5, y: 753, align: "center", size: 72, color: C.white, text: "Talking" }
 };
-// One step of the Poses Animation slide: the ovals and bar, plus the labels shown so far
-// (the newest one rises in)
+// A Poses Animation slide: the ovals and bar, and their three labels rising in one by one
 function posesStep(id, labels, second) {
   const actors = Object.assign({}, second ? OVALS_2 : OVALS);
   labels.forEach((key, i) => {
-    actors[key] = Object.assign({}, POSE_LABELS[key], i === labels.length - 1 ? { enter: LABEL_RISE } : null);
+    actors[key] = Object.assign({}, POSE_LABELS[key], { enter: LABEL_RISE(LABEL_AT[i]) });
   });
   const slide = { id, layout: "scene", ref: "Character Poses Animation", bg: C.purple, pace: 0.6, actors };
   if (second) {
@@ -370,7 +371,7 @@ function posesStep(id, labels, second) {
     // yin-yang over every 5s (hug, a hold, then a quick fade into the next one)
     slide.reactLoop = 1500;
     slide.restartEvery = { gifFinished: 5000 };
-    if (!labels.length) slide.restart = ["gifFinished"];
+    slide.restart = ["gifFinished"];
   }
   return slide;
 }
@@ -713,16 +714,10 @@ window.SLIDES = [
       pose6: dropIn(1352, 595, 350, 0.65)
     }
   },
-  // Character Poses Animation: the ovals drop in together, then each click/scroll raises one label
-  posesStep("poses-animation", []),
-  posesStep("poses-animation-wrong", ["labelWrong"]),
-  posesStep("poses-animation-correct", ["labelWrong", "labelCorrect"]),
-  posesStep("poses-animation-finished", ["labelWrong", "labelCorrect", "labelFinished"]),
+  // Character Poses Animation: the ovals drop in together, then the labels rise in one by one
+  posesStep("poses-animation", ["labelWrong", "labelCorrect", "labelFinished"]),
   // ...and a second one for the other three animations (Michelle)
-  posesStep("poses-animation-2", [], true),
-  posesStep("poses-animation-thinking", ["labelThinking"], true),
-  posesStep("poses-animation-walking", ["labelThinking", "labelWalking"], true),
-  posesStep("poses-animation-talking", ["labelThinking", "labelWalking", "labelTalking"], true),
+  posesStep("poses-animation-2", ["labelThinking", "labelWalking", "labelTalking"], true),
   {
     id: "ui-scenario",
     layout: "scene",
