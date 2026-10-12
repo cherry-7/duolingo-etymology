@@ -457,8 +457,8 @@ window.SLIDES = [
     pace: 0.25, // a long, cinematic move
     actors: Object.assign({}, storyActors, {
       bubble: {
-        x: 794.67, y: 165, w: 835.33, h: 266, size: 100, color: C.ink,
-        text: "Hi! My name is Saissha.",
+        x: 794.67, y: 165, size: 100, auto: true, color: C.ink,
+        text: "WAIT GUYS....", // Michelle
         enter: { scale: 0, pop: true, at: [0.6, 1] }
       }
     })
@@ -471,7 +471,7 @@ window.SLIDES = [
     bg: C.yellow,
     pace: 0.5,
     actors: Object.assign({}, storyActors, {
-      bubble: { x: 794.67, y: 165, size: 80, auto: true, text: "I am learning English right now." }
+      bubble: { x: 794.67, y: 165, size: 80, auto: true, text: "I have my anatomy\nmidterm tomorrow!" } // Michelle (on one line it touched the frame)
     })
   },
   {
@@ -484,7 +484,7 @@ window.SLIDES = [
     actors: Object.assign({}, storyActors, {
       bubble: {
         x: 794.67, y: 165, size: 80, auto: true,
-        text: "I can memorise new words, but\nI wish I understood how their\nparts create meaning."
+        text: "Do you guys know any better\nways to learn the vocab?" // Michelle
       }
     })
   },
@@ -503,8 +503,8 @@ window.SLIDES = [
       // pair fades out and the talking pair fades in, same height and feet line as the pair here
       talking: { x: 895.5, y: 246.5, w: 866, enter: { opacity: 0, at: [0.15, 0.55] }, exit: { opacity: 0, at: [0, 0.3] } },
       bubble: {
-        x: 181, y: 198, w: 1061.83, h: 195, size: 80, tail: 1, padX: 61, // Figma's text starts with a space
-        text: "That's the learner we're teaching for.",
+        x: 181, y: 198, size: 80, tail: 1, auto: true,
+        text: "That's where we come in.", // Michelle (the twins)
         exit: { scale: 0, at: [0, 0.3] }
       }
     }

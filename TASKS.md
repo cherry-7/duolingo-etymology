@@ -169,3 +169,4 @@ Work queue for the deck and demo.
 - [ ] APPROVED (2026-10-12, Michelle in chat): "wait 0.2 seconds instead before the yin yang": the pause between the silhouette fading out and the yin-yang is 0.2s (was 0.5s).
 - [ ] APPROVED (2026-10-12, Michelle in chat): "fade out in 0.5 seconds": the "Who is he?" silhouette fades out over 0.5s (was 0.8s); then the 0.2s pause and the yin-yang.
 - [ ] APPROVED (2026-10-12, Michelle in chat): "Change the who is he to 'Who are they?'": the heading on that slide reads "Who are they?".
+- [ ] APPROVED (2026-10-12, Michelle in chat): New story copy. Saissha's bubbles: "WAIT GUYS....", "I have my anatomy midterm tomorrow!" (on two lines; on one it touched the frame), "Do you guys know any better ways to learn the vocab?" (two lines); the twins' bubble on the learner slide: "That's where we come in." Bubbles size to their text.
