@@ -211,6 +211,8 @@ body.is-dragging { -webkit-user-select: none; user-select: none; }
 .speech .prompt { margin: 0; font-size: 18px; }
 .speech .prompt-rest { font-size: 16px; }
 .speech-line { margin: 0; font-size: 18px; font-weight: 700; }
+.speech-line.is-regular { font-weight: 400; }
+.speech-line.is-regular strong { font-weight: 700; }
 .finish-body .twins-row { width: 100%; text-align: left; }
 .twins-bubble { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
 .twins-bubble p { margin: 0; padding: 10px 12px; border: 2px solid var(--gray-200); border-radius: 14px; font-size: 14px; flex: 1; }
@@ -378,7 +380,8 @@ button.tile:active:not(:disabled) { transform: translateY(2px); border-bottom-wi
 /* language boundary */
 .boundary { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
 .boundary-lang { font-size: 26px; font-weight: 700; margin: 0; }
-.swipe-hint { font-size: 40px; color: var(--gray-400); animation: nudge 1.4s ease-in-out infinite; }
+.boundary .boundary-twins { width: 100%; margin: 0 0 12px; text-align: left; }
+.swipe-hint { font-size: 40px; color: var(--duo-green); animation: nudge 1.4s ease-in-out infinite; }
 @keyframes nudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(14px); } }
 
 /* feedback sheet: the whole footer turns green or red, like Duolingo */
@@ -407,9 +410,7 @@ button.tile:active:not(:disabled) { transform: translateY(2px); border-bottom-wi
 /* ---------- finish ---------- */
 .finish-body { flex: 1; overflow-y: auto; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; padding-bottom: max(var(--gutter), env(safe-area-inset-bottom)); }
 .score { font-size: 56px; font-weight: 700; color: var(--duo-green); margin: 4px 0 0; line-height: 1; }
-.stats { display: flex; gap: 12px; margin: 12px 0; width: 100%; }
-.stats > div { flex: 1; display: flex; flex-direction: column; padding: 12px; border: 2px solid var(--gray-200); border-radius: var(--radius); }
-.stat-n { font-size: 22px; font-weight: 700; }
+.finish-place { margin: 6px 0 0; font-size: 18px; min-height: 1.3em; }
 .finish-body .twins-bubble { width: 100%; text-align: left; }
 .submit-status { font-size: 13px; margin-top: 8px; }
 
@@ -429,7 +430,7 @@ button.tile:active:not(:disabled) { transform: translateY(2px); border-bottom-wi
 
 /* SVG glyphs (radicals and characters drawn from /assets/questions); they take the text colour */
 .glyph { display: inline-flex; align-items: center; justify-content: center; }
-.glyph svg { display: block; width: auto; height: 100%; }
+.glyph svg { display: block; width: auto; height: 100%; max-width: none; }
 .compound .root .glyph { height: 48px; }
 .compound .merged-glyph .glyph { height: 64px; }
 /* Radical tiles: the radical on top, its meaning in parentheses underneath (Figma Demo Question) */

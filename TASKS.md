@@ -140,3 +140,9 @@ Work queue for the deck and demo.
 - [ ] APPROVED (2026-10-12, Michelle in chat): Nickname screen: the twins' idle/thinking animation above the title "Morphology Demo" (also the browser tab title); "Enter a nickname to play" above the field; the field's placeholder reads "Duo Keyshauna Renee Lingo" (updated from "Enter your nickname!" / "Nickname").
 - [ ] APPROVED (2026-10-12, Michelle in chat): Nickname screen: the field's hint text is light grey; the "Morphology Demo" title is Duo green.
 - [ ] APPROVED (2026-10-12, Michelle in chat): Avatar screen: "Let's begin." under "Hi, [nickname]!", not bold.
+- [ ] APPROVED (2026-10-12, Michelle in chat): Language-change screen: Mula and Dulo's thinking animation with a speech bubble "Swipe to the next language!" (only "Swipe" bold), above the language name and arrow (replaces the [TBD] swipe line).
+- (2026-10-12) Fix: radical and character drawings (Nina's SVGs) were missing in Safari, which sized them by their width attribute instead of their proportions; inlined SVGs now drop width/height and use their viewBox aspect ratio.
+- 2026-10-12 — APPROVED (Michelle, in chat): the language-change swipe arrow is Duo green.
+- 2026-10-12 — APPROVED (Michelle, in chat): finish screen leaderboard confirmation "Check the leaderboard for your name!"; error "Something went wrong with the leaderboard."
+- 2026-10-12 — APPROVED (Michelle, in chat): finish screen — green score shows {number}/10; the old {#/10} "Great job!" box is removed; under the score: "You're {# place} place!" or "You're on the leaderboard!"; the twins play the yin-yang animation with the unbolded bubble "Great job! We're so proud of you!" (capital Y and final ! approved in chat).
+- 2026-10-12 — APPROVED (Michelle, in chat): merge demo/boundary-twins into main (language-change twins and bubble, green arrow, Safari radicals fix, leaderboard messages, finish screen score/place/yin-yang).
