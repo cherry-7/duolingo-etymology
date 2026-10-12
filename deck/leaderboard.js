@@ -5,7 +5,7 @@
 // Ranking: score (high first), then mistakes (low first), then who finished first.
 // When scores change live, the row whose score changed is dragged to its new rank (it lifts,
 // glides there and drops into place) while the rows it passes slide out of its way; new
-// entries pop in.
+// entries pop in (on an empty bar, the bar clicks and what's on it pops in).
 (function () {
   const AVATARS = "../assets/characters/";
   const scores = {}; // key -> entry
@@ -68,13 +68,28 @@
     // The rest of the bars stay empty, as in the Figma design (with no scores yet, all of them)
     for (let i = top.length; i < limit; i++) list.append(el("li", "board-slot"));
     if (animate && !reduceMotion.matches) {
-      list.querySelectorAll(".board-row").forEach((row) => {
+      list.querySelectorAll(".board-row").forEach((row, index) => {
         const was = before.get(row.dataset.key);
         if (was === undefined) {
-          row.animate(
-            [{ transform: "scale(0.85)", opacity: 0 }, { transform: "none", opacity: 1 }],
-            { duration: 450, easing: "cubic-bezier(0.34, 1.56, 0.64, 1)" } // slight overshoot
-          );
+          if (index >= before.size) {
+            // It lands on an empty bar (e.g. the first score on an empty board): the bar clicks
+            // (presses in and springs back) while what's on it pops in, one piece after another
+            row.animate(
+              [{ transform: "none" }, { transform: "scale(0.94)", offset: 0.3 }, { transform: "scale(1.03)", offset: 0.65 }, { transform: "none" }],
+              { duration: 450, easing: "ease-out" }
+            );
+            [...row.children].forEach((part, k) => {
+              part.animate(
+                [{ transform: "scale(0.4)", opacity: 0 }, { transform: "none", opacity: 1 }],
+                { duration: 400, delay: 120 + k * 70, easing: "cubic-bezier(0.34, 1.56, 0.64, 1)", fill: "backwards" }
+              );
+            });
+          } else {
+            row.animate(
+              [{ transform: "scale(0.85)", opacity: 0 }, { transform: "none", opacity: 1 }],
+              { duration: 450, easing: "cubic-bezier(0.34, 1.56, 0.64, 1)" } // slight overshoot
+            );
+          }
           return;
         }
         // the board sits in the leaderboard's scaled 1920-wide canvas: screen px -> canvas px
