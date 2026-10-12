@@ -129,7 +129,7 @@
               "image": { "$ref": "#/$defs/image", "description": "Optional SVG drawn at the left of a card option." },
               "title": { "type": "string", "description": "Bold title; an option with a title is drawn as a card." },
               "lines": { "type": "array", "items": { "type": "string" }, "description": "Detail lines under the card title." },
-              "icon": { "$ref": "#/$defs/image", "description": "Optional icon at the right of a card option; a labeled placeholder until it exists." },
+              "icon": { "$ref": "#/$defs/image", "description": "Not drawn: card options no longer show an icon." },
               "isCorrect": { "type": "boolean" }
             }
           }
@@ -261,7 +261,8 @@
                     "additionalProperties": false,
                     "properties": {
                       "word": { "type": "string" },
-                      "construction": { "type": "string" }
+                      "construction": { "type": "string" },
+                      "animationId": { "type": "string", "description": "Optional animation shown for 2s when this pair is matched." }
                     }
                   }
                 },

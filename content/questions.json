@@ -27,12 +27,11 @@
   {
     "type": "construction",
     "language": "English (Latin roots)",
-    "animationId": "portable",
     "prompt": "Match each English word to the way its meaningful parts are constructed.",
     "pairs": [
-      { "word": "transport", "construction": "prefix + root: trans- + port" },
-      { "word": "portable", "construction": "root + suffix: port + -able" },
-      { "word": "airport", "construction": "compound: air + port" }
+      { "word": "transport", "construction": "prefix + root: trans- + port", "animationId": "transport" },
+      { "word": "portable", "construction": "root + suffix: port + -able", "animationId": "portable" },
+      { "word": "airport", "construction": "compound: air + port", "animationId": "airport" }
     ],
     "answerMeaning": "Words can be built with prefixes, suffixes, or compounds."
   },

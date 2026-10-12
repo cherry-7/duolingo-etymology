@@ -369,6 +369,7 @@ function makeCtx(q) {
       playAnimation(q, animationSlot);
       showSheet("correct", null, detail, q);
     },
+    flashAnimation,
     playSound() {
       playSound(SOUNDS.drag);
     }
@@ -451,7 +452,19 @@ function hideSheet() {
   btn.classList.remove("is-neutral", "is-retry-correct");
 }
 
+// Fades the answer animation out before the screen changes
+function fadeOutAnimation(done) {
+  const stage = document.querySelector(".anim-stage.is-in");
+  if (!stage || reduceMotion()) return done();
+  stage.classList.remove("is-in");
+  setTimeout(done, 250);
+}
+
 function next() {
+  fadeOutAnimation(advance);
+}
+
+function advance() {
   const cur = state.lesson[state.i];
   const nxt = state.lesson[state.i + 1];
   if (!nxt) return finish();
@@ -480,14 +493,14 @@ function showBoundary(nxt) {
   );
   $("progress-fill").style.width = `${Math.round(((state.i + 1) / state.lesson.length) * 100)}%`;
 
-  const advance = () => {
+  const swipe = () => {
     disarm();
     slideOut(body, () => {
       state.i++;
       renderQuestion();
     });
   };
-  arm(body, advance);
+  arm(body, swipe);
 
   $("primary-btn").hidden = true;
 }
@@ -577,6 +590,30 @@ function animationImageUrl(q) {
   return q.animationId ? `${CONFIG.assets.animationImages}${q.animationId}.svg` : null;
 }
 
+// Puts an animated SVG in the blank space under the answers (nothing is covered) and fades it in.
+function showAnimationImage(image, slot) {
+  const format = slot.closest(".format") || slot;
+  format.querySelector(".anim-stage")?.remove();
+  const stage = h("div", { class: "anim-stage" }, h("img", { class: "anim-image", src: image, alt: "", draggable: "false" }));
+  format.append(stage);
+  stage.getBoundingClientRect();
+  stage.classList.add("is-in");
+  // The feedback sheet shortens the lesson body; keep the animation on screen
+  stage.scrollIntoView({ block: "nearest" });
+  return stage;
+}
+
+// Shows one animation for a moment (e.g. a matched pair), then fades it out again.
+async function flashAnimation(animationId, slot, ms = 2000) {
+  const image = animationImageUrl({ animationId });
+  if (!slot || !image || !(await fileExists(image))) return;
+  const stage = showAnimationImage(image, slot);
+  setTimeout(() => {
+    stage.classList.remove("is-in");
+    setTimeout(() => stage.remove(), 300);
+  }, ms);
+}
+
 function preloadAnimation(q) {
   const url = animationUrl(q);
   if (url) fileExists(url).then((ok) => ok && loadRive().catch(() => {}));
@@ -587,16 +624,14 @@ async function playAnimation(q, slot) {
   if (!slot) return;
   const url = animationUrl(q);
   const label = q.animationId ? `[TBD: animation ${q.animationId}]` : "[TBD: animation (none specified)]";
-  slot.classList.add("has-anim");
 
   // An animated SVG for this question wins over a Rive file
   const image = animationImageUrl(q);
   if (image && (await fileExists(image))) {
-    slot.append(h("div", { class: "anim-overlay" }, h("img", { class: "anim-image", src: image, alt: "", draggable: "false" })));
-    // The feedback sheet shortens the lesson body; keep the animation on screen
-    slot.scrollIntoView({ block: "nearest" });
+    showAnimationImage(image, slot);
     return;
   }
+  slot.classList.add("has-anim");
 
   if (!url || !(await fileExists(url))) {
     console.warn(q.animationId ? `Missing animation: ${q.animationId} (${url})` : "Missing animation: question has no animationId", q);

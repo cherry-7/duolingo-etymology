@@ -17,7 +17,7 @@ export const STRINGS = {
   gotIt: "Got it",
 
 
-  swipeToNext: "[TBD: swipe to next language]",
+  swipeToNext: "[Swipe to next language]",
   nextLanguage: "[TBD: next language button]",
 
   finishTitle: "You did it!",
