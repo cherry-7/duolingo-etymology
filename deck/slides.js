@@ -411,6 +411,17 @@ const OPENING = {
   }
 };
 
+// "Who is he?": the heading and the ten Duolingo characters rise in one after another, then the
+// twins' tile
+const WHO = Object.assign({
+  titleWho: riseIn({ x: 129, y: 68, size: 100, color: C.white, text: "Who is he?" }, 0, 12),
+  twinsTile: riseIn({ x: 1267, y: 646, w: 387, h: 248, color: C.cream }, 11, 12)
+}, ...[
+  ["whoDuo", 127, 272], ["whoBea", 410, 273], ["whoEddy", 693, 272], ["whoJunior", 975, 272],
+  ["whoLily", 1258, 272], ["whoLin", 1541, 272], ["whoLucy", 127, 643], ["whoOscar", 410, 643],
+  ["whoVikram", 693, 643], ["whoZari", 975, 643]
+].map(([key, x, y], k) => ({ [key]: riseIn({ x, y, w: 251 }, k + 1, 12) })));
+
 window.SLIDES = [
   {
     // A completely black screen to start
@@ -688,27 +699,33 @@ window.SLIDES = [
     pace: 0.3,
     actors: {
       // The glow fades up and the twins drop in and bounce, as on the first Character Default slide,
-      // but as a black silhouette (Michelle); on to "Who is he?" it fades out instead of walking
+      // but as a black silhouette (Michelle); on to "Who is he?" it shrinks into the twins' tile
       glow: { x: 581, y: 192, w: 727, h: 727, color: C.glow, enter: { opacity: 0, at: [0.2, 0.8] } },
-      twinsShadow: { x: 538.03, y: 200, w: 847.63, enter: { dy: -1500, ease: "bounce", at: [0.4, 1] }, exit: { opacity: 0, at: [0, 0.4] } }
+      twinsShadow: { x: 538.03, y: 200, w: 847.63, enter: { dy: -1500, ease: "bounce", at: [0.4, 1] } }
     }
   },
   {
+    // The silhouette shrinks into the twins' tile as the rows rise in (no walking)...
     id: "who-is-he",
     layout: "scene",
     ref: "Who is he",
     bg: C.orange,
     pace: 0.3,
-    actors: Object.assign({
-      // The silhouette fades out, then Mula and Dulo fade in, revealed in their tile (Michelle)
-      twins: { x: 1323, y: 660, w: 285.28, enter: { opacity: 0, at: [0.55, 1] } },
-      titleWho: riseIn({ x: 129, y: 68, size: 100, color: C.white, text: "Who is he?" }, 0, 12),
-      twinsTile: riseIn({ x: 1267, y: 646, w: 387, h: 248, color: C.cream }, 11, 12)
-    }, ...[
-      ["whoDuo", 127, 272], ["whoBea", 410, 273], ["whoEddy", 693, 272], ["whoJunior", 975, 272],
-      ["whoLily", 1258, 272], ["whoLin", 1541, 272], ["whoLucy", 127, 643], ["whoOscar", 410, 643],
-      ["whoVikram", 693, 643], ["whoZari", 975, 643]
-    ].map(([key, x, y], k) => ({ [key]: riseIn({ x, y, w: 251 }, k + 1, 12) })))
+    actors: Object.assign({}, WHO, {
+      twinsShadow: { x: 1323, y: 660, w: 285.28, glide: true, at: [0.45, 1] }
+    })
+  },
+  {
+    // ...then, on the next click, it fades out and Mula and Dulo fade in, revealed (Michelle)
+    id: "who-is-he-reveal",
+    layout: "scene",
+    ref: "Who is he",
+    bg: C.orange,
+    pace: 0.5,
+    actors: Object.assign({}, WHO, {
+      twinsShadow: { x: 1323, y: 660, w: 285.28, opacity: 0, at: [0, 0.5] },
+      twins: { x: 1323, y: 660, w: 285.28, enter: { opacity: 0, at: [0.3, 1] } }
+    })
   },
   {
     id: "finale",

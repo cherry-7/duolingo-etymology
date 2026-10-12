@@ -1041,7 +1041,8 @@ window.World = (function () {
           const lt = local(t, pb.at || (actors[key].type === "bubble" ? BUBBLE_AT : null));
           s = walk(mix(pa, pb, lt), pb, lt);
           s.raw = t; // text fades follow the whole move
-          if (actors[key].type === "pair") s.move = running(pb.x - pa.x, lt);
+          // pb.glide: the pair slides/scales to its spot without running
+          if (actors[key].type === "pair" && !pb.glide) s.move = running(pb.x - pa.x, lt);
         } else if (pa && B) {
           // Exits: from its spot toward its exit offset
           const lt = local(t, pa.exit && pa.exit.at, [0, 0.5]);
