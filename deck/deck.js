@@ -102,6 +102,12 @@
   const sections = slides.map((slide, i) => {
     const section = el("section", "slide");
     section.id = slide.id || "slide-" + (i + 1);
+    if (slide.layout === "scene") {
+      // Drawn by the world layer (deck/world.js); the section stays empty and see-through
+      section.classList.add("is-scene");
+      deck.append(section);
+      return section;
+    }
     const stage = el("div", "stage layout-" + (slide.layout || "basic"));
     (layouts[slide.layout] || layouts.basic)(stage, slide);
     section.append(stage);
@@ -109,6 +115,9 @@
     return section;
   });
 
+
+  // The continuous world behind the scene slides (deck/world.js)
+  const world = window.World ? window.World.mount(document.body, slides, window.WORLD_ACTORS || {}) : null;
 
   // Final-slide sequence: owl flies off, then the QR fades in. Replays on each visit.
   // Timing comes from the owl's CSS transition (0s under reduced motion).
@@ -238,7 +247,9 @@
         if (finale && !(leaving >= 1 && handsOff(i + 1))) resetFinale(finale);
         return;
       }
-      if (i > 0 && arriving < 1) {
+      if (slides[i].layout === "scene") {
+        applyStyle(section, null); // nothing in it; the world does the motion
+      } else if (i > 0 && arriving < 1) {
         applyStyle(section, scene.enter(ease(arriving)));
       } else if (nextScene && leaving > 0) {
         applyStyle(section, nextScene.leave(ease(leaving)));
@@ -248,6 +259,7 @@
       revealContent(section, i === 0 ? 1 : arriving);
       if (slides[i].transition === "qr-handoff") qrHandoff(section, sections[i - 1], arriving);
     });
+    if (world) world.render(pos);
   }
 
   function settle() {
@@ -264,8 +276,9 @@
   // The transition the deck is moving through right now
   function currentPace() {
     const index = target > pos ? Math.floor(pos) + 1 : Math.ceil(pos);
-    const scene = slides[index] && window.TRANSITIONS[slides[index].transition];
-    return (scene && scene.pace) || 1;
+    const slide = slides[index];
+    const scene = slide && window.TRANSITIONS[slide.transition];
+    return (slide && slide.pace) || (scene && scene.pace) || 1; // scene slides set pace directly
   }
   // A slide counts as arrived (hash updates, the finale starts) once the deck is this
   // close to it, in slides (0.02 = about 14px at 720p), while the last bit of motion

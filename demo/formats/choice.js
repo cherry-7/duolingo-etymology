@@ -1,5 +1,5 @@
 // Multiple choice: pick the meaning of a word (or part).
-import { h, shuffle } from "../util.js";
+import { h, shuffle, promptEl } from "../util.js";
 
 export function render(q, ctx) {
   let selected = null;
@@ -46,7 +46,7 @@ export function render(q, ctx) {
   return h(
     "div",
     { class: "format format-choice" },
-    h("p", { class: "prompt" }, q.prompt),
+    promptEl(q.prompt),
     picture,
     h("p", { class: "word" }, q.word),
     list

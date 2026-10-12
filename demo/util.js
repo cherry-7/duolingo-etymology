@@ -38,6 +38,20 @@ export function assetImg(src, label, extraClass = "") {
   return wrap;
 }
 
+// Question prompt: the first line (a line break in the text) or else the first sentence
+// is bold; the rest is regular weight underneath (Michelle, TASKS.md).
+export function promptEl(text) {
+  const str = String(text || "");
+  const m = str.match(/^([^\n]+)\n+([\s\S]+)$/) || str.match(/^([\s\S]+?[.!?])\s+([\s\S]+)$/);
+  if (!m) return h("p", { class: "prompt" }, h("span", { class: "prompt-main" }, str));
+  return h(
+    "p",
+    { class: "prompt" },
+    h("span", { class: "prompt-main" }, m[1].trim()),
+    h("span", { class: "prompt-rest" }, m[2].trim())
+  );
+}
+
 export function shuffle(list) {
   const a = list.slice();
   for (let i = a.length - 1; i > 0; i--) {

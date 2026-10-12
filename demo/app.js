@@ -243,9 +243,10 @@ function revealAvatar() {
   const reveal = $("nick-reveal");
   reveal.replaceChildren(
     avatarEl(state.avatar, "lg"),
-    h("p", { class: "avatar-name" }, state.avatar.name),
-    h("p", { class: "muted" }, STRINGS.avatarReveal),
-    h("p", { class: "nick-echo" }, state.name)
+    // only the nickname is bold
+    h("p", { class: "greeting" }, ...STRINGS.greeting.split(/(\{name\})/).map((part) =>
+      part === "{name}" ? h("strong", {}, state.name) : part
+    ))
   );
   reveal.hidden = false;
   const btn = $("nick-continue");
@@ -348,28 +349,26 @@ function showSheet(kind, retry, detail, q) {
 
   if (kind === "correct") {
     sheet.replaceChildren(
-      twinsEl("high-five"),
-      h(
-        "div",
-        { class: "sheet-text" },
-        h("p", { class: "sheet-title" }, STRINGS.correctTitle),
+      sheetText(
+        "correct",
+        STRINGS.correctTitle,
         detail ? h("p", { class: "sheet-detail" }, detail) : null,
         h("p", { class: "sheet-line" }, state.twins.highFive)
-      )
+      ),
+      twinsEl("high-five")
     );
     btn.textContent = STRINGS.continue;
     btn.onclick = () => next();
   } else if (kind === "wrong") {
     playSound(SOUNDS.incorrect);
     sheet.replaceChildren(
-      twinsEl("encourage"),
-      h(
-        "div",
-        { class: "sheet-text" },
-        h("p", { class: "sheet-title" }, STRINGS.wrongTitle),
+      sheetText(
+        "wrong",
+        STRINGS.wrongTitle,
         h("p", { class: "sheet-detail" }, q?.hint || "[TBD: hint]"),
         h("p", { class: "sheet-line" }, state.twins.afterMistake)
-      )
+      ),
+      twinsEl("encourage")
     );
     btn.textContent = STRINGS.tryAgain;
     btn.classList.add("is-neutral");
@@ -381,22 +380,37 @@ function showSheet(kind, retry, detail, q) {
   } else {
     playSound(SOUNDS.incorrect);
     sheet.replaceChildren(
-      twinsEl("encourage"),
-      h(
-        "div",
-        { class: "sheet-text" },
-        h("p", { class: "sheet-title" }, STRINGS.correctionTitle),
-        h("p", { class: "sheet-detail" }, "Correct answer:"),
+      sheetText(
+        "wrong",
+        STRINGS.correctionTitle,
         h("p", { class: "sheet-detail" }, correctAnswer(q)),
         h("p", { class: "sheet-line" }, state.twins.afterMistake)
-      )
+      ),
+      twinsEl("encourage")
     );
-    btn.textContent = STRINGS.continue;
+    btn.textContent = STRINGS.gotIt;
     btn.classList.add("is-retry-correct");
     btn.onclick = () => next();
   }
   sheet.hidden = false;
   btn.focus({ preventScroll: true });
+}
+
+// Duolingo-style sheet heading: a round ✓ or ✕ badge, then the title
+const ICONS = {
+  correct: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  wrong: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>'
+};
+
+function sheetText(icon, title, ...rest) {
+  const badge = h("span", { class: "sheet-icon" });
+  badge.innerHTML = ICONS[icon];
+  return h(
+    "div",
+    { class: "sheet-text" },
+    h("div", { class: "sheet-head" }, badge, h("p", { class: "sheet-title" }, title)),
+    ...rest
+  );
 }
 
 function hideSheet() {
@@ -428,7 +442,7 @@ function showBoundary(nxt) {
       "div",
       { class: "boundary" },
       h("p", { class: "boundary-lang" }, nxt.lang),
-      h("div", { class: "swipe-hint", "aria-hidden": "true" }, "←"),
+      h("div", { class: "swipe-hint", "aria-hidden": "true" }, "→"),
       h("p", { class: "muted" }, STRINGS.swipeToNext)
     )
   );
@@ -467,7 +481,11 @@ function arm(el, onSwipe) {
   };
   const cancel = () => (start = null);
   const key = (e) => {
-    if (e.key === "ArrowRight" || e.key === "ArrowLeft") onSwipe();
+    // Arrow keys, Enter or Space move on to the next language
+    if (["ArrowRight", "ArrowLeft", "Enter", " "].includes(e.key)) {
+      e.preventDefault();
+      onSwipe();
+    }
   };
   el.addEventListener("pointerdown", down);
   el.addEventListener("pointerup", up);
@@ -557,18 +575,17 @@ function finish() {
   disarm();
   hideSheet();
   $("progress-fill").style.width = "100%";
-  const score = state.firstTry; // [TBD: score formula]
+  // 1 point per question right on the first try; mistakes never subtract (Michelle, TASKS.md)
+  const score = state.firstTry;
   $("finish-body").replaceChildren(
     h("h1", { class: "title" }, STRINGS.finishTitle),
     avatarEl(state.avatar, "lg"),
     h("p", { class: "nick-echo" }, state.name),
     h("p", { class: "score" }, String(score)),
-    h("p", { class: "muted" }, STRINGS.scoreFormula),
     h(
       "div",
       { class: "stats" },
-      h("div", {}, h("span", { class: "stat-n" }, `${state.firstTry}/${state.lesson.length}`), h("span", {}, STRINGS.statFirstTry)),
-      h("div", {}, h("span", { class: "stat-n" }, String(state.mistakes)), h("span", {}, STRINGS.statMistakes))
+      h("div", {}, h("span", { class: "stat-n" }, `${state.firstTry}/${state.lesson.length}`), h("span", {}, STRINGS.statFirstTry))
     ),
     h("div", { class: "twins-bubble" }, twinsEl("idle"), h("p", {}, state.twins.finish)),
     h("p", { id: "submit-status", class: "muted submit-status" }, STRINGS.submitting)
@@ -576,6 +593,7 @@ function finish() {
   show("screen-finish");
   if (score < 5) playSound(SOUNDS.livesLost);
   playSound(SOUNDS.completed);
+  // mistakes are sent only to break leaderboard ties, never to lower the score
   submitScore(state.name, score, { avatar: state.avatar.id, mistakes: state.mistakes }).then(
     () => ($("submit-status").textContent = STRINGS.submitted),
     () => ($("submit-status").textContent = STRINGS.submitFailed)
@@ -585,6 +603,8 @@ function finish() {
 /* ---------- boot ---------- */
 
 async function boot() {
+  // iOS Safari only shows :active (the button press-down) when a touch listener exists
+  document.addEventListener("touchstart", () => {}, { passive: true });
   initNickname();
   show("screen-nickname");
   await Promise.all([loadLesson(), loadTwinsLines()]);
