@@ -37,7 +37,7 @@ window.CHARACTER_PARTS = {
     ]},
     {id: "dress-top", src: "../assets/deck/mula/dress-top.svg", x: 118, y: 302, w: 439.553, h: 302.086},
     {id: "dress-skirt", src: "../assets/deck/mula/dress-skirt.svg", x: 118, y: 302, w: 439.553, h: 302.086},
-    {id: "scarf", fill: "#cb6539", radius: 6, x: 240, y: 291, w: 112, h: 52},
+    {id: "scarf", fill: "#638CD9", radius: 6, x: 240, y: 291, w: 112, h: 52},
     {id: "ear-left", src: "../assets/deck/mula/ear-left.svg", x: 180, y: 213, w: 43, h: 43},
     {id: "ear-right", src: "../assets/deck/mula/ear-right.svg", x: 372, y: 215, w: 43, h: 43},
     {id: "hair-back", src: "../assets/deck/mula/hair-back.svg", x: 183, y: 81, w: 230, h: 230},
@@ -83,7 +83,7 @@ window.CHARACTER_PARTS = {
     {id: "scarf-tail", src: "../assets/deck/mula/scarf-tail.svg", x: 118, y: 302, w: 439.553, h: 302.086}
   ],
   dulo: [
-    {id: "hair-back", fill: "#3d3d3d", radius: 15, x: 194, y: 172, w: 207, h: 207},
+    {id: "hair-back", fill: "#6E4533", radius: 15, x: 194, y: 172, w: 207, h: 207},
     {group: "leg-right", pivot: [312, 480], parts: [
       {id: "thigh-right", fill: "#d5a06e", radius: 6, x: 293, y: 476, w: 38, h: 74},
       {group: "knee-right", pivot: [312.0, 540], parts: [
@@ -127,9 +127,9 @@ window.CHARACTER_PARTS = {
       ]}
     ]},
     {id: "sash-tail", src: "../assets/deck/dulo/sash-tail.svg", x: 311, y: 385, w: 92, h: 135.358, rot: 5.28, iw: 80.526, ih: 128.498},
-    {id: "collar", fill: "#cb6539", radius: 6, x: 271, y: 291, w: 54, h: 52},
-    {id: "collar-wide", fill: "#cb6539", radius: 6, x: 235, y: 318, w: 124, h: 52},
-    {id: "sash", fill: "#f2b866", radius: 6, x: 240, y: 402, w: 112, h: 30},
+    {id: "collar", fill: "#638CD9", radius: 6, x: 271, y: 291, w: 54, h: 52},
+    {id: "collar-wide", fill: "#638CD9", radius: 6, x: 235, y: 318, w: 124, h: 52},
+    {id: "sash", fill: "#87D2FB", radius: 6, x: 240, y: 402, w: 112, h: 30},
     {id: "ear-left", src: "../assets/deck/dulo/ear-left.svg", x: 180, y: 213, w: 43, h: 43},
     {id: "ear-right", src: "../assets/deck/dulo/ear-right.svg", x: 370, y: 219, w: 43, h: 43},
     {id: "hair-crown", src: "../assets/deck/dulo/hair-crown.svg", x: 183, y: 81, w: 230, h: 230},

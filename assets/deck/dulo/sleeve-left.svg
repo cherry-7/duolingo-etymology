@@ -1,7 +1,7 @@
 <svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="431.436" height="291.089" viewBox="0 0 431.436 291.089" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g id="sleeve-left">
-<rect id="Rectangle 7" width="46.5168" height="74.6363" transform="matrix(0.260821 -0.965387 -0.965387 -0.260821 113.053 81.3758)" fill="#CB6539"/>
-<rect id="Rectangle 8" width="46.5168" height="78.7194" transform="matrix(-0.505756 -0.862677 -0.862677 0.505756 181.436 42.1314)" fill="#CB6539"/>
-<path id="Polygon 9" d="M110.181 82.565C116.598 82.6439 119.73 74.7667 115.011 70.418L63.8038 23.2279C60.1937 19.9009 54.3693 21.2271 52.5554 25.7891L34.1325 72.1231C32.3186 76.6851 35.6421 81.6485 40.5512 81.7089L110.181 82.565Z" fill="#CB6539"/>
+<rect id="Rectangle 7" width="46.5168" height="74.6363" transform="matrix(0.260821 -0.965387 -0.965387 -0.260821 113.053 81.3758)" fill="#638CD9"/>
+<rect id="Rectangle 8" width="46.5168" height="78.7194" transform="matrix(-0.505756 -0.862677 -0.862677 0.505756 181.436 42.1314)" fill="#638CD9"/>
+<path id="Polygon 9" d="M110.181 82.565C116.598 82.6439 119.73 74.7667 115.011 70.418L63.8038 23.2279C60.1937 19.9009 54.3693 21.2271 52.5554 25.7891L34.1325 72.1231C32.3186 76.6851 35.6421 81.6485 40.5512 81.7089L110.181 82.565Z" fill="#638CD9"/>
 </g>
 </svg>
