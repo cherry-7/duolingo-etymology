@@ -58,18 +58,11 @@
       (slide.characters || []).forEach((c) => row.append(reveal(slot(c))));
       stage.append(row);
     },
-    // On the leaderboard's own backdrop, the QR's black tiles click in one by one (Michelle; Duo
-    // no longer flies off, and there's no white). The next slide shrinks it onto the sign.
+    // A very enlarged QR builds over "Who are they?": its black tiles click in one by one
+    // (Michelle; Duo no longer flies off, and there's no white). The next slide shrinks it onto
+    // the sign.
     finale(stage) {
-      const canvas = el("div", "lb");
-      const wave = el("img", "lb-wave");
-      wave.src = "../assets/deck/leaderboard/wave.svg";
-      wave.alt = "";
-      canvas.append(el("div", "lb-circle"), wave);
-      stage.append(canvas, qrBlock(null, true));
-      const fit = () => { canvas.style.transform = `scale(${stage.clientWidth / 1920})`; };
-      if (window.ResizeObserver) new ResizeObserver(fit).observe(stage);
-      fit();
+      stage.append(qrBlock(null, true));
     },
     // Live scores from the demo; streaming lives in leaderboard.js. Laid out on Figma's
     // 1920 x 1080 "Leaderboard" frame (scaled to the stage): the girl holds up the QR sign
@@ -88,7 +81,8 @@
       const list = el("ol", "board");
       const status = el("p", "board-status");
       // the girl rises in with the sign (the wave and circle are already there on the finale)
-      canvas.append(reveal(img("girl.svg", "lb-girl")), el("div", "lb-circle"), img("wave.svg", "lb-wave"), list,
+      // the girl, circle and wave rise in as the QR shrinks onto the sign
+      canvas.append(reveal(img("girl.svg", "lb-girl")), reveal(el("div", "lb-circle")), reveal(img("wave.svg", "lb-wave")), list,
         reveal(el("h2", "lb-title", slide.heading || "[TBD]")));
       if (slide.qr) {
         // The QR sits on the sign but outside it, so it can glide over from the previous
@@ -109,6 +103,7 @@
       const fit = () => { canvas.style.transform = `scale(${stage.clientWidth / 1920})`; };
       if (window.ResizeObserver) new ResizeObserver(fit).observe(stage);
       fit();
+      canvas.fit = fit; // the QR handoff refits before it measures (the observer may not have run yet)
       if (window.Leaderboard) window.Leaderboard.mount(list, slide, status);
       else list.append(placeholder("[TBD: leaderboard unavailable]"));
     }
@@ -252,6 +247,11 @@
     const fromCode = prev && prev.querySelector(".qr-code");
     const rows = section.querySelectorAll(".board-row, .board-empty, .board-slot");
     const status = section.querySelector(".board-status");
+    // the leaderboard's yellow fades in over "Who are they?" as the QR shrinks; the finale's own
+    // copy hides while this one moves, so the code never shows twice
+    section.style.background = t >= 1 ? "" : `rgba(255, 200, 0, ${soft(clamp(t / 0.5, 0, 1))})`;
+    const prevQr = prev && prev.querySelector(".qr");
+    if (prevQr) prevQr.style.visibility = t > 0 && t < 1 && fromCode ? "hidden" : "";
     if (t >= 1 || !code || !fromCode) {
       if (qr) qr.style.transform = qr.style.opacity = "";
       rows.forEach((row) => { row.style.transform = row.style.opacity = ""; });
@@ -261,18 +261,27 @@
 
     // The QR travels first
     const q = soft(clamp((t - 0.1) / 0.7, 0, 1));
+    const canvas = section.querySelector(".lb");
+    if (canvas && canvas.fit) canvas.fit();
     qr.style.transform = "";
     const to = code.getBoundingClientRect();
     const from = fromCode.getBoundingClientRect();
     const box = qr.getBoundingClientRect();
-    const k = from.width / to.width;
+    // compare true sizes: the sign's code is tilted, so its box is wider than the code itself
+    const tiltRad = ((parseFloat(getComputedStyle(code).rotate) || 0) * Math.PI) / 180;
+    const k = from.width / (to.width / (Math.abs(Math.cos(tiltRad)) + Math.abs(Math.sin(tiltRad))));
     const scale = k + (1 - k) * q;
-    const fullDx = from.left + from.width / 2 - (to.left + to.width / 2);
-    const fullDy = from.top + from.height / 2 - (to.top + to.height / 2);
-    qr.style.transformOrigin = `${to.left + to.width / 2 - box.left}px ${to.top + to.height / 2 - box.top}px`;
+    // the QR lives in the leaderboard's 1920-wide canvas, which is scaled to the screen: screen
+    // distances are turned into canvas units (u per screen px)
+    const u = canvas ? 1920 / canvas.getBoundingClientRect().width : 1;
+    const fullDx = (from.left + from.width / 2 - (to.left + to.width / 2)) * u;
+    const fullDy = (from.top + from.height / 2 - (to.top + to.height / 2)) * u;
+    qr.style.transformOrigin = `${(to.left + to.width / 2 - box.left) * u}px ${(to.top + to.height / 2 - box.top) * u}px`;
     // ...and clicks into place on the sign: a quick press down and back once it lands
     const click = Math.sin(Math.PI * clamp((t - 0.8) / 0.12, 0, 1));
-    qr.style.transform = `translate(${fullDx * (1 - q)}px, ${fullDy * (1 - q)}px) scale(${scale * (1 - 0.08 * click)})`;
+    // the code on the sign is tilted: it starts straight (like the finale's) and tilts as it goes
+    const tilt = parseFloat(getComputedStyle(code).rotate) || 0;
+    qr.style.transform = `translate(${fullDx * (1 - q)}px, ${fullDy * (1 - q)}px) rotate(${-tilt * (1 - q)}deg) scale(${scale * (1 - 0.08 * click)})`;
     // If the QR hadn't appeared on the previous slide yet, fade it in on the way
     const shown = prev.querySelector(".show-qr") || !prev.querySelector(".layout-finale");
     qr.style.opacity = shown ? "" : q;

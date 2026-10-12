@@ -938,7 +938,8 @@ window.World = (function () {
     }
     function swapFor(pos) {
       const near = Math.round(pos);
-      const slide = slides[near];
+      // a slide that keeps the scene before it showing (holdScene) keeps that scene's swap too
+      const slide = slides[near] && slides[near].holdScene ? slides[near - 1] : slides[near];
       const sw = slide && slide.swap;
       const arrived = sw && Math.abs(pos - near) < (sw.near || 0.02);
       if (!arrived) {
@@ -1036,7 +1037,10 @@ window.World = (function () {
       let t = pos - i;
       // Next to a regular slide, the world just holds the scene slide's resting state
       if (isScene(i) && !isScene(i + 1)) t = 0;
-      if (!isScene(i) && isScene(i + 1)) { i += 1; t = 0; }
+      // a regular slide with holdScene keeps the scene before it showing behind it (and on the
+      // way to the slide after it)
+      else if (!isScene(i) && slides[i] && slides[i].holdScene && isScene(i - 1)) { i -= 1; t = 0; }
+      else if (!isScene(i) && isScene(i + 1)) { i += 1; t = 0; }
       const A = isScene(i) ? slides[i] : null;
       const B = isScene(i + 1) && t > 0 ? slides[i + 1] : null;
       world.style.visibility = A ? "visible" : "hidden";

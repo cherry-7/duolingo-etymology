@@ -126,8 +126,9 @@ body {
   border-radius: 12%;
 }
 
-/* Layout: finale (on the leaderboard's backdrop, the QR's black tiles click in one by one) */
-.slide-finale { background: #FFC800; }
+/* Layout: finale (over "Who are they?", a very enlarged QR's black tiles click in one by one) */
+.slide-finale { background: transparent; }
+.layout-finale .qr-code { width: 53cqw; } /* nearly the slide's full height */
 .layout-finale {
   place-items: center;
   padding: 0;

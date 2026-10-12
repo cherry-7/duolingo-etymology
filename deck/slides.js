@@ -734,7 +734,9 @@ window.SLIDES = [
   {
     id: "finale",
     layout: "finale",
-    transition: "window",
+    // the QR builds over "Who are they?", which stays showing behind it (Michelle)
+    transition: "stay",
+    holdScene: true,
     line: "Go ahead, scan" // from SPEC.md
   },
   {
