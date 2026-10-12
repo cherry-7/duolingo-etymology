@@ -231,6 +231,9 @@ body.is-dragging { -webkit-user-select: none; user-select: none; }
 .has-anim { position: relative; }
 .anim-overlay { position: absolute; inset: 0; background: var(--white); }
 .anim-canvas { width: 100%; height: 100%; display: block; }
+/* Answer animation: small, in the blank space under the answers; fades in and out */
+.anim-stage { height: 88px; margin-top: 10px; opacity: 0; transition: opacity 0.25s ease; pointer-events: none; }
+.anim-stage.is-in { opacity: 1; }
 .anim-image { width: 100%; height: 100%; display: block; object-fit: contain; }
 .anim-tag {
   position: absolute;
@@ -445,10 +448,10 @@ button.tile:active:not(:disabled) { transform: translateY(2px); border-bottom-wi
 .compound .root .glyph { height: 64px; }
 /* Tapping a radical tile sinks it like the buttons */
 .format-radical .tile.part:active:not(.is-locked) { transform: translateY(2px); border-bottom-width: 2px; padding-bottom: calc(var(--pad-bottom) + 2px); }
-/* Card options: radical | bold title + detail lines | icon */
-.options .tile.option-card { --pad-bottom: 14px; justify-content: flex-start; gap: 14px; min-height: 112px; padding: 14px 14px; text-align: left; }
-.option-card > .glyph { flex: none; height: 56px; width: 44px; }
-.card-text { flex: 1; display: flex; flex-direction: column; gap: 2px; font-size: 15px; font-weight: 400; line-height: 1.35; }
+/* Card options (Figma Demo Question): radical and bold title + detail lines, centred together */
+.options .tile.option-card { --pad-bottom: 14px; justify-content: center; gap: 22px; min-height: 112px; padding: 14px 14px; text-align: left; }
+.option-card > .glyph { flex: none; height: 64px; width: 56px; }
+/* fixed width so the radicals and the text line up from card to card */
+.card-text { flex: none; width: 172px; display: flex; flex-direction: column; gap: 2px; font-size: 15px; font-weight: 400; line-height: 1.35; }
 .card-title { font-weight: 700; font-size: 16px; }
-.option-card .card-icon { flex: none; width: 72px; height: 48px; min-height: 0; padding: 4px; font-size: 10px; }
 .prompt u { text-decoration-thickness: 2px; text-underline-offset: 3px; }

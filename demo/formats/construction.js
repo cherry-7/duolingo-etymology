@@ -30,7 +30,10 @@ export function render(q, ctx) {
         item.disabled = true;
       }
       matched++;
-      if (matched === q.pairs.length) ctx.complete({ animationSlot: grid, detail: null });
+      // Each matched word plays its own animation for 2s; the question then has none of its own
+      const perPair = q.pairs.some((p) => p.animationId);
+      if (pair.animationId) ctx.flashAnimation(pair.animationId, grid);
+      if (matched === q.pairs.length) ctx.complete({ animationSlot: perPair ? null : grid, detail: null });
     } else {
       for (const item of [first.element, element]) item.classList.add("is-wrong");
       ctx.wrong(() => {

@@ -27,12 +27,11 @@
   {
     "type": "construction",
     "language": "English (Latin roots)",
-    "animationId": "portable",
     "prompt": "Match each English word to the way its meaningful parts are constructed.",
     "pairs": [
-      { "word": "transport", "construction": "prefix + root: trans- + port" },
-      { "word": "portable", "construction": "root + suffix: port + -able" },
-      { "word": "airport", "construction": "compound: air + port" }
+      { "word": "transport", "construction": "prefix + root: trans- + port", "animationId": "transport" },
+      { "word": "portable", "construction": "root + suffix: port + -able", "animationId": "portable" },
+      { "word": "airport", "construction": "compound: air + port", "animationId": "airport" }
     ],
     "answerMeaning": "Words can be built with prefixes, suffixes, or compounds."
   },
@@ -41,6 +40,7 @@
     "language": "Chinese",
     "prompt": "Build the character for “mom”\n马 (mǎ) gives the sound. Add the radical that gives the meaning.",
     "animationId": "mom",
+    "prompt": "Build the character for “mom”\n马 (mǎ) gives the sound. Add the radical that gives the meaning.",
     "character": "妈 (mā): mom",
     "root": "马",
     "rootImage": "ma-horse.svg",
@@ -58,6 +58,7 @@
     "language": "Chinese",
     "prompt": "Choose the right meaning for this character:\nClick the correct answer block.",
     "animationId": "mom",
+    "prompt": "Choose the right meaning for this character:\nClick the correct answer block.",
     "word": "妈",
     "options": [
       { "text": "Mom", "isCorrect": true },
@@ -69,6 +70,7 @@
   {
     "type": "choice",
     "language": "Chinese",
+    "animationId": "mom",
     "prompt": "Which part of the character indicates the __gender__ of 妈?\nClick the correct answer block.",
     "word": "妈",
     "options": [
@@ -79,6 +81,7 @@
   {
     "type": "choice",
     "language": "Chinese",
+    "animationId": "mom",
     "prompt": "Which part of the character indicates the __pronunciation__ of 妈 (mā)?\nClick the correct answer block.",
     "word": "妈",
     "options": [
