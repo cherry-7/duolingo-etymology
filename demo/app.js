@@ -264,10 +264,12 @@ function initNickname() {
     const name = input.value.trim().slice(0, CONFIG.nicknameMaxLength);
     if (!name) return;
     input.blur();
+    start.disabled = true; // no second submit while the screen slides
     state.name = name;
     const pool = CONFIG.characters;
     state.avatar = pool[Math.floor(Math.random() * pool.length)];
-    revealAvatar();
+    // same slide as between questions: the form slides out left, the greeting in from the right
+    slideOut($("nick-form"), revealAvatar);
   });
 }
 
@@ -283,6 +285,7 @@ function revealAvatar() {
     h("p", { class: "greeting-next" }, STRINGS.greetingNext)
   );
   reveal.hidden = false;
+  slideIn(reveal);
   const btn = $("nick-continue");
   btn.textContent = STRINGS.continue;
   btn.hidden = false;

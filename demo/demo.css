@@ -187,8 +187,8 @@ body.is-dragging { -webkit-user-select: none; user-select: none; }
 }
 .lesson-body.is-locked { pointer-events: none; }
 .lesson-body.is-boundary { touch-action: pan-y; display: flex; }
-.lesson-body.slide-in { animation: slide-in 0.25s ease both; }
-.lesson-body.slide-out { transform: translateX(-30%); opacity: 0; transition: transform 0.22s ease, opacity 0.22s ease; }
+.lesson-body.slide-in, .nick-reveal.slide-in { animation: slide-in 0.25s ease both; }
+.lesson-body.slide-out, .nick-form.slide-out { transform: translateX(-30%); opacity: 0; transition: transform 0.22s ease, opacity 0.22s ease; }
 @keyframes slide-in { from { transform: translateX(30%); opacity: 0; } to { transform: none; opacity: 1; } }
 
 .prompt { font-size: 22px; font-weight: 700; line-height: 1.25; margin: 4px 0 14px; color: var(--gray-800); }
