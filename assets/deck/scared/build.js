@@ -50,9 +50,9 @@ const DULO_MARKS = set("54 55");
 const DULO_HEAD_CUT = "M655 0H1312V500H742V385L722 380V318L700 300L655 230Z";
 const STAYS = `M-10 -10H1322V1209H-10Z ${DULO_HEAD_CUT}`; // evenodd: all but her head part
 const SHRINK = 12;
-// The drawing has two small gaps of background between Mula's dress and Dulo (beside and below
-// the hair); Dulo's hair fills them, under both dresses
-const GAP_FILL = "M625 515H700L748 630V840H662Z"; // down to where the skirts meet
+// The brown layer has two holes: a gap in Dulo's hair (filled with her hair) and the gap between
+// her chin, hand and sleeve (filled with skin, her neck, so no brown shows there as she turns)
+const SKIN = "#D39C67";
 
 // ---- Motion ------------------------------------------------------------------------------
 const NECK = [870, 505]; // Dulo's head turns about here
@@ -91,12 +91,15 @@ const clip = (id, d, rule) => { clips.push(`<clipPath id="${id}" clipPathUnits="
 const draw = (p, under) => {
   const path = (cls = "", extra = "") => `<path${cls ? ` class="${cls}"` : ""} d="${p.d}" fill="${p.fill}"${extra}/>`;
   if (p.id === "1") {
+    const [outline, ...holes] = p.d.split(/(?=M)/);
+    const neck = holes.find((h) => h.includes("M911") || /^M9\d\d/.test(h));
+    p.d = outline;
     clips.push(`<mask id="shrunk" maskUnits="userSpaceOnUse" x="-10" y="-10" width="1332" height="1219"><path d="${p.d}" fill="#fff" stroke="#000" stroke-width="${SHRINK * 2}"/></mask>`);
     return [
       `<path d="${p.d}" fill="${p.fill}" mask="url(#shrunk)"/>`,
       `<g ${clip("stays", STAYS, "evenodd")}>${path()}</g>`,
-      `<path d="${GAP_FILL}" fill="${p.fill}"/>`,
-      `<g class="dulo-head"><g ${clip("dulo-hair", DULO_HEAD_CUT)}>${path()}</g></g>`
+      `<g class="dulo-head"><g ${clip("dulo-hair", DULO_HEAD_CUT)}>${path()}</g></g>`,
+      `<path d="${neck}" fill="${SKIN}"/>`
     ].join("\n");
   }
   if (p.id === "2") return path() + "\n" + UNDER_DRESS.map((id) => draw(shapes.find((q) => q.id === id), true)).join("\n");
