@@ -122,7 +122,8 @@ body.is-dragging { -webkit-user-select: none; user-select: none; }
 }
 
 /* ---------- nickname ---------- */
-.nick-form { flex: 1; display: flex; flex-direction: column; gap: 10px; padding-top: 12vh; }
+.nick-form { flex: 1; display: flex; flex-direction: column; gap: 10px; padding-top: 6vh; }
+.nick-twins { display: block; width: 168px; height: 168px; margin: 0 auto; object-fit: contain; }
 .text-input {
   width: 100%;
   min-height: var(--tap);
@@ -135,10 +136,13 @@ body.is-dragging { -webkit-user-select: none; user-select: none; }
   color: var(--gray-800);
 }
 .text-input:focus { outline: none; border-color: var(--duo-green); }
+.text-input::placeholder { color: var(--gray-400); opacity: 1; } /* light grey hint text */
+#nick-title { color: var(--duo-green); } /* "Morphology Demo" in Duo green */
 
 .nick-reveal { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; }
 .greeting { font-size: 26px; font-weight: 400; margin: 12px 0 0; }
 .greeting strong { font-weight: 700; }
+.greeting-next { margin: 4px 0 0; font-size: 18px; font-weight: 400; color: var(--gray-600); }
 .nick-echo { font-size: 18px; font-weight: 700; margin: 4px 0; }
 
 /* ---------- avatars, assets, placeholders ---------- */
@@ -192,19 +196,23 @@ body.is-dragging { -webkit-user-select: none; user-select: none; }
 .word { font-size: 32px; font-weight: 700; text-align: center; margin: 8px 0 16px; }
 
 /* Twins (top left) with a speech bubble pointing at them, Duolingo-style */
-.twins-row { display: flex; align-items: center; gap: 14px; margin: 4px 0 16px; }
+.twins-row { display: flex; align-items: center; gap: 10px; margin: 4px 0 16px; }
 .lesson-body + .twins-row, #twins-row { flex: none; }
-.twins-stage { position: relative; width: 140px; height: 112px; flex: none; overflow: hidden; }
+/* Twins 1.5x (Michelle): 168px tall; the box is as wide as the near-square idle/scared art, and
+   the high-five frame may spill past it, behind the bubble */
+.twins-stage { position: relative; width: 168px; height: 168px; flex: none; }
 .twins-img { display: block; width: 100%; height: 100%; object-fit: contain; }
 /* the deck's twins (16:9 stage) centred in the box; shown only for the high five */
-.twins-frame { position: absolute; top: 0; left: 50%; width: 200px; height: 112px; border: 0; transform: translateX(-50%); visibility: hidden; pointer-events: none; background: transparent; }
+.twins-frame { position: absolute; top: 0; left: 50%; width: 300px; height: 168px; border: 0; transform: translateX(-50%); visibility: hidden; pointer-events: none; background: transparent; }
 .twins-stage.is-high-five .twins-img { visibility: hidden; }
 .twins-stage.is-high-five .twins-frame { visibility: visible; }
-.speech { position: relative; flex: 1; min-width: 0; padding: 12px 14px; border: 2px solid var(--gray-200); border-radius: 16px; background: var(--white); }
+.speech { position: relative; z-index: 1; flex: 1; min-width: 0; padding: 12px 14px; border: 2px solid var(--gray-200); border-radius: 16px; background: var(--white); }
 .speech::before { content: ""; position: absolute; left: -9px; top: 50%; width: 14px; height: 14px; background: var(--white); border-left: 2px solid var(--gray-200); border-bottom: 2px solid var(--gray-200); transform: translateY(-50%) rotate(45deg); }
 .speech .prompt { margin: 0; font-size: 18px; }
 .speech .prompt-rest { font-size: 16px; }
 .speech-line { margin: 0; font-size: 18px; font-weight: 700; }
+.speech-line.is-regular { font-weight: 400; }
+.speech-line.is-regular strong { font-weight: 700; }
 .finish-body .twins-row { width: 100%; text-align: left; }
 .twins-bubble { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
 .twins-bubble p { margin: 0; padding: 10px 12px; border: 2px solid var(--gray-200); border-radius: 14px; font-size: 14px; flex: 1; }
@@ -258,7 +266,7 @@ body.is-dragging { -webkit-user-select: none; user-select: none; }
   font: inherit;
   font-size: 18px;
   font-weight: 500;
-  transition: transform 0.08s ease, border-width 0.08s ease, background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  transition: transform 0.08s ease, background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
   touch-action: manipulation;
   cursor: pointer;
   -webkit-user-select: none;
@@ -268,7 +276,9 @@ body.is-dragging { -webkit-user-select: none; user-select: none; }
 .tile.part { touch-action: none; cursor: grab; }
 button.tile.part { touch-action: manipulation; cursor: pointer; }
 /* Press: the tile sinks onto its thicker bottom edge (buttons only; dragged parts lift instead) */
-button.tile:active:not(:disabled) { transform: translateY(2px); border-bottom-width: 2px; margin-bottom: 2px; }
+/* The lost 2px of edge goes into the padding, so the tile keeps its height and the tiles below stay put */
+.tile { --pad-bottom: 10px; }
+button.tile:active:not(:disabled) { transform: translateY(2px); border-bottom-width: 2px; padding-bottom: calc(var(--pad-bottom) + 2px); }
 .tile.is-selected { background: var(--duo-blue-light); border-color: var(--duo-blue-edge); color: var(--duo-blue-dark); }
 .tile.is-correct { background: var(--duo-green-light); border-color: var(--duo-green-edge); color: var(--duo-green-dark); }
 .tile.is-wrong { background: var(--duo-red-light); border-color: var(--duo-red-edge); color: var(--duo-red-dark); }
@@ -371,7 +381,8 @@ button.tile:active:not(:disabled) { transform: translateY(2px); border-bottom-wi
 /* language boundary */
 .boundary { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
 .boundary-lang { font-size: 26px; font-weight: 700; margin: 0; }
-.swipe-hint { font-size: 40px; color: var(--gray-400); animation: nudge 1.4s ease-in-out infinite; }
+.boundary .boundary-twins { width: 100%; margin: 0 0 12px; text-align: left; }
+.swipe-hint { font-size: 40px; color: var(--duo-green); animation: nudge 1.4s ease-in-out infinite; }
 @keyframes nudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(14px); } }
 
 /* feedback sheet: the whole footer turns green or red, like Duolingo */
@@ -400,9 +411,7 @@ button.tile:active:not(:disabled) { transform: translateY(2px); border-bottom-wi
 /* ---------- finish ---------- */
 .finish-body { flex: 1; overflow-y: auto; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; padding-bottom: max(var(--gutter), env(safe-area-inset-bottom)); }
 .score { font-size: 56px; font-weight: 700; color: var(--duo-green); margin: 4px 0 0; line-height: 1; }
-.stats { display: flex; gap: 12px; margin: 12px 0; width: 100%; }
-.stats > div { flex: 1; display: flex; flex-direction: column; padding: 12px; border: 2px solid var(--gray-200); border-radius: var(--radius); }
-.stat-n { font-size: 22px; font-weight: 700; }
+.finish-place { margin: 6px 0 0; font-size: 18px; min-height: 1.3em; }
 .finish-body .twins-bubble { width: 100%; text-align: left; }
 .submit-status { font-size: 13px; margin-top: 8px; }
 
@@ -414,18 +423,19 @@ button.tile:active:not(:disabled) { transform: translateY(2px); border-bottom-wi
 @media (max-height: 640px) {
   .picture { width: min(100%, 150px); }
   .prompt { font-size: 18px; margin-bottom: 8px; }
-  .nick-form { padding-top: 4vh; }
+  .nick-form { padding-top: 2vh; }
+  .nick-twins { width: 128px; height: 128px; }
 }
 
 .footer:has(> .btn:only-child[hidden]) { display: none; }
 
 /* SVG glyphs (radicals and characters drawn from /assets/questions); they take the text colour */
 .glyph { display: inline-flex; align-items: center; justify-content: center; }
-.glyph svg { display: block; width: auto; height: 100%; }
+.glyph svg { display: block; width: auto; height: 100%; max-width: none; }
 .compound .root .glyph { height: 48px; }
 .compound .merged-glyph .glyph { height: 64px; }
 /* Radical tiles: the radical on top, its meaning in parentheses underneath (Figma Demo Question) */
-.tile.part.has-glyph { flex-direction: column; gap: 6px; width: 96px; height: 96px; padding: 10px 8px 8px; }
+.tile.part.has-glyph { --pad-bottom: 8px; flex-direction: column; gap: 6px; width: 96px; height: 96px; padding: 10px 8px 8px; }
 .tile.part.has-glyph .glyph { height: 50px; }
 .part-meaning { font-size: 13px; font-weight: 400; color: var(--gray-600); line-height: 1; }
 .tile.is-correct .part-meaning, .dropzone .attached .part-meaning { color: inherit; }
@@ -434,9 +444,9 @@ button.tile:active:not(:disabled) { transform: translateY(2px); border-bottom-wi
 .format-radical .tray .tile.part.has-glyph { width: 104px; height: 104px; }
 .compound .root .glyph { height: 64px; }
 /* Tapping a radical tile sinks it like the buttons */
-.format-radical .tile.part:active:not(.is-locked) { transform: translateY(2px); border-bottom-width: 2px; margin-bottom: 2px; }
+.format-radical .tile.part:active:not(.is-locked) { transform: translateY(2px); border-bottom-width: 2px; padding-bottom: calc(var(--pad-bottom) + 2px); }
 /* Card options: radical | bold title + detail lines | icon */
-.options .tile.option-card { justify-content: flex-start; gap: 14px; min-height: 112px; padding: 14px 14px; text-align: left; }
+.options .tile.option-card { --pad-bottom: 14px; justify-content: flex-start; gap: 14px; min-height: 112px; padding: 14px 14px; text-align: left; }
 .option-card > .glyph { flex: none; height: 56px; width: 44px; }
 .card-text { flex: 1; display: flex; flex-direction: column; gap: 2px; font-size: 15px; font-weight: 400; line-height: 1.35; }
 .card-title { font-weight: 700; font-size: 16px; }
