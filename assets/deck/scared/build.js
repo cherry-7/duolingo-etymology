@@ -53,6 +53,10 @@ const SHRINK = 12;
 // The brown layer has two holes: a gap in Dulo's hair (filled with her hair) and the gap between
 // her chin, hand and sleeve (filled with skin, her neck, so no brown shows there as she turns)
 const SKIN = "#D39C67";
+// The notch of background between Mula's hair and Dulo's comes to a sharp point that breaks up as
+// Dulo's head turns: its lower part is filled with hair, a smooth curve from Mula's hair to Dulo's.
+// It stays still and reaches into both, so nothing opens as she turns.
+const NOTCH_FILL = "M628 241C655 249 682 240 705 222L728 222V330H628Z";
 
 // ---- Motion ------------------------------------------------------------------------------
 const NECK = [870, 505]; // Dulo's head turns about here
@@ -99,7 +103,8 @@ const draw = (p, under) => {
       `<path d="${p.d}" fill="${p.fill}" mask="url(#shrunk)"/>`,
       `<g ${clip("stays", STAYS, "evenodd")}>${path()}</g>`,
       `<g class="dulo-head"><g ${clip("dulo-hair", DULO_HEAD_CUT)}>${path()}</g></g>`,
-      `<path d="${neck}" fill="${SKIN}"/>`
+      `<path d="${neck}" fill="${SKIN}"/>`,
+      `<path d="${NOTCH_FILL}" fill="${p.fill}"/>`
     ].join("\n");
   }
   if (p.id === "2") return path() + "\n" + UNDER_DRESS.map((id) => draw(shapes.find((q) => q.id === id), true)).join("\n");
