@@ -179,16 +179,31 @@
   // The continuous world behind the scene slides (deck/world.js)
   const world = window.World ? window.World.mount(document.body, slides, window.WORLD_ACTORS || {}) : null;
 
-  // Final-slide sequence: the QR's tiles fade in one by one (CSS, delays set per tile), then
-  // the line. Replays on each visit.
-  function playFinale(stage) {
+  // Final-slide sequence: the QR's tiles click in one by one (CSS, delays set per tile) until
+  // the screen is black. Replays on each visit. It starts as soon as the deck heads for the
+  // finale (not once it has settled there), and once the screen is black the deck zooms out
+  // into the leaderboard on its own (Michelle). Only a fresh build moves on by itself: coming
+  // back from the leaderboard finds the black screen finished, and it stays.
+  // ms from the build starting to moving on: the build (QR_BUILD + the last tile's 0.25s click)
+  // and the background's fade to black (1.6s + 0.3s), then a moment of black
+  const FINALE_HOLD = 2300;
+  let autoTimer = null;
+
+  function playFinale(stage, index) {
     if (stage.classList.contains("show-qr")) return;
     stage.classList.remove("qr-built");
     stage.classList.add("show-qr");
+    clearTimeout(autoTimer);
+    if (handsOff(index + 1)) {
+      // ...unless the presenter has moved on (or back) in the meantime
+      autoTimer = setTimeout(() => { if (rest === index && target === index) go(index + 1); }, FINALE_HOLD);
+    }
   }
 
   function resetFinale(stage) {
+    if (!stage.classList.contains("show-qr")) return;
     stage.classList.remove("show-qr", "qr-built");
+    clearTimeout(autoTimer);
   }
 
   // Jump straight to the end of the sequence (the QR built), e.g. when the deck opens on the
@@ -315,6 +330,13 @@
       const visible = arriving > 0 && leaving < 1;
       section.style.visibility = visible ? "visible" : "hidden";
       section.style.zIndex = i;
+      // The finale builds as soon as the deck heads for it, and clears at once when the deck
+      // heads back before it (rather than staying black until the move back has finished)
+      const finaleHere = finaleOf(i);
+      if (finaleHere && visible) {
+        if (target >= i) playFinale(finaleHere, i);
+        else resetFinale(finaleHere);
+      }
       if (!visible) {
         // Off screen: reset the finale so it replays on the next visit. But while the
         // next slide has taken its QR over (and covers it), keep it finished, so going
@@ -338,19 +360,10 @@
     if (world) world.render(pos);
   }
 
-  // ms from arriving on the finale to moving on: the build (QR_BUILD + the last tile's 0.25s
-  // click) and the background's fade to black (1.6s + 0.3s), then a moment of black
-  const FINALE_HOLD = 2300;
-  let autoTimer = null;
-
   function settle() {
     const index = Math.round(pos);
     history.replaceState(null, "", "#" + sections[index].id);
-    if (finaleOf(index)) playFinale(finaleOf(index));
-    // Once the tiles have turned the screen black, it zooms out into the leaderboard on its
-    // own (Michelle), unless the presenter has already moved on
-    clearTimeout(autoTimer);
-    if (finaleOf(index) && handsOff(index + 1)) autoTimer = setTimeout(() => { if (rest === index) go(index + 1); }, FINALE_HOLD);
+    if (finaleOf(index)) playFinale(finaleOf(index), index);
     if (handsOff(index) && finaleOf(index - 1)) finishFinale(finaleOf(index - 1));
   }
 
