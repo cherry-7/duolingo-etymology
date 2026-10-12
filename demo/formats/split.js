@@ -1,5 +1,5 @@
 // Choose the boundary that correctly separates a word into meaningful parts.
-import { h, shuffle, promptEl } from "../util.js";
+import { h, shuffle, promptEl } from "../util.js?v=20261012c";
 
 export function render(q, ctx) {
   let selected = null;

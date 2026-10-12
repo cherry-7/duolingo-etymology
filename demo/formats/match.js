@@ -1,5 +1,5 @@
 // Match parts to meanings: tap one tile in each column.
-import { h, shuffle, buzz, promptEl } from "../util.js";
+import { h, shuffle, buzz, promptEl } from "../util.js?v=20261012c";
 
 export function render(q, ctx) {
   ctx.useCheck(false);

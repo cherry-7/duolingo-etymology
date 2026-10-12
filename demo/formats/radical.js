@@ -4,8 +4,8 @@
 // Tap-to-place also works: tap a radical, then tap the character (or use Enter/Space).
 // Optional SVG art (radicals[].image, rootImage, characterImage) replaces the text glyphs,
 // because a radical drawn on its own looks different from the same radical inside a character.
-import { h, shuffle, buzz, promptEl } from "../util.js";
-import { makeDraggable } from "../drag.js";
+import { h, shuffle, buzz, promptEl } from "../util.js?v=20261012c";
+import { makeDraggable } from "../drag.js?v=20261012c";
 
 export function render(q, ctx) {
   ctx.useCheck(false);
