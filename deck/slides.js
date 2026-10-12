@@ -235,9 +235,9 @@ window.WORLD_ACTORS = {
   // Twin Characters in UI Scenario: four phone screens (phone 1 is its own frame; 2-4 are cut
   // from the Figma image that sits over the other three frames)
   phone1: { type: "img", src: DECK_ART + "ui/phone-1.png", w: 401, h: 860, z: 10 },
-  phone2: { type: "img", src: DECK_ART + "ui/phone-2.png", w: 399, h: 881, z: 10 },
-  phone3: { type: "img", src: DECK_ART + "ui/phone-3.png", w: 415, h: 867, z: 10 },
-  phone4: { type: "img", src: DECK_ART + "ui/phone-4.png", w: 405, h: 863, z: 10 },
+  phone2: { type: "img", src: DECK_ART + "ui/phone-2.png", w: 401, h: 860, z: 10 },
+  phone3: { type: "img", src: DECK_ART + "ui/phone-3.png", w: 401, h: 860, z: 10 },
+  phone4: { type: "img", src: DECK_ART + "ui/phone-4.png", w: 401, h: 860, z: 10 },
   // Character Default (second version): a dark blurred glow behind the twins
   glow: { type: "ellipse", blur: 150, z: 2.8 },
   // Who is he?: the ten Duolingo characters (tiles cut from the Figma screenshots), and the
@@ -684,10 +684,11 @@ window.SLIDES = [
       // The blue bar from the last slide sweeps across the whole screen
       posesBar: { x: -600, y: -600, w: 3120, h: 2280, color: C.blue, at: [0, 0.5], exit: { opacity: 0, at: [0, 0.05] } },
       // The screens swipe in from the right, one by one
+      // Figma's updated frame (Duolingo Design Board): four evenly spaced iPhone 16 screens
       phone1: swipeIn(79, 114, 401, 0.45),
-      phone2: swipeIn(527, 108, 399, 0.53),
-      phone3: swipeIn(981, 109, 415, 0.61),
-      phone4: swipeIn(1444, 111, 405, 0.69)
+      phone2: swipeIn(535, 114, 401, 0.53),
+      phone3: swipeIn(991, 114, 401, 0.61),
+      phone4: swipeIn(1447, 114, 401, 0.69)
     }
   },
   {
