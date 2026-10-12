@@ -1,0 +1,25 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "static",
+      "url": "http://localhost:8000",
+      "port": 8000
+    },
+    {
+      "name": "deck-v2",
+      "url": "http://localhost:8001",
+      "port": 8001
+    },
+    {
+      "name": "demo-server",
+      "url": "http://localhost:8002",
+      "port": 8002
+    },
+    {
+      "name": "deck-noquotes",
+      "url": "http://localhost:8004",
+      "port": 8004
+    }
+  ]
+}
