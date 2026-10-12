@@ -263,7 +263,7 @@
     const qr = section.querySelector(".qr");
     const code = qr && qr.querySelector(".qr-code");
     const fromCode = prev && prev.querySelector(".qr-code");
-    const rows = section.querySelectorAll(".board-row, .board-empty, .board-slot");
+    const rows = section.querySelectorAll(".board-row, .board-slot");
     const status = section.querySelector(".board-status");
     // the leaderboard's yellow fades in over "Who are they?" as the QR shrinks; the finale's own
     // copy hides while this one moves, so the code never shows twice

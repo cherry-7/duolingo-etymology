@@ -259,8 +259,7 @@ body {
 }
 
 .board-row,
-.board-slot,
-.board-empty {
+.board-slot {
   border-radius: 50px;
   background: #FF9600;
 }
@@ -288,12 +287,6 @@ body {
 .board-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 .board-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-.board-empty {
-  display: grid;
-  place-items: center;
-  font-size: 36px;
-}
 
 .stage .board-status { left: 805px; top: 930px; margin: 0; font-size: 28px; color: #fff; min-height: 1em; }
 

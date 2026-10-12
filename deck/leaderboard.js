@@ -54,9 +54,6 @@
     });
     Object.keys(seen).forEach((key) => { if (!scores[key]) delete seen[key]; });
     list.replaceChildren();
-    if (top.length === 0) {
-      list.append(el("li", "board-empty", "[TBD: no scores yet]"));
-    }
     top.forEach(([key, s], i) => {
       const row = el("li", "board-row");
       row.dataset.key = key;
@@ -68,8 +65,8 @@
       );
       list.append(row);
     });
-    // The rest of the bars stay empty, as in the Figma design
-    for (let i = Math.max(top.length, 1); i < limit; i++) list.append(el("li", "board-slot"));
+    // The rest of the bars stay empty, as in the Figma design (with no scores yet, all of them)
+    for (let i = top.length; i < limit; i++) list.append(el("li", "board-slot"));
     if (animate && !reduceMotion.matches) {
       list.querySelectorAll(".board-row").forEach((row) => {
         const was = before.get(row.dataset.key);
