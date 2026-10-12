@@ -68,6 +68,62 @@ window.World = (function () {
       `A${r} ${r} 0 0 1 0 ${h - r}V${r}A${r} ${r} 0 0 1 ${r} 0Z`;
   }
 
+  // A group's turn at its pivot: angle (degrees from its Figma pose), and flip, the scale across
+  // the arm's own length (-1 mirrors it along the line at p.mirror degrees, 1 is as drawn)
+  // stretch: length along the arm's own axis (1 = as drawn), for squash and stretch
+  function groupTransform(p, angle, flip, stretch = 1) {
+    const m = p.mirror ?? p.axis ?? 0;
+    if (flip === 1 && stretch === 1) return `rotate(${angle}deg)`;
+    return `rotate(${angle}deg) rotate(${m}deg) scale(${stretch}, ${flip}) rotate(${-m}deg)`;
+  }
+
+  // One character part from deck/characters.js: an outer box at x, y; inside it, an iw x ih box
+  // centred and rotated (rot / flip / skew); inside that, the SVG (at inset) or a rounded fill
+  function characterPart(p) {
+    // A group (an arm: sleeve plus hand) is a frame-sized layer that turns about its pivot
+    if (p.group) {
+      const g = document.createElement("div");
+      g.className = "part-group group-" + p.group;
+      g.style.cssText = "position:absolute;left:0;top:0;width:604px;height:774px";
+      if (p.pivot) {
+        g.style.transformOrigin = `${p.pivot[0]}px ${p.pivot[1]}px`;
+        g.style.transform = groupTransform(p, p.rest || 0, p.mirror != null ? -1 : 1);
+      }
+      if (p.mask) {
+        const m = p.mask;
+        const mask = `url("${m.src}") ${m.x}px ${m.y}px / ${m.w}px ${m.h}px no-repeat`;
+        g.style.webkitMask = mask;
+        g.style.mask = mask;
+      }
+      p.parts.forEach((q) => g.append(characterPart(q)));
+      return g;
+    }
+    const box = document.createElement("div");
+    box.className = "part part-" + p.id;
+    box.style.cssText = `position:absolute;left:${p.x}px;top:${p.y}px;width:${p.w}px;height:${p.h}px`;
+    // clip: a polygon in character units (half a sleeve, for the elbow)
+    if (p.clip) box.style.clipPath = `polygon(${p.clip.map(([x, y]) => `${x - p.x}px ${y - p.y}px`).join(", ")})`;
+    const iw = p.iw ?? p.w;
+    const ih = p.ih ?? p.h;
+    const turn = document.createElement("div");
+    turn.style.cssText = `position:absolute;left:${(p.w - iw) / 2}px;top:${(p.h - ih) / 2}px;width:${iw}px;height:${ih}px;` +
+      `transform:rotate(${p.rot || 0}deg)${p.skew ? ` skewX(${p.skew}deg)` : ""}${p.flip ? " scaleY(-1)" : ""}`;
+    box.append(turn);
+    if (p.src) {
+      const [t, r, b, l] = p.inset || [0, 0, 0, 0];
+      const img = document.createElement("img");
+      img.src = p.src;
+      img.alt = "";
+      img.style.cssText = `position:absolute;display:block;max-width:none;top:${t}%;right:${r}%;bottom:${b}%;left:${l}%;` +
+        `width:${100 - l - r}%;height:${100 - t - b}%`;
+      turn.append(img);
+    } else {
+      turn.style.background = p.fill;
+      turn.style.borderRadius = p.radius + "px";
+    }
+    return box;
+  }
+
   // ---- Actor renderers -----------------------------------------------------
   // Each takes a resolved state (numbers already interpolated) and draws it.
 
@@ -83,6 +139,237 @@ window.World = (function () {
       return (s) => {
         node.style.opacity = s.opacity;
         node.style.transform = `translate(${s.x}px, ${s.y}px) scale(${s.w / def.w}) rotate(${s.rotate || 0}deg)`;
+      };
+    },
+
+    // Mula and Dulo side by side, each built from her Figma parts (deck/characters.js) so
+    // every part can move on its own later. def.box crops the pair to the characters
+    // ([x, y, w, h] in pair units); s.w is the shown width of that box.
+    pair(def, layer) {
+      const node = el("div", "actor actor-pair", layer);
+      const [bx, by, bw, bh] = def.box;
+      // slotAspect: the height/width of the art this replaces, so the feet stay where they were
+      const drop = def.slotAspect ? def.slotAspect - bh / bw : 0;
+      const inner = el("div", "pair-inner", node);
+      inner.style.cssText = `position:absolute;left:${-bx}px;top:${-by}px;transform-origin:0 0`;
+      const run = window.CHARACTER_RUN;
+      const members = def.members.map(({ who, dx }) => {
+        const frame = el("div", "character character-" + who, inner);
+        frame.style.cssText = `position:absolute;left:0;top:0;width:604px;height:774px;transform-origin:302px 723px`;
+        const defs = {};
+        const collect = (list) => list.forEach((p) => { if (p.group) { defs[p.group] = p; collect(p.parts); } });
+        collect(window.CHARACTER_PARTS[who]);
+        window.CHARACTER_PARTS[who].forEach((p) => frame.append(characterPart(p)));
+        const groups = {};
+        frame.querySelectorAll(".part-group").forEach((g) => { groups[g.className.match(/group-(\S+)/)[1]] = g; });
+        frame.classList.add("idle");
+        const pupils = frame.querySelectorAll(".group-eye-left > *, .group-eye-right > *");
+        const soles = Object.keys(run.soles).map((id) => [frame.querySelector(".part-" + id), run.soles[id]]);
+        // parts that move while running, each with its transform-origin in its own box
+        const partAt = {};
+        const index = (list) => list.forEach((p) => (p.group ? index(p.parts) : (partAt[p.id] = p)));
+        index(window.CHARACTER_PARTS[who]);
+        const hold = (id, [ox, oy]) => {
+          const el = frame.querySelector(".part-" + id);
+          if (el) el.style.transformOrigin = `${ox - partAt[id].x}px ${oy - partAt[id].y}px`;
+          return el;
+        };
+        const hair = (run.hair[who] || []).map((h) => [hold(h.id, h.origin), h]).filter(([el]) => el);
+        const finger = partAt.finger ? hold("finger", run.finger.knuckle) : null;
+        const eyes = frame.querySelectorAll(":scope > :is(.part-eye-white-left, .part-eye-white-right, .group-eye-left, .group-eye-right)");
+        const mouth = frame.querySelector(".part-mouth");
+        const smile = frame.querySelector(".part-smile-teeth");
+        const straight = frame.querySelectorAll(".part-mouth, .part-mouth-corner");
+        return { who, dx, frame, groups, defs, pupils, soles, hair, finger, eyes, mouth, smile, straight };
+      });
+      let wasRunning = null;
+
+      // Standing still: the Figma spots (Mula 0, Dulo 520) and the CSS idle loops
+      function stand() {
+        members.forEach((m) => {
+          m.frame.style.transform = `translate(${m.dx}px, 0)`;
+          m.frame.style.zIndex = "";
+          m.frame.classList.remove("running");
+          m.pupils.forEach((p) => { p.style.translate = ""; });
+          m.soles.forEach(([el, [x]]) => { el.style.left = x + "px"; });
+          m.hair.forEach(([el]) => { el.style.transform = ""; });
+          if (m.finger) { m.finger.style.transform = ""; m.finger.style.visibility = ""; }
+          for (const [name, g] of Object.entries(m.groups)) {
+            const p = m.defs[name];
+            if (p.pivot) g.style.transform = groupTransform(p, p.rest || 0, p.mirror != null ? -1 : 1);
+          }
+          m.frame.classList.add("idle");
+        });
+      }
+
+      // Running (step 3): w blends from standing into the run at the start of the move and back at
+      // the end; the legs cycle with the distance covered, so scrolling back plays it in reverse.
+      function runPose(move) {
+        const t = clamp(move.t, 0, 1);
+        const w = soft(clamp(t / 0.2, 0, 1)) * soft(clamp((1 - t) / 0.2, 0, 1));
+        const dir = move.dir > 0 ? "right" : "left";
+        const phase = (t * move.dist) / run.stride; // steps taken
+        const swing = Math.sin(phase * Math.PI) * w; // -1..1, one leg forward per step
+        const bob = Math.abs(Math.sin(phase * Math.PI)) * run.bob * w;
+        members.forEach((m) => {
+          m.frame.classList.toggle("idle", w === 0);
+          m.frame.classList.toggle("running", w > 0); // each foot carries its half of the sole
+          const x = lerp(m.dx, run[dir][m.who], w);
+          const turn = dir === "left" ? lerp(1, -1, w) : 1; // turns to face left, like a sprite
+          m.frame.style.transform = `translate(${x}px, ${-bob}px) scaleX(${turn})`;
+          m.frame.style.zIndex = m.who === "mula" ? 1 : ""; // Mula in front, holding Dulo's hand
+          // eyes on where they're going (the frame is mirrored when running left)
+          m.pupils.forEach((p) => { p.style.translate = `${run.look * w}px 0`; });
+          m.soles.forEach(([el, [x0, x1]]) => { el.style.left = lerp(x0, x1, w) + "px"; }); // toes forward
+          // hair streams back, away from where they're running (steady, no flutter)
+          m.hair.forEach(([el, h]) => {
+            el.style.transform = h.skew ? `skewX(${h.skew * w}deg)` : `rotate(${h.rot * w}deg)`;
+          });
+          // Mula's finger uncurls out of her hand in the second half of the blend
+          if (m.finger) {
+            const f = soft(clamp((w - 0.35) / 0.65, 0, 1));
+            m.finger.style.visibility = f > 0 ? "visible" : "hidden";
+            m.finger.style.transform = `rotate(${(1 - f) * run.finger.curl}deg) scale(${0.25 + 0.75 * f})`;
+          }
+          const legs = { "leg-left": swing * run.legSwing, "leg-right": -swing * run.legSwing };
+          for (const [name, g] of Object.entries(m.groups)) {
+            const p = m.defs[name];
+            if (!p.pivot) continue;
+            if (legs[name] != null) { g.style.transform = `rotate(${legs[name]}deg)`; continue; }
+            if (!(name in run.arms[m.who])) continue; // knees stay straight while running
+            const target = run.arms[m.who][name];
+            const rest = p.rest || 0;
+            const restFlip = p.mirror != null ? -1 : 1;
+            if (target == null) {
+              g.style.transform = groupTransform(p, rest + (name.endsWith("left") ? 1 : -1) * swing * run.armSwing, restFlip);
+            } else {
+              // into the drawn Figma pose (unflips Dulo's arm as it comes up)
+              g.style.transform = groupTransform(p, lerp(rest, target, w), lerp(restFlip, 1, w));
+            }
+          }
+        });
+      }
+
+      // Reactions (step 4, "correct"): pose tracks from CHARACTER_REACTIONS, played once on
+      // arrival at their own frame rate, then back to idle
+      const lines = el("div", "pair-lines", inner);
+      lines.style.cssText = "position:absolute;left:0;top:0;opacity:0;pointer-events:none;z-index:3";
+      lines.innerHTML = [0, 1].map(() => `<svg width="120" height="120" viewBox="-60 -60 120 120" style="position:absolute;overflow:visible">` +
+        [[-48, -30], [-50, 8], [48, -30], [50, 8]].map(([x, y]) =>
+          `<line x1="${x * 0.55}" y1="${y * 0.55}" x2="${x}" y2="${y}" stroke="#3D3D3D" stroke-width="9" stroke-linecap="round"/>`).join("") +
+        "</svg>").join("");
+      const at = (track, t, fallback) => {
+        if (!track || !track.length) return fallback;
+        if (t <= track[0][0]) return track[0][1];
+        for (let i = 1; i < track.length; i++) {
+          const [t1, v1] = track[i];
+          const [t0, v0] = track[i - 1];
+          if (t <= t1) return lerp(v0, v1, soft((t - t0) / (t1 - t0 || 1)));
+        }
+        return track[track.length - 1][1];
+      };
+      function pose(R, t) {
+        members.forEach((m) => {
+          const k = R[m.who] || {};
+          const v = (name, fallback) => at(k[name], t, fallback);
+          const x = m.dx + v("x", 0);
+          m.frame.style.transform = `translate(${x}px, ${v("y", 0)}px) rotate(${v("rot", 0)}deg) scale(${v("sx", 1)}, ${v("sy", 1)})`;
+          m.frame.style.zIndex = v("z", 0) ? 1 : "";
+          for (const [name, g] of Object.entries(m.groups)) {
+            const p = m.defs[name];
+            if (!p.pivot) continue;
+            const arm = name.replace("finger", "arm"); // Dulo's fingers move with her arms
+            const flip = p.mirror != null ? -1 : 1;
+            g.style.transform = groupTransform(p, v(arm, p.rest || 0), flip, v("stretch-" + arm, 1));
+            if (arm.startsWith("arm")) g.style.zIndex = v("front", 0) ? 1 : "";
+          }
+          m.pupils.forEach((p) => { p.style.translate = `${v("lookX", 0)}px ${v("lookY", 0)}px`; });
+          m.eyes.forEach((e) => { e.style.scale = v("eyes", 1); });
+          if (m.mouth) m.mouth.style.scale = v("mouth", 1);
+          if (m.smile) {
+            const sm = v("smile", 0);
+            m.smile.style.opacity = sm;
+            m.smile.style.scale = 0.7 + 0.3 * sm;
+            m.straight.forEach((e) => { e.style.opacity = 1 - sm; });
+          }
+        });
+        const fx = R.effects;
+        if (fx) {
+          const o = at(fx.lines, t, 0);
+          lines.style.opacity = o;
+          [...lines.children].forEach((svg, i) => {
+            const [px, py] = fx.points[i];
+            svg.style.transform = `translate(${px - 60}px, ${py - 60}px) scale(${0.6 + 0.6 * o})`;
+          });
+        }
+      }
+      let reacting = null;
+      let reactStart = 0;
+      let reactFrame = 0;
+      function react(name) {
+        if (name === reacting) return;
+        cancelAnimationFrame(reactFrame);
+        reacting = name;
+        const R = name && window.CHARACTER_REACTIONS[name];
+        const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (!R || reduce) { finishReaction(); return; }
+        members.forEach((m) => { m.frame.classList.remove("idle"); m.frame.classList.add("reacting"); });
+        reactStart = performance.now();
+        const tick = (now) => {
+          const t = (now - reactStart) / 1000;
+          if (t >= R.duration) { finishReaction(); return; }
+          pose(R, Math.floor(t * R.fps) / R.fps); // held frames: R.fps per second
+          reactFrame = requestAnimationFrame(tick);
+        };
+        reactFrame = requestAnimationFrame(tick);
+      }
+      function finishReaction() {
+        members.forEach((m) => {
+          m.frame.classList.remove("reacting");
+          m.eyes.forEach((e) => { e.style.scale = ""; });
+          if (m.mouth) m.mouth.style.scale = "";
+          if (m.smile) { m.smile.style.opacity = ""; m.smile.style.scale = ""; m.straight.forEach((e) => { e.style.opacity = ""; }); }
+          for (const g of Object.values(m.groups)) g.style.zIndex = "";
+        });
+        lines.style.opacity = 0;
+        stand();
+      }
+
+      stand();
+      return (s) => {
+        node.style.opacity = s.opacity;
+        node.style.transform = `translate(${s.x}px, ${s.y + s.w * drop}px) scale(${s.w / bw}) rotate(${s.rotate || 0}deg)`;
+        const running = !!s.move && s.move.t > 0 && s.move.t < 1;
+        if (running) runPose(s.move);
+        else if (wasRunning !== false) stand();
+        wasRunning = running;
+        react(running ? null : s.react || null);
+      };
+    },
+
+    // Research card: a 704x514 Figma card frame (swatches, labels, character) shown at def.w wide
+    research(def, layer) {
+      // Layout is set inline (not in deck.css) so a cached old stylesheet can't scramble the card
+      const node = el("div", "actor research-card", layer);
+      Object.assign(node.style, { width: "704px", height: "514px", background: "#2B70C9", borderRadius: "70.3px", boxShadow: "14.6px 14.6px 0 #18529C" });
+      const place = (child, p) => {
+        Object.assign(child.style, { position: "absolute", left: p.x + "px", top: p.y + "px", width: p.w + "px", height: p.h + "px", margin: 0 });
+        return child;
+      };
+      def.swatches.forEach((p) => {
+        const sw = place(el("div", "research-swatch", node), p);
+        Object.assign(sw.style, { background: p.fill, borderRadius: "20px" });
+      });
+      def.parts.forEach((p) => {
+        const img = el("img", null, node);
+        img.src = p.src;
+        img.alt = "";
+        place(img, p);
+        Object.assign(img.style, { display: "block", borderRadius: p.round ? "70.3px" : 0, boxShadow: "none" });
+      });
+      return (s) => {
+        node.style.opacity = s.opacity;
+        node.style.transform = `translate(${s.x}px, ${s.y}px) scale(${s.w / 704}) rotate(${s.rotate || 0}deg)`;
       };
     },
 
@@ -150,6 +437,7 @@ window.World = (function () {
 
     // Text block. x is the left edge, centre or right edge depending on align.
     // def.letters: each letter can pop in on its own (enter: { letters: true })
+    // def.kern: { letterIndex: em } nudges single letters to match the Figma spacing
     text(def, layer) {
       const node = el("div", "actor actor-text " + (def.font || ""), layer);
       const a = el("div", "text-a", node);
@@ -167,7 +455,10 @@ window.World = (function () {
           a.dataset.text = s.textA;
           a.replaceChildren(...[...s.textA].map((ch) => el("span", "letter")));
           spans = [...a.children];
-          spans.forEach((span, i) => { span.textContent = s.textA[i]; });
+          spans.forEach((span, i) => {
+            span.textContent = s.textA[i];
+            if (def.kern && def.kern[i]) span.style.marginLeft = def.kern[i] + "em";
+          });
         }
         popLetters(spans, s.letters ?? 1, s.letterOffset || 0);
       };
@@ -462,9 +753,11 @@ window.World = (function () {
 
     const isScene = (i) => !!slides[i] && slides[i].layout === "scene";
     let lastPos = 0;
+    let travel = 1; // which way the deck last moved: 1 forward, -1 back
 
     // pos: the deck position in slides (fractional mid-move)
     function render(pos) {
+      if (lastPos != null && pos !== lastPos) travel = pos > lastPos ? 1 : -1;
       lastPos = pos;
       let i = Math.floor(pos);
       let t = pos - i;
@@ -493,10 +786,12 @@ window.World = (function () {
           const lt = local(t, pb.at || (actors[key].type === "bubble" ? BUBBLE_AT : null));
           s = walk(mix(pa, pb, lt), pb, lt);
           s.raw = t; // text fades follow the whole move
+          if (actors[key].type === "pair") s.move = running(pb.x - pa.x, lt);
         } else if (pa && B) {
           // Exits: from its spot toward its exit offset
           const lt = local(t, pa.exit && pa.exit.at, [0, 0.5]);
           s = mix(pa, offset(pa, pa.exit), lt);
+          if (actors[key].type === "pair" && pa.exit) s.move = running(pa.exit.dx || 0, lt);
           // fade: [start, end] fades out on its own schedule (e.g. only at the very end)
           if (pa.exit && pa.exit.fade) s.opacity = pa.opacity * (1 - local(t, pa.exit.fade));
         } else if (pb) {
@@ -511,12 +806,24 @@ window.World = (function () {
         } else {
           s = { opacity: 0, x: -9999, y: 0, w: 1, h: 1, draw: 0, width: 0, size: 1, scale: 1, tail: 0, padX: 0, textA: "" };
         }
+        // A pair reacts (e.g. the correct-answer high five) once the deck has arrived on its slide
+        if (actors[key].type === "pair") {
+          const near = Math.round(pos);
+          s.react = Math.abs(pos - near) < 0.02 && slides[near] && slides[near].react && slides[near].actors[key] ? slides[near].react : null;
+        }
         draw[key](s);
       });
+    }
+
+    // A pair moving sideways runs (character step 3); dir is the way it goes on screen, which
+    // flips when the deck is scrolled back
+    function running(dx, lt) {
+      if (Math.abs(dx) < 100) return null;
+      return { t: lt, dist: Math.abs(dx), dir: Math.sign(dx) * travel };
     }
 
     return { render, refresh: () => { measure(); render(lastPos); } };
   }
 
-  return { mount };
+  return { mount, characterPart };
 })();

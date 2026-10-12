@@ -340,7 +340,6 @@ body {
   line-height: 42px;
 }
 /* Character Color Research: cards cut from the Figma export, rounded, with their solid shadow */
-.research-card img { border-radius: 48px; box-shadow: 10px 10px 0 #18529C; }
 
 .actor-pill {
   display: grid;
@@ -395,6 +394,106 @@ body {
 }
 @media (prefers-reduced-motion: reduce) {
   .idle-breathe, .idle-drift { animation: none; }
+}
+
+/* ---- Mula and Dulo idle (character step 2; spec: "Duolingo Character Analysis: Mula and Dulo")
+   Parts are in 604x774 character units. Loops use the individual translate / rotate properties,
+   so they never fight the parts' own placement. */
+
+/* Both: heavy breathing. Everything above the legs rises and falls; the head a little more,
+   and the shoulders lift the arms on each breath in. */
+.character.idle > :not(.group-leg-left, .group-leg-right, .part-sole) {
+  animation: breathe-body 2.6s ease-in-out infinite;
+}
+.character.idle > :is(.part-face, .part-ear-left, .part-ear-right, .part-hair-back, .part-hair-tuft,
+  .part-hair-crown, .part-bun-left, .part-bun-right, .part-hair-ellipse-4, .part-hair-ellipse-26,
+  .part-hair-ellipse-3, .part-ellipse-10, .part-eye-white-left, .part-eye-white-right, .group-eye-left,
+  .group-eye-right, .part-nose, .part-nose-tip, .part-mouth, .part-mouth-corner, .part-ellipse-16-left,
+  .part-ellipse-16-right, .part-ellipse-24, .part-ellipse-25, .part-ellipse-28, .part-pigtail-left,
+  .part-pigtail-right) {
+  animation-name: breathe-head;
+}
+.character.idle > :is(.group-arm-right, .group-finger-right) { animation-name: breathe-arm-right; }
+.character.idle > :is(.group-arm-left, .group-finger-left) { animation-name: breathe-arm-left; }
+@keyframes breathe-body { 0%, 100% { translate: 0 0; } 45% { translate: 0 -7px; } }
+@keyframes breathe-head { 0%, 100% { translate: 0 0; } 50% { translate: 0 -10px; } }
+@keyframes breathe-arm-right { 0%, 100% { translate: 0 0; rotate: 0deg; } 45% { translate: 0 -7px; rotate: -3deg; } }
+@keyframes breathe-arm-left { 0%, 100% { translate: 0 0; rotate: 0deg; } 45% { translate: 0 -7px; rotate: 3deg; } }
+
+/* The sole under both boots is one bar; while they run or react each foot carries its own half */
+.character:not(.running, .reacting) :is(.part-sole-left, .part-sole-right),
+.character:is(.running, .reacting) .part-sole { visibility: hidden; }
+
+/* Both: they blink now and then (Mula every 4.2s, Dulo every 5.3s, so never together). The eye
+   whites and pupils squeeze shut about each eye's centre; Dulo's brows stay put. */
+.character.idle > :is(.part-eye-white-left, .part-eye-white-right, .group-eye-left, .group-eye-right) {
+  animation: breathe-head 2.6s ease-in-out infinite, blink var(--blink-every) linear infinite;
+}
+.character-mula { --blink-every: 4.2s; }
+.character-dulo { --blink-every: 5.3s; }
+.character .group-eye-left { transform-origin: 263.3px 216.1px; }
+.character .group-eye-right { transform-origin: 332.7px 216.1px; }
+@keyframes blink {
+  0%, 93% { scale: 1 1; }
+  95.5% { scale: 1 0.08; }
+  98%, 100% { scale: 1 1; }
+}
+
+/* Mula: her pointing finger is tucked away while she's idle */
+.character-mula.idle .part-finger { visibility: hidden; }
+
+/* Mula: every now and then her eyes sweep to one side, then the other, then back. The pupils
+   are masked to the eye whites, so they never leave the eye. */
+.character-mula.idle :is(.group-eye-left, .group-eye-right) > * {
+  animation: mula-glance 7s ease-in-out infinite;
+}
+@keyframes mula-glance {
+  0%, 52%, 100% { translate: 0 0; }
+  58%, 68% { translate: -8px 0; }
+  76%, 86% { translate: 8px 0; }
+  93% { translate: 0 0; }
+}
+
+/* Dulo: wide, immovable stance. Every so often she fixes her bangs in quick, decisive moves:
+   hand up to the bangs, one swipe, hand straight back down. Layers, back to front: fingers
+   (their own layers, moving with the arms), sleeves and hands, then her scarf and buttons.
+   The right arm swings up across the front of her body and is in front while it's up. */
+.character-dulo.idle > :is(.group-arm-right, .group-finger-right) {
+  animation: dulo-bangs-arm 9s infinite, breathe-arm-translate 2.6s ease-in-out infinite;
+}
+.character-dulo.idle > .part-hair-ellipse-26 > div { animation: dulo-bangs-hair 9s infinite; }
+/* while she fixes them, she looks up at her bangs (up and to her left, where her hand is) */
+.character-dulo.idle :is(.group-eye-left, .group-eye-right) > * { animation: dulo-bangs-look 9s infinite; }
+@keyframes dulo-bangs-look {
+  0%, 70% { translate: 0 0; animation-timing-function: ease-out; }
+  73%, 81% { translate: 7px -9px; animation-timing-function: ease-in-out; }
+  85%, 100% { translate: 0 0; }
+}
+@keyframes breathe-arm-translate { 0%, 100% { translate: 0 0; } 45% { translate: 0 -7px; } }
+/* The arm turns about the shoulder, on top of its arms-down rest angle (62deg): clockwise,
+   across her body, until +198deg brings the hand up to the bangs */
+@keyframes dulo-bangs-arm {
+  0%, 70% { rotate: 0deg; z-index: 0; animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1); }
+  70.2% { z-index: 1; }
+  74% { rotate: 198deg; animation-timing-function: ease-in-out; }
+  77% { rotate: 192deg; animation-timing-function: ease-in-out; }
+  80% { rotate: 198deg; animation-timing-function: cubic-bezier(0.5, 0, 0.7, 1); }
+  83.8% { z-index: 1; }
+  84%, 100% { rotate: 0deg; z-index: 0; }
+}
+@keyframes dulo-bangs-hair {
+  0%, 76% { rotate: 0deg; }
+  78% { rotate: 4deg; }
+  81% { rotate: -1deg; }
+  83%, 100% { rotate: 0deg; }
+}
+
+/* ---- Reactions (character step 4) are played from deck/characters.js by world.js. */
+.character .part-smile-teeth { opacity: 0; } /* Dulo's broad smile, only while reacting */
+.character.reacting .part-finger { visibility: hidden; } /* open palms for the high five */
+
+@media (prefers-reduced-motion: reduce) {
+  .character.idle *, .character.idle > * { animation: none !important; }
 }
 
 /* deck/?ref: the Figma export on top, half see-through, for checking alignment */

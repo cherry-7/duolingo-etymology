@@ -69,12 +69,27 @@ function meaning(text, x, y, size) {
   return { text, x, y, size, color: "#A9CBED" };
 }
 
-// Character Color swatches and the Research cards (cut from the Figma export)
+// Character Color swatches
 function swatch(color, label, labelColor, w) {
   return { type: "swatch", color, label, labelColor, w, h: 242, z: 6 };
 }
-function researchCard(n) {
-  return { type: "img", src: DECK_ART + "research-" + n + ".png", w: 481, h: 351, z: 7, className: "research-card" };
+// Research cards, rebuilt from the layers in design/slides/svgs/Character Color Research Slides.
+// Coordinates are in Figma's 704x514 card frames (the slide shows them at 481 wide). Swatch
+// fills are read from the exported Rectangle SVGs; the hex labels and characters are the SVGs.
+const RESEARCH_ART = DECK_ART + "research/";
+function researchCard(character, art, group, fills, labels, behind) {
+  // The swatch block: skin (square), hair (wide) on top, then two rows of wide + square
+  const [gx, gy] = group;
+  const at = [[0, 0, 104.17], [110.68, 0, 195.32], [0, 130.21, 195.32], [201.83, 130.21, 104.17], [0, 240.89, 195.32], [201.83, 240.89, 104.17]];
+  const swatches = fills.map((fill, i) => ({ x: gx + at[i][0], y: gy + at[i][1], w: at[i][2], h: 104.17, fill }));
+  const parts = labels.map(([hex, x, y]) => ({ src: RESEARCH_ART + "label-" + hex + ".svg", x, y: y + 4.5, w: 50, h: 9 }));
+  if (art) parts.unshift({ src: RESEARCH_ART + art + ".svg", x: character[0], y: character[1], w: character[2], h: character[3] });
+  if (behind) parts.unshift(behind); // e.g. the white of an eye that shows through the character art
+  return { type: "research", w: 481, z: 7, swatches, parts };
+}
+// Card 1's layers aren't in the export, so it's the card cut from the slide export (Michelle's call)
+function researchCardFromExport(file) {
+  return { type: "research", w: 481, z: 7, swatches: [], parts: [{ src: RESEARCH_ART + file, x: 0, y: 0, w: 704, h: 514, round: true }] };
 }
 
 // Everything that can appear in the world, back to front (z)
@@ -87,7 +102,9 @@ window.WORLD_ACTORS = {
   title: { type: "text", font: "title", z: 2 },
   shadow: { type: "ellipse", z: 3 },
   saissha: { type: "img", src: DECK_ART + "saissha.png", w: 742, h: 963, z: 4, idle: "breathe" },
-  twins: { type: "img", src: DECK_ART + "twins.png", w: 1262, h: 944, z: 5 },
+  // Mula (left) and Dulo (right), built from their Figma parts; they take the old twins.png slot
+  // (same x, y and width, feet on the same line). box: the pair's outline in character units.
+  twins: { type: "pair", members: [{ who: "mula", dx: 0 }, { who: "dulo", dx: 520 }], box: [95, 60, 950, 666], slotAspect: 944 / 1262, z: 5 },
   bubble: { type: "bubble", z: 6 },
   names: { type: "text", font: "condensed", z: 7 },
   frame: { type: "frame", z: 8 },
@@ -153,21 +170,36 @@ window.WORLD_ACTORS = {
 
   // Characters (design/slides/Character Default.png, Character Color.png, Character Color
   // Research.png). The twins come back here (they're the same actor as in the story).
+  // The bottom orange circle of the expert slide blooms out into the orange background
+  bloom: { type: "ellipse", z: 2 },
   squiggle: { type: "path", shape: "squiggle", stroke: "#FFC800", width: 200, cap: "round", z: 2.6 },
   wave: { type: "ellipse", z: 2.7 },
   titleColor: { type: "text", font: "heading", letters: true, z: 4.5 },
-  titlePalette: { type: "text", font: "heading", letters: true, z: 4.5 },
-  swatchSkin: swatch("#EAB991", "#EAB991", "#363135", 242),
-  swatchHair: swatch("#363135", "#363135", "#FFFFFF", 454),
-  swatchShirt: swatch("#F3EFE9", "#F3EFE9", "#363135", 454),
-  swatchOrange: swatch("#E48900", "#E48900", "#FFFFFF", 242),
-  swatchJeans: swatch("#B3C8DF", "#0084C2", "#363135", 454), // Figma fills this one #B3C8DF but labels it #0084C2
-  swatchBlue: swatch("#0063CF", "#0063CF", "#FFFFFF", 242),
-  research1: researchCard(1),
-  research2: researchCard(2),
-  research3: researchCard(3),
-  research4: researchCard(4),
-  research5: researchCard(5),
+  titlePalette: { type: "text", font: "heading", letters: true, z: 4.5, kern: { 5: -0.179, 6: -0.066 } }, // Figma sets "tt" tighter than the web font
+  // Mula and Dulo's colours, taken from their layers in the character Figma file (no palette frame
+  // there): skin, hair and boots, Mula's dress / Dulo's sash, Dulo's dress / Mula's scarf, white
+  // (eyes, buttons), nose and brows. Swatch sizes and spots are the Figma Color Palette slide's.
+  swatchSkin: swatch("#D5A06E", "#D5A06E", "#3D3D3D", 242),
+  swatchHair: swatch("#3D3D3D", "#3D3D3D", "#FFFFFF", 454),
+  swatchShirt: swatch("#F2B866", "#F2B866", "#3D3D3D", 454),
+  swatchOrange: swatch("#CB6539", "#CB6539", "#FFFFFF", 242),
+  swatchJeans: swatch("#FFFFFF", "#FFFFFF", "#3D3D3D", 454),
+  swatchBlue: swatch("#AE703E", "#AE703E", "#FFFFFF", 242),
+  research1: researchCardFromExport("card1-from-export.png"),
+  research2: researchCard([67, 105, 226, 324], "card2-character", [317, 84],
+    ["#FFCBA3", "#3D3D3D", "#FEB101", "#FFF3F2", "#FF9501", "#FDCA9B"],
+    [["FFCBA3", 343, 159], ["3D3D3D", 493, 159], ["FEB101", 389, 291], ["FFF3F2", 545, 291], ["FF9501", 389, 399], ["FDCA9B", 545, 399]]),
+  research3: researchCard([73, 65, 211, 384], "card3-character", [325, 97],
+    ["#DA8F71", "#3C3E3D", "#FEAADF", "#A6653F", "#27E89F", "#20AFF3"],
+    [["DA8F71", 351, 177], ["3C3E3D", 507, 177], ["FEAADF", 397, 305], ["A6653F", 553, 305], ["27E89F", 397, 417], ["20AFF3", 553, 417]]),
+  research4: researchCard([51, 50, 239, 388], "card4-character", [317, 84],
+    ["#A1674A", "#3D3D3F", "#FAB327", "#FF4A4F", "#1CB0F6", "#4DC4FD"],
+    [["A36746", 343, 159], ["3D3D3F", 493, 159], ["FAB327", 389, 291], ["FF4A4F", 545, 291], ["1CB0F6", 389, 399], ["4DC4FD", 545, 399]],
+    { src: RESEARCH_ART + "card4-eye-white.svg", x: 154, y: 168, w: 69, h: 69 }),
+  // card 5's image exported larger than its Figma box (234x380); sized to match the slide export
+  research5: researchCard([68, 59, 249, 398], "card5-character", [329, 84],
+    ["#C67962", "#3D3D3D", "#CD348E", "#AB0464", "#0084C2", "#00468E"],
+    [["C67962", 355, 159], ["3D3D3D", 505, 159], ["CD348E", 401, 291], ["AB0464", 557, 291], ["0084C2", 401, 399], ["00468E", 557, 399]]),
   titleResearch: { type: "text", font: "heading", z: 8 }
 };
 
@@ -242,7 +274,7 @@ const storyActors = {
   swirlOrange: { x: 726.7, y: 113.3, enter: { draw: 0, at: [0.1, 1] }, exit: { draw: 0, at: [0, 0.5] } },
   shadow: { x: 1183, y: 935, w: 629, h: 76, color: C.shadowOnYellow, at: [0.1, 0.9] },
   saissha: { x: 107, y: 117, w: 742, enter: { dx: -1300, at: [0.2, 0.8] } },
-  twins: { x: 1235, y: 540, w: 590.73, at: [0.1, 0.9], walk: 18 }
+  twins: { x: 1235, y: 540, w: 590.73, at: [0, 1] } // the run takes the whole move
 };
 
 // One example after English: the stack stays, the previous top card flies off to reveal
@@ -325,7 +357,7 @@ window.SLIDES = [
       swirlOrangeLearner: { x: -76.6, y: 42.1, enter: { draw: 0, at: [0.4, 1] }, exit: { draw: 0, at: [0, 0.7] } },
       shadow: { x: 794, y: 884, w: 1051, h: 127, color: C.shadowOnYellow, exit: { opacity: 0, at: [0, 0.4] } },
       saissha: { x: 107, y: 529.87, w: 424, exit: { dx: -1000, at: [0, 0.6] } },
-      twins: { x: 854, y: 254.93, w: 971.73, walk: 14, exit: { dx: 1700, at: [0, 0.6] } },
+      twins: { x: 854, y: 254.93, w: 971.73, exit: { dx: 1700, at: [0, 0.9] } },
       bubble: {
         x: 181, y: 198, w: 1061.83, h: 195, size: 80, tail: 1, padX: 61, // Figma's text starts with a space
         text: "That's the learner we're teaching for.",
@@ -453,18 +485,25 @@ window.SLIDES = [
       columnBottom: { x: 105, y: 765, w: 468, h: 468, color: C.orange, enter: PULL_UP, exit: PUSH_DOWN },
       circleA: { x: 980, y: 885, w: 468, h: 468, color: C.blue, at: [0.15, 0.85], exit: { dy: 1200, at: [0, 0.55] } },
       circleB: { x: 1514, y: 885, w: 468, h: 468, color: C.white, at: [0.2, 0.9], exit: { dy: 1200, at: [0.05, 0.6] } },
-      quoteC: quote("\u201C [TBD: expert *quote*] \u201D", 691, 346, [0.5, 1]),
-      saidC: said("[TBD: name], Linguistic Expert", 1107, 635, 48, [0.6, 1])
+      // these leave quicker than usual, before the orange bloom reaches them
+      quoteC: Object.assign(quote("\u201C [TBD: expert *quote*] \u201D", 691, 346, [0.5, 1]), { exit: { dy: -70, opacity: 0, at: [0, 0.2] } }),
+      saidC: Object.assign(said("[TBD: name], Linguistic Expert", 1107, 635, 48, [0.6, 1]), { exit: { dy: -50, opacity: 0, at: [0, 0.2] } })
     }
   },
   {
     id: "characters",
     layout: "scene",
+    // Character step 4: they high-five once they've landed. [TBD: Michelle to confirm the slide]
+    react: "correct",
     ref: "Character Default",
     bg: C.orange,
-    bgAt: [0.15, 0.6],
+    bgAt: [0.58, 0.6], // swaps while the bloom covers the screen (a navy-to-orange fade goes brown)
     pace: 0.3,
     actors: {
+      // Grows out of the expert slide's bottom orange circle (centre 339, 999) to cover
+      // the whole window, behind the column as it leaves
+      bloom: { x: 339 - 2600, y: 999 - 2600, w: 5200, h: 5200, color: C.orange,
+        enter: { from: { x: 105, y: 765, w: 468, h: 468 }, at: [0.05, 0.6] }, exit: { opacity: 0, at: [0, 0.05] } },
       // The yellow squiggle draws itself, then the twins drop in and bounce onto their shadow
       squiggle: { x: 281, y: 29, enter: { draw: 0, at: [0.2, 0.9] }, exit: { draw: 0, at: [0, 0.6] } },
       shadow: { x: 534, y: 718.6, w: 778.4, h: 161.8, color: C.shadowOnSquiggle, enter: { w: 0, h: 0, dx: 389, dy: 81, at: [0.45, 0.85] } },
@@ -487,7 +526,7 @@ window.SLIDES = [
       titleColor: { x: -36, y: -125, size: 290, color: C.orange, text: "Color", enter: { letters: true, at: [0.35, 0.9] }, exit: { dy: -500, at: [0, 0.4] } },
       titlePalette: { x: 874, y: -125, size: 290, color: C.yellow, text: "Palette", letterOffset: 5, enter: { letters: true, at: [0.35, 0.9] }, exit: { dy: -500, at: [0, 0.4] } },
       shadow: { x: 143, y: 808.6, w: 778.4, h: 161.8, color: C.orange, at: [0.05, 0.8], exit: { opacity: 0, at: [0, 0.3] } },
-      twins: { x: 147.03, y: 290, w: 847.63, at: [0.05, 0.8], walk: 16, exit: { dx: -1700, at: [0, 0.55] } },
+      twins: { x: 147.03, y: 290, w: 847.63, at: [0, 1], exit: { dx: -1700, at: [0, 0.9] } },
       swatchSkin: popIn(1063, 200, 0.45),
       swatchHair: popIn(1320.25, 200, 0.5),
       swatchShirt: popIn(1063, 502.64, 0.55),
