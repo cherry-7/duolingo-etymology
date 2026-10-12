@@ -474,11 +474,11 @@ function showBoundary(nxt) {
     h(
       "div",
       { class: "boundary" },
-      // the twins (thinking) tell the player to swipe
+      // the twins (talking) tell the player to swipe
       h(
         "div",
         { class: "twins-row boundary-twins" },
-        h("div", { class: "twins-stage" }, h("img", { class: "twins-img", src: CONFIG.twinsAnimations.idle.src, alt: "", draggable: "false" })),
+        h("div", { class: "twins-stage" }, h("img", { class: "twins-img", src: CONFIG.twinsAnimations.talking.src, alt: "", draggable: "false" })),
         // only the first word ("Swipe") is bold
         h("div", { class: "speech" }, h("p", { class: "speech-line is-regular" },
           h("strong", {}, STRINGS.swipeToNext.split(" ")[0]), STRINGS.swipeToNext.slice(STRINGS.swipeToNext.indexOf(" "))))
