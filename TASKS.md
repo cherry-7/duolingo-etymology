@@ -148,3 +148,4 @@ Work queue for the deck and demo.
 - 2026-10-12 — APPROVED (Michelle, in chat): merge demo/boundary-twins into main (language-change twins and bubble, green arrow, Safari radicals fix, leaderboard messages, finish screen score/place/yin-yang).
 - 2026-10-12 — APPROVED (Michelle, in chat): the language-change screen uses the twins talking animation (assets/deck/talking/talking.svg from the deck chat, copied unchanged from deck/talking) instead of idle/thinking.
 - 2026-10-12 — APPROVED (Michelle, in chat): pressing Start animates to the next screen (the nickname form slides out left and the "Hi, {name}!" greeting slides in from the right — the same slide used between questions).
+- 2026-10-12 — APPROVED (Michelle, in chat): merge demo/boundary-talking into main (talking twins on the language-change screen; Start slides to the greeting).
