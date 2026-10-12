@@ -81,7 +81,7 @@ const [ox, oy] = O;
 const at = (pts) => pts.map(([x, y]) => [x + ox, y + oy]);
 const MULA_HAIR = at([[0, 0], [530, 0], [548, 215], [598, 330], [598, 700], [0, 1148]]);
 const MULA_FACE = at([[0, 0], [596, 0], [600, 330], [572, 482], [572, 1148], [0, 1148]]); // her chin too
-const DULO_HAND = at([[250, 482], [430, 482], [430, 640], [250, 640]]);
+const DULO_HAND = at([[290, 504], [425, 504], [425, 640], [290, 640]]); // below Mula's chin, so her cheek stays with her face
 const split = (id, name, ring) => { A[name] = Object.assign({}, A[id], { id: name, ring, d: toD(ring), z: A[id].z + 0.01 * Object.keys(A).length }); };
 const check = (name, multi) => { keepAll(name, multi); return biggest(multi); };
 const cut = (r, keep, ...drop) => pc.difference(pc.intersection([closed(r)], [closed(keep)]), ...drop.map((c) => [closed(c)]));
