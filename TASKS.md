@@ -167,3 +167,4 @@ Work queue for the deck and demo.
 - [ ] APPROVED (2026-10-12, Michelle in chat): "fade out slowly first and then play the animation after 0.5 seconds": on the "Who is he?" reveal click the silhouette fades out over 1.2s, then after 0.5s the yin-yang comes in and plays from its first frame.
 - [ ] APPROVED (2026-10-12, Michelle in chat): "fade out a little quicker": the "Who is he?" silhouette now fades out over 0.8s (was 1.2s); the 0.5s pause before the yin-yang stays.
 - [ ] APPROVED (2026-10-12, Michelle in chat): "wait 0.2 seconds instead before the yin yang": the pause between the silhouette fading out and the yin-yang is 0.2s (was 0.5s).
+- [ ] APPROVED (2026-10-12, Michelle in chat): "fade out in 0.5 seconds": the "Who is he?" silhouette fades out over 0.5s (was 0.8s); then the 0.2s pause and the yin-yang.
