@@ -929,6 +929,7 @@ window.World = (function () {
     let swapSlide = null; // the slide whose swap is pending or done
     let swapTimer = 0;
     let swapped = false;
+    let fadingOut = false; // a swap's slow fade-out is under way
     function crossfadeNodes(out, inn) {
       [out, inn].forEach((n) => { n.style.transition = `opacity ${SWAP_FADE}ms ease-in-out`; });
       out.style.opacity = 0;
@@ -951,25 +952,42 @@ window.World = (function () {
           clearTimeout(swapTimer);
           swapSlide = null;
           swapped = false;
+          fadingOut = false;
         }
         return;
       }
       if (swapSlide === slide) return;
       swapSlide = slide;
       swapped = false;
+      fadingOut = false;
       clearTimeout(swapTimer);
       const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
       swapTimer = setTimeout(() => {
         const img = nodes[sw.to].querySelector("img");
-        const go = () => { swapped = true; crossfadeNodes(nodes[sw.from], nodes[sw.to]); };
-        if (!img) return go();
+        // fadeOut + gap (ms): `from` fades out slowly first, then after the gap `to` comes in
+        const go = () => {
+          swapped = true;
+          if (!sw.fadeOut) return crossfadeNodes(nodes[sw.from], nodes[sw.to]);
+          nodes[sw.to].style.opacity = 1;
+          nodes[sw.to].style.transition = `opacity ${SWAP_FADE}ms ease-in-out`;
+          setTimeout(() => { nodes[sw.to].style.transition = ""; }, SWAP_FADE + 50);
+        };
+        const begin = (start) => {
+          if (!sw.fadeOut) return start();
+          const out = nodes[sw.from];
+          out.style.transition = `opacity ${sw.fadeOut}ms ease-in-out`;
+          out.style.opacity = 0;
+          fadingOut = true;
+          swapTimer = setTimeout(() => { out.style.transition = ""; start(); }, reduce ? 0 : sw.fadeOut + (sw.gap || 0));
+        };
+        if (!img) return begin(go);
         // start the animation over: a fresh copy of the image, shown once it has loaded
         const show = (src) => { img.onload = img.onerror = () => { img.onload = img.onerror = null; go(); }; img.src = src; };
-        Promise.resolve(swapArt[actors[sw.to].src]).then((text) => {
+        begin(() => Promise.resolve(swapArt[actors[sw.to].src]).then((text) => {
           if (swapUrl) URL.revokeObjectURL(swapUrl);
           swapUrl = text ? URL.createObjectURL(new Blob([text], { type: "image/svg+xml" })) : null;
           show(swapUrl || actors[sw.to].src + "?play=" + Date.now());
-        });
+        }));
       }, reduce ? 0 : sw.after);
     }
 
@@ -1077,7 +1095,7 @@ window.World = (function () {
         draw[key](s);
         // a swap that has happened keeps its actors where it left them while the deck stays
         const sw = swapSlide && swapSlide.swap;
-        if (swapped && sw && key === sw.from) nodes[key].style.opacity = 0;
+        if ((swapped || fadingOut) && sw && key === sw.from) nodes[key].style.opacity = 0;
         if (swapped && sw && key === sw.to) nodes[key].style.opacity = 1;
       });
       swapFor(pos);

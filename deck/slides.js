@@ -716,17 +716,19 @@ window.SLIDES = [
     })
   },
   {
-    // ...then, on the next click, it fades out and the yin-yang plays in the tile (Michelle),
-    // from its first frame, at the scale it has against the pair on the title slide
+    // ...then, on the next click, it fades out and the yin-yang plays in the tile (Michelle), at
+    // the scale it has against the pair on the title slide
     id: "who-is-he-reveal",
     layout: "scene",
     ref: "Who is he",
     bg: C.orange,
     pace: 0.5,
-    restart: ["yinyang"],
+    // the silhouette fades out slowly (1.2s), then 0.5s later the yin-yang comes in and plays
+    // from its first frame (Michelle)
+    swap: { from: "twinsShadow", to: "yinyang", after: 0, near: 0.5, fadeOut: 1200, gap: 500 },
     actors: Object.assign({}, WHO, {
-      twinsShadow: { x: 1323, y: 660, w: 285.28, opacity: 0, at: [0, 0.5] },
-      yinyang: { x: 1325.6, y: 663.4, w: 252.4, enter: { opacity: 0, at: [0.2, 0.7] } }
+      twinsShadow: { x: 1323, y: 660, w: 285.28 },
+      yinyang: { x: 1325.6, y: 663.4, w: 252.4, opacity: 0 }
     })
   },
   {
