@@ -184,3 +184,4 @@ Work queue for the deck and demo.
   - Going back from the leaderboard lands on the black screen and stays there. It used to auto-advance again.
   - Going back from the black screen clears it at once instead of staying black until the move back finished.
   - Only a fresh build moves on to the leaderboard by itself.
+- [ ] APPROVED (2026-10-12, Michelle in chat): "The tile showing up animation is still bugging out. Let's just make it into two presses" and "Yes" to smoothing the zoom-out when → comes before the screen is black. This replaces the automatic move to the leaderboard: the first press builds the black, the second zooms it out into the leaderboard. Pressed mid-build, the leaderboard's QR carries the build on from where it was, using the same tiles and delays shifted by the time already gone, instead of jumping to full black.

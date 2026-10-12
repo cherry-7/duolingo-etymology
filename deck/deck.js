@@ -129,7 +129,11 @@
   // border too, as "qr-light"), so the tiles can click in one by one (random order, over
   // QR_BUILD ms) and the light ones can open up as gaps. Light tiles are black like the rest;
   // where they're hidden (the default), it's an ordinary QR.
+  // The finale's QR and the leaderboard's share each tile's delay, so the leaderboard's copy can
+  // carry on the finale's build where it left off (when the deck moves on before it's black)
   const QR_BUILD = 1600;
+  const QR_CLICK = 250; // each tile's own click-in (deck.css)
+  const tileDelays = [];
   function qrTiles(text) {
     const qr = qrcode(0, "M");
     qr.addData(text);
@@ -142,8 +146,9 @@
     for (let r = -quiet; r < n + quiet; r++) {
       for (let c = -quiet; c < n + quiet; c++) {
         const dark = r >= 0 && c >= 0 && r < n && c < n && qr.isDark(r, c);
-        const delay = Math.round(Math.random() * QR_BUILD);
-        tiles += `<rect class="qr-tile${dark ? "" : " qr-light"}" x="${(c + quiet) * cell}" y="${(r + quiet) * cell}" width="${cell + 0.05}" height="${cell + 0.05}" style="transition-delay:${delay}ms"/>`;
+        const k = (r + quiet) * (n + 2 * quiet) + c + quiet;
+        if (tileDelays[k] == null) tileDelays[k] = Math.round(Math.random() * QR_BUILD);
+        tiles += `<rect class="qr-tile${dark ? "" : " qr-light"}" x="${(c + quiet) * cell}" y="${(r + quiet) * cell}" width="${cell + 0.05}" height="${cell + 0.05}" style="--d:${tileDelays[k]}ms"/>`;
       }
     }
     // just the black tiles, no white square behind them (Michelle)
@@ -181,35 +186,27 @@
 
   // Final-slide sequence: the QR's tiles click in one by one (CSS, delays set per tile) until
   // the screen is black. Replays on each visit. It starts as soon as the deck heads for the
-  // finale (not once it has settled there), and once the screen is black the deck zooms out
-  // into the leaderboard on its own (Michelle). Only a fresh build moves on by itself: coming
-  // back from the leaderboard finds the black screen finished, and it stays.
-  // ms from the build starting to moving on: the build (QR_BUILD + the last tile's 0.25s click)
-  // and the background's fade to black (1.6s + 0.3s), then a moment of black
-  const FINALE_HOLD = 2300;
-  let autoTimer = null;
+  // finale; the next press zooms the black out into the leaderboard (Michelle: two presses).
+  let buildStart = -Infinity; // when the current build started (performance.now)
+  let buildId = 0;
 
-  function playFinale(stage, index) {
+  function playFinale(stage) {
     if (stage.classList.contains("show-qr")) return;
     stage.classList.remove("qr-built");
     stage.classList.add("show-qr");
-    clearTimeout(autoTimer);
-    if (handsOff(index + 1)) {
-      // ...unless the presenter has moved on (or back) in the meantime
-      autoTimer = setTimeout(() => { if (rest === index && target === index) go(index + 1); }, FINALE_HOLD);
-    }
+    buildStart = performance.now();
+    buildId += 1;
   }
 
   function resetFinale(stage) {
-    if (!stage.classList.contains("show-qr")) return;
     stage.classList.remove("show-qr", "qr-built");
-    clearTimeout(autoTimer);
   }
 
   // Jump straight to the end of the sequence (the QR built), e.g. when the deck opens on the
   // slide after it, so going back finds the finale already finished
   function finishFinale(stage) {
     stage.classList.add("show-qr", "qr-built");
+    buildStart = -Infinity;
   }
 
   // Does slide i take its QR over from the slide before it?
@@ -273,6 +270,20 @@
     section.style.background = t >= 1 ? "" : `rgba(255, 200, 0, ${soft(clamp(t / 0.5, 0, 1))})`;
     const prevQr = prev && prev.querySelector(".qr");
     if (prevQr) prevQr.style.visibility = t > 0 && t < 1 && fromCode ? "hidden" : "";
+    // If the deck moved on before the finale's build finished, this copy carries the build on
+    // from where it is (same tiles, same delays, shifted by the time already gone), so nothing
+    // jumps to black
+    const elapsed = performance.now() - buildStart;
+    const building = elapsed < QR_BUILD + QR_CLICK;
+    if (code && prev && prev.querySelector(".layout-finale") && building && code.dataset.build !== String(buildId)) {
+      code.dataset.build = buildId;
+      code.classList.remove("qr-catch-go");
+      code.classList.add("qr-catch");
+      code.style.setProperty("--elapsed", Math.round(elapsed) + "ms");
+      code.getBoundingClientRect(); // start from the unbuilt tiles
+      code.classList.add("qr-catch-go");
+    }
+    if (code && !building) code.classList.remove("qr-catch", "qr-catch-go");
     if (t >= 1 || !code || !fromCode) {
       if (qr) qr.style.transform = qr.style.opacity = "";
       if (qr) qr.style.removeProperty("--light");
@@ -334,7 +345,7 @@
       // heads back before it (rather than staying black until the move back has finished)
       const finaleHere = finaleOf(i);
       if (finaleHere && visible) {
-        if (target >= i) playFinale(finaleHere, i);
+        if (target >= i) playFinale(finaleHere);
         else resetFinale(finaleHere);
       }
       if (!visible) {
@@ -363,7 +374,7 @@
   function settle() {
     const index = Math.round(pos);
     history.replaceState(null, "", "#" + sections[index].id);
-    if (finaleOf(index)) playFinale(finaleOf(index), index);
+    if (finaleOf(index)) playFinale(finaleOf(index));
     if (handsOff(index) && finaleOf(index - 1)) finishFinale(finaleOf(index - 1));
   }
 
