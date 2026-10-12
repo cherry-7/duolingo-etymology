@@ -216,7 +216,8 @@ window.CHARACTER_RUN = {
 //   x, y, rot (lean about the feet), sx, sy (squash), z (in front of the other girl)
 //   arm-*, leg-*, knee-*: angle at the joint, like CHARACTER_RUN (arms: from the Figma pose)
 //   stretch-arm-*: arm length (1 = as drawn), flip-arm-*: 1 as drawn, -1 turned over, eyes / mouth: scale, lookX / lookY: pupils,
-//   smile: Dulo's broad smile (0 hidden, 1 shown), front: arms in front of hair and scarf
+//   smile: Dulo's broad smile (0 hidden, 1 shown), front: arms in front of hair and scarf,
+//   scarf-over: Mula's scarf tail drawn back over her arms (opacity)
 // effects.lines: motion lines at the two palm contacts (opacity track; points in pair units)
 //
 // Step 4, Correct answer (Michelle's 9-beat brief, 2026-10-11), at 24 fps:
@@ -250,7 +251,12 @@ window.CHARACTER_REACTIONS = {
       lookX: [[0, 0], [0.12, 8], [1.3, 8], [1.6, 0]],
       lookY: [[0.5, 0], [0.9, -4], [1.3, -4], [1.6, 0]],
       eyes: [[0.2, 1], [0.3, 1.12], [3.0, 1.12], [3.3, 1]],
-      mouth: [[0.2, 1], [0.3, 1.4], [3.0, 1.4], [3.3, 1]]
+      mouth: [[0.2, 1], [0.3, 1.4], [3.0, 1.4], [3.3, 1]],
+      // her scarf stays under her arms: arms in front all along; the scarf copy above them
+      // hides once her top arm has swung clear of the tail (0.36) and fades back in after the
+      // arm is down at rest, where it lay over the sleeve before
+      front: [[0, 1], [3.5, 1]],
+      "scarf-over": [[0, 1], [0.36, 1], [0.37, 0], [1.6, 0], [1.85, 1]]
     },
     dulo: {
       x: [[0, 0], [0.25, 0], [0.6, -30], [3.0, -30], [3.5, 0]],

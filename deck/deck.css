@@ -490,6 +490,7 @@ body {
 
 /* ---- Reactions (character step 4) are played from deck/characters.js by world.js. */
 .character .part-smile-teeth { opacity: 0; } /* Dulo's broad smile, only while reacting */
+.character .scarf-over { opacity: 0; z-index: 2; } /* Mula's scarf tail over her arms (see scarf-over) */
 .character.reacting .part-finger { visibility: hidden; } /* open palms for the high five */
 
 @media (prefers-reduced-motion: reduce) {

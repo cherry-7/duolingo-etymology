@@ -188,7 +188,17 @@ window.World = (function () {
         const mouth = frame.querySelector(".part-mouth");
         const smile = frame.querySelector(".part-smile-teeth");
         const straight = frame.querySelectorAll(".part-mouth, .part-mouth-corner");
-        return { who, dx, frame, groups, defs, pupils, soles, hair, finger, eyes, mouth, smile, straight };
+        // Mula's scarf tail lies over her sleeve. In a reaction her arms go in front of it, and
+        // this copy, drawn above the arms, fades it back over them (scarf-over track), so the
+        // layers never swap in a single frame where they overlap
+        const tail = frame.querySelector(".part-scarf-tail");
+        let scarfOver = null;
+        if (tail) {
+          scarfOver = tail.cloneNode(true);
+          scarfOver.classList.add("scarf-over");
+          frame.append(scarfOver);
+        }
+        return { who, dx, frame, groups, defs, pupils, soles, hair, finger, eyes, mouth, smile, straight, scarfOver };
       });
       let wasRunning = null;
 
@@ -295,6 +305,7 @@ window.World = (function () {
           m.pupils.forEach((p) => { p.style.translate = `${v("lookX", 0)}px ${v("lookY", 0)}px`; });
           m.eyes.forEach((e) => { e.style.scale = v("eyes", 1); });
           if (m.mouth) m.mouth.style.scale = v("mouth", 1);
+          if (m.scarfOver) m.scarfOver.style.opacity = v("scarf-over", 0);
           if (m.smile) {
             const sm = v("smile", 0);
             m.smile.style.opacity = sm;
@@ -341,6 +352,7 @@ window.World = (function () {
           m.frame.classList.remove("reacting");
           m.eyes.forEach((e) => { e.style.scale = ""; });
           if (m.mouth) m.mouth.style.scale = "";
+          if (m.scarfOver) m.scarfOver.style.opacity = "";
           if (m.smile) { m.smile.style.opacity = ""; m.smile.style.scale = ""; m.straight.forEach((e) => { e.style.opacity = ""; }); }
           for (const g of Object.values(m.groups)) g.style.zIndex = "";
         });

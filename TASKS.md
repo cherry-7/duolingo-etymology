@@ -99,3 +99,4 @@ Work queue for the deck and demo.
 - [ ] APPROVED (2026-10-11, Michelle in chat): On the learner slide, Mula and Dulo still run in; once the run ends they pause 0.5s, then high-five (replaces "start immediately").
 - [ ] APPROVED (2026-10-11, Michelle in chat): "Have Mula and Dulo nod for each of the speech bubbles with Saissha", then "have them nod twice": on the three Saissha bubble slides they nod twice (head dips and comes back up, together) once the bubble is up.
 - [ ] APPROVED (2026-10-11, Michelle in chat): "Have them stand more closely together": on every slide the gap between Mula and Dulo is halved (each moves 65 character units inward, pair stays centred); the high five still meets at the same spot.
+- [ ] APPROVED (2026-10-11, Michelle in chat): "When the characters high five, make sure that Mula's scarf is under her arm": during the high five Mula's arms are in front of her scarf tail; it fades back over her sleeve once her arm is down (its idle order).
