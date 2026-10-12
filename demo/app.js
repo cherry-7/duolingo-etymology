@@ -377,7 +377,6 @@ function showSheet(kind, retry, detail, q) {
       sheetText(
         "wrong",
         STRINGS.wrongTitle,
-        h("p", { class: "sheet-detail" }, q?.hint || "[TBD: hint]"),
         h("p", { class: "sheet-line" }, state.twins.afterMistake)
       ),
       twinsEl("encourage")

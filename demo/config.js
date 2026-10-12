@@ -14,18 +14,15 @@ export const CONFIG = {
   // Questions per language set, in file order. 10 total.
   lessonSplit: [3, 4, 3],
 
-  // Avatar pool. Images: assets/characters/<id>.png
+  // Avatar pool: randomized per player. Images: assets/characters/<id>.png
+  // (copied from design/demo/avatars "Frame N.png"; ids are letters only for the leaderboard rules)
   characters: [
-    { id: "duo", name: "Duo" },
-    { id: "lily", name: "Lily" },
-    { id: "zari", name: "Zari" },
-    { id: "bea", name: "Bea" },
-    { id: "eddy", name: "Eddy" },
-    { id: "junior", name: "Junior" },
-    { id: "oscar", name: "Oscar" },
-    { id: "vikram", name: "Vikram" },
-    { id: "lucy", name: "Lucy" },
-    { id: "lin", name: "Lin" }
+    { id: "frameone", name: "Frame 1" },
+    { id: "frametwo", name: "Frame 2" },
+    { id: "framethree", name: "Frame 3" },
+    { id: "framefive", name: "Frame 5" },
+    { id: "framesix", name: "Frame 6" },
+    { id: "frameseven", name: "Frame 7" }
   ],
 
   // Loaded only when a .riv file exists for a question.

@@ -1,5 +1,5 @@
 // Choose the boundary that correctly separates a word into meaningful parts.
-import { h, shuffle } from "../util.js";
+import { h, shuffle, promptEl } from "../util.js";
 
 export function render(q, ctx) {
   let selected = null;
@@ -44,7 +44,7 @@ export function render(q, ctx) {
   return h(
     "div",
     { class: "format format-split" },
-    h("p", { class: "prompt" }, q.prompt),
+    promptEl(q.prompt),
     h("p", { class: "word" }, q.word),
     list
   );
