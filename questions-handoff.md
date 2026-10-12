@@ -4,16 +4,16 @@ Use `content/questions.json` with the accompanying `content/questions.schema.jso
 
 ## Lesson approach
 
-This revision uses short, single-action prompts and repeated ideas across matching, choice, ordering, dragging, splitting, odd-one-out recognition, and construction matching. It mixes word roots, word building, character components, and recall. The aim is approachable practice in the requested Duolingo style, rather than a technical lesson requiring players to know linguistic terminology.
+This revision uses short, single-action prompts and repeated ideas across matching, choice, ordering, radical building, dragging, splitting, odd-one-out recognition, and construction matching. It mixes word roots, word building, character components, and recall. The aim is approachable practice in the requested Duolingo style, rather than a technical lesson requiring players to know linguistic terminology.
 
 | # | Group | Type | Task |
 |---|---|---|---|
 | 1 | English (Latin roots) | split | Split transport into trans + port. |
 | 2 | English (Latin roots) | odd | Identify airport as the compound among three English words. |
 | 3 | English (Latin roots) | construction | Match transport, portable, and airport to their constructions. |
-| 4 | Chinese | match | Learn 木, 日, and 月. |
-| 5 | Chinese | drag | Add 木 to build 林. |
-| 6 | Chinese | drag | Add 月 to build 明. |
+| 4 | Chinese | match | Match 明, 林, and 森 to the components that combine into each character. |
+| 5 | Chinese | radical | Drag 日 into the missing spot beside 月 to form 明. |
+| 6 | Chinese | order | Build 火山岩 from 火山 and 岩. |
 | 7 | Chinese | choice | Recall the meaning of 明. |
 | 8 | Sanskrit | match | Learn जल, वन, and compound-final -ज. |
 | 9 | Sanskrit | order | Build जलज, literally born in water. |
@@ -28,7 +28,7 @@ Both fields are plain strings on the question object:
 
 These fields are optional in the schema for compatibility, but populated in all 10 demo questions. The text is question-level feedback: the schema has no separate explanation for each distractor. For a matching mistake, the correction gives the complete mapping.
 
-The updated schema adds these two allowed fields to drag, choice, match, order, split, odd, and construction. It preserves the original required fields and the default-drag behavior when `type` is absent. Top-level `minItems` and `maxItems` now enforce exactly 10 questions; language grouping and answer-key consistency still require separate checks.
+The updated schema adds these two allowed fields to drag, choice, match, order, split, odd, construction, and radical. The `radical` type builds a character by dragging one correct radical into a missing-component slot and may include distractor radicals. It preserves the original required fields and the default-drag behavior when `type` is absent. Top-level `minItems` and `maxItems` now enforce exactly 10 questions; language grouping and answer-key consistency still require separate checks.
 
 Content and schema support do not automatically display feedback. The demo UI still needs to read `question.hint` and `question.correction`, using the designers' hint and wrong-answer states. No application renderer was available to edit or test here.
 
