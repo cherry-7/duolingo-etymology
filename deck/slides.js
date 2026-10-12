@@ -109,6 +109,8 @@ window.WORLD_ACTORS = {
   // (same x, y and width, feet on the same line). They stand closer than in Figma (Mula 0,
   // Dulo 520): each moved 65 inward, so the gap between them is halved and the pair stays centred. box: the pair's outline in character units.
   twins: { type: "pair", members: [{ who: "mula", dx: 65 }, { who: "dulo", dx: 455 }], box: [95, 60, 950, 666], slotAspect: 944 / 1262, z: 5 },
+  // the same pair as a black silhouette (the second Character Default slide, before the reveal)
+  twinsShadow: { type: "pair", silhouette: true, members: [{ who: "mula", dx: 65 }, { who: "dulo", dx: 455 }], box: [95, 60, 950, 666], slotAspect: 944 / 1262, z: 5 },
   // a second pair, for the Walking oval (the first is in the Correct oval on the slide before)
   twinsWalk: { type: "pair", members: [{ who: "mula", dx: 65 }, { who: "dulo", dx: 455 }], box: [95, 60, 950, 666], slotAspect: 944 / 1262, z: 5 },
   bubble: { type: "bubble", z: 6 },
@@ -685,9 +687,10 @@ window.SLIDES = [
     bgAt: [0.1, 0.6],
     pace: 0.3,
     actors: {
-      // The glow fades up and the twins drop in and bounce, as on the first Character Default slide
+      // The glow fades up and the twins drop in and bounce, as on the first Character Default slide,
+      // but as a black silhouette (Michelle); on to "Who is he?" it fades out instead of walking
       glow: { x: 581, y: 192, w: 727, h: 727, color: C.glow, enter: { opacity: 0, at: [0.2, 0.8] } },
-      twins: { x: 538.03, y: 200, w: 847.63, enter: { dy: -1500, ease: "bounce", at: [0.4, 1] } }
+      twinsShadow: { x: 538.03, y: 200, w: 847.63, enter: { dy: -1500, ease: "bounce", at: [0.4, 1] }, exit: { opacity: 0, at: [0, 0.4] } }
     }
   },
   {
@@ -697,8 +700,8 @@ window.SLIDES = [
     bg: C.orange,
     pace: 0.3,
     actors: Object.assign({
-      // The twins shrink into their tile at the end of the rows as it rises in
-      twins: { x: 1323, y: 660, w: 285.28, at: [0.45, 1] },
+      // The silhouette fades out, then Mula and Dulo fade in, revealed in their tile (Michelle)
+      twins: { x: 1323, y: 660, w: 285.28, enter: { opacity: 0, at: [0.55, 1] } },
       titleWho: riseIn({ x: 129, y: 68, size: 100, color: C.white, text: "Who is he?" }, 0, 12),
       twinsTile: riseIn({ x: 1267, y: 646, w: 387, h: 248, color: C.cream }, 11, 12)
     }, ...[

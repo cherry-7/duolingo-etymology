@@ -155,6 +155,8 @@ window.World = (function () {
     // ([x, y, w, h] in pair units); s.w is the shown width of that box.
     pair(def, layer) {
       const node = el("div", "actor actor-pair", layer);
+      // def.silhouette: drawn all black (a mystery pair, e.g. before "Who is he?")
+      if (def.silhouette) node.style.filter = "brightness(0)";
       const [bx, by, bw, bh] = def.box;
       // slotAspect: the height/width of the art this replaces, so the feet stay where they were
       const drop = def.slotAspect ? def.slotAspect - bh / bw : 0;
