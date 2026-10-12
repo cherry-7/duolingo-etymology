@@ -126,23 +126,24 @@ body {
   border-radius: 12%;
 }
 
-/* Layout: finale (the QR builds itself tile by tile, then its line appears) */
+/* Layout: finale (on the leaderboard's backdrop, the QR's black tiles click in one by one) */
+.slide-finale { background: #FFC800; }
 .layout-finale {
   place-items: center;
+  padding: 0;
 }
 
 .layout-finale .qr {
   display: grid;
   justify-items: center;
-  gap: var(--space);
+  position: relative; /* over the backdrop */
 }
 
-/* Transitions only run on the way in; leaving the slide resets instantly. */
-.layout-finale .qr-tile { opacity: 0; }
-.layout-finale.show-qr .qr-tile { opacity: 1; transition: opacity 0.3s ease-out; }
-.layout-finale .qr p { opacity: 0; }
-.layout-finale.show-qr .qr p { opacity: 1; transition: opacity 0.4s 1.8s; }
-.layout-finale.qr-built :is(.qr-tile, .qr p) { transition: none; }
+/* Transitions only run on the way in; leaving the slide resets instantly. Each tile clicks in:
+   it fades in as it settles from a little larger to its size */
+.layout-finale .qr-tile { opacity: 0; transform-box: fill-box; transform-origin: center; scale: 1.6; }
+.layout-finale.show-qr .qr-tile { opacity: 1; scale: 1; transition: opacity 0.25s ease-out, scale 0.25s cubic-bezier(.3, 1.6, .5, 1); }
+.layout-finale.qr-built .qr-tile { transition: none; }
 
 .qr-code {
   width: 25cqw;
@@ -277,7 +278,7 @@ body {
 .stage .board-status { left: 805px; top: 930px; margin: 0; font-size: 28px; color: #fff; min-height: 1em; }
 
 @media (prefers-reduced-motion: reduce) {
-  .layout-finale.show-qr :is(.qr-tile, .qr p) { transition: none; }
+  .layout-finale.show-qr .qr-tile { transition: none; }
 }
 
 /* ---------- World: the continuous layer behind scene slides (deck/world.js) ---------- */

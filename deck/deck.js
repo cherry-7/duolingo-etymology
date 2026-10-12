@@ -58,9 +58,18 @@
       (slide.characters || []).forEach((c) => row.append(reveal(slot(c))));
       stage.append(row);
     },
-    // The QR builds itself, tile by tile, then the line appears (Michelle; Duo no longer flies off)
-    finale(stage, slide) {
-      stage.append(qrBlock(slide.line, true));
+    // On the leaderboard's own backdrop, the QR's black tiles click in one by one (Michelle; Duo
+    // no longer flies off, and there's no white). The next slide shrinks it onto the sign.
+    finale(stage) {
+      const canvas = el("div", "lb");
+      const wave = el("img", "lb-wave");
+      wave.src = "../assets/deck/leaderboard/wave.svg";
+      wave.alt = "";
+      canvas.append(el("div", "lb-circle"), wave);
+      stage.append(canvas, qrBlock(null, true));
+      const fit = () => { canvas.style.transform = `scale(${stage.clientWidth / 1920})`; };
+      if (window.ResizeObserver) new ResizeObserver(fit).observe(stage);
+      fit();
     },
     // Live scores from the demo; streaming lives in leaderboard.js. Laid out on Figma's
     // 1920 x 1080 "Leaderboard" frame (scaled to the stage): the girl holds up the QR sign
@@ -78,12 +87,16 @@
       sign.append(img("sign-board.svg", "lb-board"), img("sign-stick.svg", "lb-stick"));
       const list = el("ol", "board");
       const status = el("p", "board-status");
-      canvas.append(img("girl.svg", "lb-girl"), el("div", "lb-circle"), img("wave.svg", "lb-wave"), list,
+      // the girl rises in with the sign (the wave and circle are already there on the finale)
+      canvas.append(reveal(img("girl.svg", "lb-girl")), el("div", "lb-circle"), img("wave.svg", "lb-wave"), list,
         reveal(el("h2", "lb-title", slide.heading || "[TBD]")));
       if (slide.qr) {
         // The QR sits on the sign but outside it, so it can glide over from the previous
         // slide (qr-handoff) while the sign and its line rise in around it
+        // just black tiles here too (the sign's white board is behind them), so nothing white
+        // zooms in from the finale
         const qr = qrBlock(slide.line);
+        qr.querySelector(".qr-code").innerHTML = qrTiles(config.demoUrl || "");
         const line = qr.querySelector("p");
         line.className = "lb-scan";
         canvas.append(reveal(line), reveal(sign), slide.transition === "qr-handoff" ? qr : reveal(qr));
@@ -108,7 +121,8 @@
     code.setAttribute("role", "img");
     code.setAttribute("aria-label", "QR code for " + config.demoUrl);
     code.innerHTML = tiles ? qrTiles(config.demoUrl || "") : qrSvg(config.demoUrl || "");
-    qr.append(code, el("p", null, line || "[TBD]"));
+    qr.append(code);
+    if (!tiles) qr.append(el("p", null, line || "[TBD]")); // the built-up QR has no line of its own
     return qr;
   }
 
@@ -131,8 +145,9 @@
         tiles += `<rect class="qr-tile" x="${c * cell + margin}" y="${r * cell + margin}" width="${cell + 0.05}" height="${cell + 0.05}" style="transition-delay:${delay}ms"/>`;
       }
     }
+    // just the black tiles, no white square behind them (Michelle)
     return `<svg viewBox="0 0 ${size} ${size}" preserveAspectRatio="xMinYMin meet" xmlns="http://www.w3.org/2000/svg">` +
-      `<rect width="100%" height="100%" fill="white"/><g fill="black">${tiles}</g></svg>`;
+      `<g fill="black">${tiles}</g></svg>`;
   }
 
   function qrSvg(text) {
