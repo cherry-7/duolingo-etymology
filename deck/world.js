@@ -642,8 +642,10 @@ window.World = (function () {
       return (s) => {
         node.style.opacity = s.opacity;
         node.style.transform = `translate(${s.x}px, ${s.y}px) rotate(${s.rotate || 0}deg) scale(${s.scale ?? 1})`;
+        // one after another, the last finishing as the card lands (any number of words)
         words.forEach((w, i) => {
-          const k = soft(clamp((s.reveal - 0.88 - i * 0.025) / 0.1, 0, 1));
+          const start = 0.86 + (words.length > 1 ? (i / (words.length - 1)) * 0.04 : 0);
+          const k = soft(clamp((s.reveal - start) / 0.1, 0, 1));
           w.style.opacity = k;
           w.style.transform = k < 1 ? `translateY(${(1 - k) * 50}px)` : "";
         });

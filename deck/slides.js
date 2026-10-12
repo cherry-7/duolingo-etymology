@@ -50,7 +50,7 @@ const C = {
   lilac: "#CE82FF",
   purple: "#8A38F5",
   blue: "#1CB0F6",
-  meaning: "#A9CBED", // pale blue word meanings on the cards
+  meaning: "#FFFFFF", // word meanings on the cards: white like the words (Michelle; Figma had pale blue #A9CBED)
   ink2: "#363135", // twins' dark (palette and swatch labels)
   shadowOnSquiggle: "#CA8A00",
   navy: "#18529C", // "CHARACTER POSES" on the blue bar
@@ -67,7 +67,7 @@ function word(text, x, y, size) {
   return { text, x, y, size, color: "#FFFFFF" };
 }
 function meaning(text, x, y, size) {
-  return { text, x, y, size, color: "#A9CBED" };
+  return { text, x, y, size, color: C.meaning };
 }
 
 // Character Color swatches
