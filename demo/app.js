@@ -6,8 +6,12 @@ import * as drag from "./formats/drag.js";
 import * as choice from "./formats/choice.js";
 import * as match from "./formats/match.js";
 import * as order from "./formats/order.js";
+import * as split from "./formats/split.js";
+import * as odd from "./formats/odd.js";
+import * as construction from "./formats/construction.js";
+import * as radical from "./formats/radical.js";
 
-const FORMATS = { drag, choice, match, order };
+const FORMATS = { drag, choice, match, order, split, odd, construction, radical };
 
 // Sends one score to the live leaderboard (Firebase Realtime Database, REST).
 // One request and no open connection, so a big audience stays under the free-plan limit.
@@ -78,6 +82,13 @@ function correctAnswer(q) {
   if (q.type === "match") {
     return q.pairs.map((pair) => `${pair.part} = ${pair.meaning}`).join("; ");
   }
+  if (q.type === "radical") {
+    return q.answerMeaning || q.radicals
+      .filter((part) => part.order != null)
+      .sort((a, b) => a.order - b.order)
+      .map((part) => part.text)
+      .join(" + ");
+  }
   return "[TBD]";
 }
 
@@ -120,6 +131,17 @@ function validate(q, n) {
   } else if (type === "order") {
     if (!Array.isArray(q.parts) || q.parts.filter((p) => typeof p.order === "number").length < 2)
       errs.push("parts (2+ with numeric order)");
+  } else if (type === "split" || type === "odd") {
+    if (!isStr(q.word) && type === "split") errs.push("word");
+    if (!Array.isArray(q.options) || q.options.length < 2 || q.options.filter((o) => o.isCorrect === true).length !== 1)
+      errs.push("options (2+, exactly one correct)");
+  } else if (type === "construction") {
+    if (!Array.isArray(q.pairs) || q.pairs.length < 2 || q.pairs.some((p) => !isStr(p.word) || !isStr(p.construction)))
+      errs.push("pairs (2+ with word and construction)");
+  } else if (type === "radical") {
+    if (!isStr(q.character) || !isStr(q.root)) errs.push("character/root");
+    if (!Array.isArray(q.radicals) || q.radicals.length < 2 || q.radicals.filter((part) => part.isCorrect === true).length !== 1)
+      errs.push("radicals (2+, exactly one correct)");
   }
   if (errs.length) console.error(`questions.json item ${n}: invalid ${errs.join(", ")}`, q);
   return errs.length === 0;
@@ -355,7 +377,6 @@ function showSheet(kind, retry, detail, q) {
       sheetText(
         "wrong",
         STRINGS.wrongTitle,
-        h("p", { class: "sheet-detail" }, q?.hint || "[TBD: hint]"),
         h("p", { class: "sheet-line" }, state.twins.afterMistake)
       ),
       twinsEl("encourage")

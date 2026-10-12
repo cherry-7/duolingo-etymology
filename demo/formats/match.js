@@ -12,7 +12,7 @@ export function render(q, ctx) {
   const tile = (side, pair, text) =>
     h("button", { type: "button", class: "tile match", onclick: (e) => tap(side, pair, e.currentTarget) }, text);
 
-  for (const pair of q.pairs) left.append(tile("part", pair, pair.part));
+  for (const pair of shuffle(q.pairs)) left.append(tile("part", pair, pair.part));
   for (const pair of shuffle(q.pairs)) right.append(tile("meaning", pair, pair.meaning));
 
   function tap(side, pair, el) {

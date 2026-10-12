@@ -7,7 +7,7 @@
 - Core mechanic: drag-and-drop word parts onto a root to form a meaning
   - Instant visual feedback when parts combine
   - Animation plays on correct assembly (e.g., radical transforms into pictogram)
-- Demo structure: 3 languages, one question set each
+  - Demo structure: 3 languages, one question set each
   - Shows cross-language applicability (Latin-based, Chinese, Sanskrit/South Asian)
   - Swipe between languages mid-demo
 - Opening hook: break down the word “etymology” itself as the first example
