@@ -407,7 +407,7 @@ body {
 }
 .character.idle > :is(.part-face, .part-ear-left, .part-ear-right, .part-hair-back, .part-hair-tuft,
   .part-hair-crown, .part-bun-left, .part-bun-right, .part-hair-ellipse-4, .part-hair-ellipse-26,
-  .part-hair-ellipse-3, .part-ellipse-10, .part-eye-white-left, .part-eye-white-right, .group-eye-left,
+  .part-hair-ellipse-3, .part-ellipse-10, .part-eye-white-left, .part-eye-white-right, .group-eye-left, .part-eye-shut,
   .group-eye-right, .part-nose, .part-nose-tip, .part-mouth, .part-mouth-corner, .part-ellipse-16-left,
   .part-ellipse-16-right, .part-ellipse-24, .part-ellipse-25, .part-ellipse-28, .part-pigtail-left,
   .part-pigtail-right) {
@@ -425,7 +425,7 @@ body {
 .character:is(.running, .reacting) .part-sole { visibility: hidden; }
 
 /* Both: they blink now and then (Mula every 4.2s, Dulo every 5.3s, so never together). The eye
-   whites and pupils squeeze shut about each eye's centre; Dulo's brows stay put. */
+   whites and pupils squeeze shut about each eye's centre. */
 .character.idle > :is(.part-eye-white-left, .part-eye-white-right, .group-eye-left, .group-eye-right) {
   animation: breathe-head 2.6s ease-in-out infinite, blink var(--blink-every) linear infinite;
 }
@@ -437,6 +437,15 @@ body {
   0%, 93% { scale: 1 1; }
   95.5% { scale: 1 0.08; }
   98%, 100% { scale: 1 1; }
+}
+/* Dulo's tinted eyelids go away while her eyes are shut, fading with the blink */
+.character-dulo.idle > :is(.part-ellipse-16-left, .part-ellipse-16-right) {
+  animation: breathe-head 2.6s ease-in-out infinite, blink-lid var(--blink-every) linear infinite;
+}
+@keyframes blink-lid {
+  0%, 93.5% { opacity: 1; }
+  95%, 96.5% { opacity: 0; }
+  98%, 100% { opacity: 1; }
 }
 
 /* Mula: her pointing finger is tucked away while she's idle */
@@ -490,6 +499,7 @@ body {
 
 /* ---- Reactions (character step 4) are played from deck/characters.js by world.js. */
 .character .part-smile-teeth { opacity: 0; } /* Dulo's broad smile, only while reacting */
+.character .scarf-over { opacity: 0; z-index: 2; } /* Mula's scarf tail over her arms (see scarf-over) */
 .character.reacting .part-finger { visibility: hidden; } /* open palms for the high five */
 
 @media (prefers-reduced-motion: reduce) {

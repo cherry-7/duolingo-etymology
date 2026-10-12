@@ -127,6 +127,14 @@ window.World = (function () {
   // ---- Actor renderers -----------------------------------------------------
   // Each takes a resolved state (numbers already interpolated) and draws it.
 
+  // Every part that moves with the head (same list as breathe-head in deck.css)
+  const HEAD_PARTS = [".part-face", ".part-ear-left", ".part-ear-right", ".part-hair-back", ".part-hair-tuft",
+    ".part-hair-crown", ".part-bun-left", ".part-bun-right", ".part-hair-ellipse-4", ".part-hair-ellipse-26",
+    ".part-hair-ellipse-3", ".part-ellipse-10", ".part-eye-white-left", ".part-eye-white-right", ".group-eye-left",
+    ".group-eye-right", ".part-nose", ".part-nose-tip", ".part-mouth", ".part-mouth-corner", ".part-ellipse-16-left",
+    ".part-ellipse-16-right", ".part-ellipse-24", ".part-ellipse-25", ".part-ellipse-28", ".part-pigtail-left",
+    ".part-pigtail-right", ".part-smile-teeth", ".part-eye-shut"].join(", ");
+
   const kinds = {
     img(def, layer) {
       // Outer layer travels; the image inside can have an idle loop (def.idle, e.g. "breathe")
@@ -180,11 +188,34 @@ window.World = (function () {
         const mouth = frame.querySelector(".part-mouth");
         const smile = frame.querySelector(".part-smile-teeth");
         const straight = frame.querySelectorAll(".part-mouth, .part-mouth-corner");
-        return { who, dx, frame, groups, defs, pupils, soles, hair, finger, eyes, mouth, smile, straight };
+        // Closed eyes (the nod): a U across each eye, in the pupils' colour, from the eye's
+        // centre line down, shown only while the eyes are shut
+        ["left", "right"].forEach((side) => {
+          const white = window.CHARACTER_PARTS[who].find((p) => p.id === "eye-white-" + side);
+          const w = white.w - 6;
+          const h = 18;
+          const shut = el("div", "part-eye-shut part-eye-shut-" + side, frame);
+          shut.style.cssText = `position:absolute;left:${white.x + 3}px;top:${white.y + white.h / 2 - 3.5}px;` +
+            `width:${w}px;height:${h}px;opacity:0`;
+          shut.innerHTML = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="overflow:visible;display:block">` +
+            `<path d="M3.5 3.5C3.5 ${h * 1.25} ${w - 3.5} ${h * 1.25} ${w - 3.5} 3.5" fill="none" stroke="#3D3D3D" stroke-width="7" stroke-linecap="round"/></svg>`;
+          frame.querySelector(".group-eye-" + side).after(shut);
+        });
+        // Mula's scarf tail lies over her sleeve. In a reaction her arms go in front of it, and
+        // this copy, drawn above the arms, fades it back over them (scarf-over track), so the
+        // layers never swap in a single frame where they overlap
+        const tail = frame.querySelector(".part-scarf-tail");
+        let scarfOver = null;
+        if (tail) {
+          scarfOver = tail.cloneNode(true);
+          scarfOver.classList.add("scarf-over");
+          frame.append(scarfOver);
+        }
+        return { who, dx, frame, groups, defs, pupils, soles, hair, finger, eyes, mouth, smile, straight, scarfOver };
       });
       let wasRunning = null;
 
-      // Standing still: the Figma spots (Mula 0, Dulo 520) and the CSS idle loops
+      // Standing still: their spots (Mula 65, Dulo 455) and the CSS idle loops
       function stand() {
         members.forEach((m) => {
           m.frame.style.transform = `translate(${m.dx}px, 0)`;
@@ -279,13 +310,15 @@ window.World = (function () {
             const p = m.defs[name];
             if (!p.pivot) continue;
             const arm = name.replace("finger", "arm"); // Dulo's fingers move with her arms
-            const flip = p.mirror != null ? -1 : 1;
+            // flip-*: turn the arm over along its length (-1), e.g. Mula's top arm in the high five
+            const flip = v("flip-" + arm, p.mirror != null ? -1 : 1);
             g.style.transform = groupTransform(p, v(arm, p.rest || 0), flip, v("stretch-" + arm, 1));
             if (arm.startsWith("arm")) g.style.zIndex = v("front", 0) ? 1 : "";
           }
           m.pupils.forEach((p) => { p.style.translate = `${v("lookX", 0)}px ${v("lookY", 0)}px`; });
           m.eyes.forEach((e) => { e.style.scale = v("eyes", 1); });
           if (m.mouth) m.mouth.style.scale = v("mouth", 1);
+          if (m.scarfOver) m.scarfOver.style.opacity = v("scarf-over", 0);
           if (m.smile) {
             const sm = v("smile", 0);
             m.smile.style.opacity = sm;
@@ -303,6 +336,9 @@ window.World = (function () {
           });
         }
       }
+      const REACT_PAUSE = 500; // ms they stand still between arriving and reacting
+      let pendingReact = null;
+      let pendingTimer = 0;
       let reacting = null;
       let reactStart = 0;
       let reactFrame = 0;
@@ -313,6 +349,7 @@ window.World = (function () {
         const R = name && window.CHARACTER_REACTIONS[name];
         const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
         if (!R || reduce) { finishReaction(); return; }
+        stand(); // clear anything the run left behind (mirroring, hair, soles, eyes)
         members.forEach((m) => { m.frame.classList.remove("idle"); m.frame.classList.add("reacting"); });
         reactStart = performance.now();
         const tick = (now) => {
@@ -328,6 +365,7 @@ window.World = (function () {
           m.frame.classList.remove("reacting");
           m.eyes.forEach((e) => { e.style.scale = ""; });
           if (m.mouth) m.mouth.style.scale = "";
+          if (m.scarfOver) m.scarfOver.style.opacity = "";
           if (m.smile) { m.smile.style.opacity = ""; m.smile.style.scale = ""; m.straight.forEach((e) => { e.style.opacity = ""; }); }
           for (const g of Object.values(m.groups)) g.style.zIndex = "";
         });
@@ -335,15 +373,77 @@ window.World = (function () {
         stand();
       }
 
+      // Nod (Saissha's speech bubbles): once a bubble has appeared, both heads dip once and come
+      // back up, twice. Added on top of the breathing, so it never fights the idle loop.
+      // On each dip the head also flattens a little (squashes toward the chin), and their eyes
+      // stay closed through both nods, shutting like a blink.
+      const NOD = { dip: 16, flat: 0.07, chin: 311, duration: 1100 };
+      const heads = members.flatMap((m) => [...m.frame.querySelectorAll(":scope > :is(" + HEAD_PARTS + ")")]);
+      const EYES = ".part-eye-white-left, .part-eye-white-right, .group-eye-left, .group-eye-right";
+      const TINT = ".part-ellipse-16-left, .part-ellipse-16-right"; // Dulo's tinted eyelids: gone while her eyes are shut
+      const track = (keys, t) => {
+        for (let i = 1; i < keys.length; i++) {
+          const [t0, v0] = keys[i - 1];
+          const [t1, v1] = keys[i];
+          if (t <= t1) return lerp(v0, v1, (t - t0) / (t1 - t0));
+        }
+        return keys[keys.length - 1][1];
+      };
+      const DIPS = [[0, 0], [0.22, 1], [0.48, 0], [0.72, 1], [1, 0]];
+      // the eyes shrink shut and the line takes over for the last sliver (and the reverse)
+      const LIDS = [[0, 1], [0.12, 0], [0.88, 0], [1, 1]];
+      const LINE = [{ opacity: 0 }, { opacity: 0, offset: 0.07 }, { opacity: 1, offset: 0.11 }, { opacity: 1, offset: 0.89 }, { opacity: 0, offset: 0.93 }, { opacity: 0 }];
+      const NOD_AT = [0, 0.12, 0.22, 0.35, 0.48, 0.6, 0.72, 0.88, 1];
+      let nodded = null;
+      function nod() {
+        const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (reduce || !heads[0] || !heads[0].animate) return;
+        heads.forEach((h) => {
+          // each part scales about its own origin; shift it so the head squashes about the chin
+          const originY = h.offsetTop + parseFloat(getComputedStyle(h).transformOrigin.split(" ")[1]);
+          const eye = h.matches(EYES);
+          h.animate(NOD_AT.map((t) => {
+            const d = track(DIPS, t);
+            const sy = 1 - NOD.flat * d;
+            return {
+              offset: t,
+              translate: `0 ${NOD.dip * d + (1 - sy) * (NOD.chin - originY)}px`,
+              scale: `1 ${sy * (eye ? track(LIDS, t) : 1)}`,
+              easing: "ease-in-out" // per beat
+            };
+          }), { duration: NOD.duration, composite: "add" });
+          if (h.matches(".part-eye-shut")) h.animate(LINE, { duration: NOD.duration });
+          if (h.matches(TINT)) h.animate(LINE.map((k) => Object.assign({}, k, { opacity: 1 - k.opacity })), { duration: NOD.duration });
+        });
+      }
+
       stand();
       return (s) => {
         node.style.opacity = s.opacity;
+        if (s.nod !== nodded) {
+          nodded = s.nod;
+          if (s.nod && !reacting) nod();
+        }
         node.style.transform = `translate(${s.x}px, ${s.y + s.w * drop}px) scale(${s.w / bw}) rotate(${s.rotate || 0}deg)`;
         const running = !!s.move && s.move.t > 0 && s.move.t < 1;
-        if (running) runPose(s.move);
+        // A reaction on this slide: they finish their run, stand for REACT_PAUSE, then react
+        // (the wait is a timer, since the deck stops rendering once it has settled)
+        const runDone = !s.move || s.move.t >= 0.97;
+        if (s.react && reacting === s.react) return;
+        if (s.react && runDone) {
+          if (pendingReact !== s.react) {
+            pendingReact = s.react;
+            clearTimeout(pendingTimer);
+            pendingTimer = setTimeout(() => react(pendingReact), REACT_PAUSE);
+          }
+        } else if (pendingReact) {
+          pendingReact = null;
+          clearTimeout(pendingTimer);
+        }
+        if (!s.react) react(null);
+        if (running && !runDone) runPose(s.move);
         else if (wasRunning !== false) stand();
-        wasRunning = running;
-        react(running ? null : s.react || null);
+        wasRunning = running && !runDone;
       };
     },
 
@@ -806,10 +906,14 @@ window.World = (function () {
         } else {
           s = { opacity: 0, x: -9999, y: 0, w: 1, h: 1, draw: 0, width: 0, size: 1, scale: 1, tail: 0, padX: 0, textA: "" };
         }
-        // A pair reacts (e.g. the correct-answer high five) once the deck has arrived on its slide
+        // A pair reacts (e.g. the correct-answer high five) on its slide: the pair waits for its run
+        // to finish, pauses, then reacts
         if (actors[key].type === "pair") {
           const near = Math.round(pos);
-          s.react = Math.abs(pos - near) < 0.02 && slides[near] && slides[near].react && slides[near].actors[key] ? slides[near].react : null;
+          s.react = slides[near] && slides[near].react && slides[near].actors[key] ? slides[near].react : null;
+          // ...and nods once a slide with nod: true has arrived (its bubble is up)
+          const here = slides[near] && slides[near].nod && slides[near].actors[key] && Math.abs(pos - near) < 0.02;
+          s.nod = here ? slides[near].id : null;
         }
         draw[key](s);
       });

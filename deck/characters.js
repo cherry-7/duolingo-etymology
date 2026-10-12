@@ -37,7 +37,7 @@ window.CHARACTER_PARTS = {
     ]},
     {id: "dress-top", src: "../assets/deck/mula/dress-top.svg", x: 118, y: 302, w: 439.553, h: 302.086},
     {id: "dress-skirt", src: "../assets/deck/mula/dress-skirt.svg", x: 118, y: 302, w: 439.553, h: 302.086},
-    {id: "scarf", fill: "#cb6539", radius: 6, x: 240, y: 291, w: 112, h: 52},
+    {id: "scarf", fill: "#638CD9", radius: 6, x: 240, y: 291, w: 112, h: 52},
     {id: "ear-left", src: "../assets/deck/mula/ear-left.svg", x: 180, y: 213, w: 43, h: 43},
     {id: "ear-right", src: "../assets/deck/mula/ear-right.svg", x: 372, y: 215, w: 43, h: 43},
     {id: "hair-back", src: "../assets/deck/mula/hair-back.svg", x: 183, y: 81, w: 230, h: 230},
@@ -83,7 +83,7 @@ window.CHARACTER_PARTS = {
     {id: "scarf-tail", src: "../assets/deck/mula/scarf-tail.svg", x: 118, y: 302, w: 439.553, h: 302.086}
   ],
   dulo: [
-    {id: "hair-back", fill: "#3d3d3d", radius: 15, x: 194, y: 172, w: 207, h: 207},
+    {id: "hair-back", fill: "#6E4533", radius: 15, x: 194, y: 172, w: 207, h: 207},
     {group: "leg-right", pivot: [312, 480], parts: [
       {id: "thigh-right", fill: "#d5a06e", radius: 6, x: 293, y: 476, w: 38, h: 74},
       {group: "knee-right", pivot: [312.0, 540], parts: [
@@ -127,9 +127,9 @@ window.CHARACTER_PARTS = {
       ]}
     ]},
     {id: "sash-tail", src: "../assets/deck/dulo/sash-tail.svg", x: 311, y: 385, w: 92, h: 135.358, rot: 5.28, iw: 80.526, ih: 128.498},
-    {id: "collar", fill: "#cb6539", radius: 6, x: 271, y: 291, w: 54, h: 52},
-    {id: "collar-wide", fill: "#cb6539", radius: 6, x: 235, y: 318, w: 124, h: 52},
-    {id: "sash", fill: "#f2b866", radius: 6, x: 240, y: 402, w: 112, h: 30},
+    {id: "collar", fill: "#638CD9", radius: 6, x: 271, y: 291, w: 54, h: 52},
+    {id: "collar-wide", fill: "#638CD9", radius: 6, x: 235, y: 318, w: 124, h: 52},
+    {id: "sash", fill: "#87D2FB", radius: 6, x: 240, y: 402, w: 112, h: 30},
     {id: "ear-left", src: "../assets/deck/dulo/ear-left.svg", x: 180, y: 213, w: 43, h: 43},
     {id: "ear-right", src: "../assets/deck/dulo/ear-right.svg", x: 370, y: 219, w: 43, h: 43},
     {id: "hair-crown", src: "../assets/deck/dulo/hair-crown.svg", x: 183, y: 81, w: 230, h: 230},
@@ -167,7 +167,7 @@ window.CHARACTER_PARTS = {
 
 // Running together (character step 3, Entrance/Moving): Mula runs ahead pointing and pulls Dulo
 // along by the hand. Angles are added to each group's Figma pose at its pivot; x is each
-// character frame's left edge inside the pair while running (standing: Mula 0, Dulo 520).
+// character frame's left edge inside the pair while running (standing: Mula 65, Dulo 455).
 // Running right, Mula dashes past Dulo to the front; running left, both are mirrored.
 // Mula's back hand (86, 341) meets Dulo's front hand (479, 345), so Mula is 393 ahead of Dulo.
 window.CHARACTER_RUN = {
@@ -215,8 +215,9 @@ window.CHARACTER_RUN = {
 // its idle value. Positions are in pair units, relative to where each girl stands.
 //   x, y, rot (lean about the feet), sx, sy (squash), z (in front of the other girl)
 //   arm-*, leg-*, knee-*: angle at the joint, like CHARACTER_RUN (arms: from the Figma pose)
-//   stretch-arm-*: arm length (1 = as drawn), eyes / mouth: scale, lookX / lookY: pupils,
-//   smile: Dulo's broad smile (0 hidden, 1 shown), front: arms in front of hair and scarf
+//   stretch-arm-*: arm length (1 = as drawn), flip-arm-*: 1 as drawn, -1 turned over, eyes / mouth: scale, lookX / lookY: pupils,
+//   smile: Dulo's broad smile (0 hidden, 1 shown), front: arms in front of hair and scarf,
+//   scarf-over: Mula's scarf tail drawn back over her arms (opacity)
 // effects.lines: motion lines at the two palm contacts (opacity track; points in pair units)
 //
 // Step 4, Correct answer (Michelle's 9-beat brief, 2026-10-11), at 24 fps:
@@ -230,16 +231,17 @@ window.CHARACTER_REACTIONS = {
   correct: {
     fps: 24,
     duration: 3.5,
-    // Contact angles were solved against the rendered hands (Mula at +170, -70; Dulo at -95):
+    // Contact angles were solved against the rendered hands (Mula at 170, -70; Dulo at 425 in the pair; they now stand at 65 and 455):
     // upper palms meet at (594, 205), lower palms at (600, 395), in pair units
     mula: {
-      x: [[0, 0], [0.25, 0], [0.55, 20], [0.9, 170], [1.3, 170], [1.55, 165], [3.0, 165], [3.5, 0]],
+      x: [[0, 0], [0.25, 0], [0.55, 20], [0.9, 105], [1.3, 105], [1.55, 100], [3.0, 100], [3.5, 0]],
       y: [[0, 0], [0.25, 0], [0.5, 12], [0.6, 8], [0.9, -70], [1.3, -70], [1.5, 0], [1.6, 8], [1.75, 0]],
       rot: [[0, 0], [0.12, 4], [0.25, 3], [0.9, 0]],
       sx: [[0, 1], [0.08, 0.86], [0.18, 1], [0.9, 1], [0.94, 1.06], [1.02, 1]],
       sy: [[0.9, 1], [0.94, 0.94], [1.02, 1]],
-      "arm-right": [[0, 55], [0.25, 55], [0.5, -76.6], [0.9, -105], [1.3, -105], [1.6, 55], [3.5, 55]],
-      "elbow-arm-right": [[0.5, 0], [0.9, 89], [1.3, 89], [1.6, 0]],
+      "arm-right": [[0, 55], [0.25, 55], [0.5, -76.6], [0.9, -15], [1.3, -15], [1.6, 55], [3.5, 55]],
+      // top arm in a mirrored L for the high five: upper arm out level toward Dulo, forearm straight up
+      "elbow-arm-right": [[0.5, 0], [0.9, -90], [1.3, -90], [1.6, 0]],
       "arm-left": [[0, -6], [0.25, -6], [0.5, 124], [0.9, -82.5], [1.3, -82.5], [1.65, 109], [3.0, 109], [3.5, -6]], // proud: up and out, clear of her face
       "stretch-arm-left": [[0.8, 1], [0.9, 1.25], [1.3, 1.25], [1.45, 1]],
       "leg-left": [[0.25, 0], [0.5, -16], [0.6, -8], [0.9, 10], [1.3, 10], [1.5, 0], [1.6, -10], [1.75, 0]],
@@ -249,10 +251,15 @@ window.CHARACTER_REACTIONS = {
       lookX: [[0, 0], [0.12, 8], [1.3, 8], [1.6, 0]],
       lookY: [[0.5, 0], [0.9, -4], [1.3, -4], [1.6, 0]],
       eyes: [[0.2, 1], [0.3, 1.12], [3.0, 1.12], [3.3, 1]],
-      mouth: [[0.2, 1], [0.3, 1.4], [3.0, 1.4], [3.3, 1]]
+      mouth: [[0.2, 1], [0.3, 1.4], [3.0, 1.4], [3.3, 1]],
+      // her scarf stays under her arms: arms in front all along; the scarf copy above them
+      // hides once her top arm has swung clear of the tail (0.36) and fades back in after the
+      // arm is down at rest, where it lay over the sleeve before
+      front: [[0, 1], [3.5, 1]],
+      "scarf-over": [[0, 1], [0.36, 1], [0.37, 0], [1.6, 0], [1.85, 1]]
     },
     dulo: {
-      x: [[0, 0], [0.25, 0], [0.6, -95], [3.0, -95], [3.5, 0]],
+      x: [[0, 0], [0.25, 0], [0.6, -30], [3.0, -30], [3.5, 0]],
       z: [[0, 1], [3.5, 1]], // in front of Mula, so Mula's hands never disappear behind her
       rot: [[0, 0], [0.12, -4], [0.25, -3], [0.9, 0]],
       sx: [[0, 1], [0.08, 0.86], [0.18, 1], [0.9, 1], [0.94, 1.06], [1.02, 1]],

@@ -51,10 +51,8 @@ const C = {
   purple: "#8A38F5",
   blue: "#1CB0F6",
   meaning: "#A9CBED", // pale blue word meanings on the cards
-  navy: "#2B70C9", // Interviews background
   ink2: "#363135", // twins' dark (palette and swatch labels)
-  shadowOnSquiggle: "#CA8A00",
-  attribution: "#D5E2F4" // who said it, under each quote
+  shadowOnSquiggle: "#CA8A00"
 };
 
 // Flashcard helpers: text positions are Figma's (stage coordinates); the card's top-left is (446, 204)
@@ -103,8 +101,9 @@ window.WORLD_ACTORS = {
   shadow: { type: "ellipse", z: 3 },
   saissha: { type: "img", src: DECK_ART + "saissha.png", w: 742, h: 963, z: 4, idle: "breathe" },
   // Mula (left) and Dulo (right), built from their Figma parts; they take the old twins.png slot
-  // (same x, y and width, feet on the same line). box: the pair's outline in character units.
-  twins: { type: "pair", members: [{ who: "mula", dx: 0 }, { who: "dulo", dx: 520 }], box: [95, 60, 950, 666], slotAspect: 944 / 1262, z: 5 },
+  // (same x, y and width, feet on the same line). They stand closer than in Figma (Mula 0,
+  // Dulo 520): each moved 65 inward, so the gap between them is halved and the pair stays centred. box: the pair's outline in character units.
+  twins: { type: "pair", members: [{ who: "mula", dx: 65 }, { who: "dulo", dx: 455 }], box: [95, 60, 950, 666], slotAspect: 944 / 1262, z: 5 },
   bubble: { type: "bubble", z: 6 },
   names: { type: "text", font: "condensed", z: 7 },
   frame: { type: "frame", z: 8 },
@@ -152,37 +151,23 @@ window.WORLD_ACTORS = {
   wordChinese: { type: "text", font: "semibold", z: 30 },
   wordSpanish: { type: "text", font: "semibold", z: 30 },
 
-  // Interviews (design/slides/Interviews.png, Interviews-1.png). Two light-blue circles
-  // travel through both slides; on the second, a column slides up with three circles in it.
-  circleA: { type: "ellipse", z: 40 },
-  circleB: { type: "ellipse", z: 40 },
-  column: { type: "rect", z: 41 },
-  columnAbove: { type: "rect", z: 41 }, // fills above the slide on taller screens, once landed
-  columnTop: { type: "ellipse", z: 42 },
-  columnMid: { type: "ellipse", z: 42 },
-  columnBottom: { type: "ellipse", z: 42 },
-  quoteA: { type: "quote", font: "semibold", z: 45 },
-  quoteB: { type: "quote", font: "semibold", z: 45 },
-  quoteC: { type: "quote", font: "semibold", z: 45 },
-  saidA: { type: "text", font: "semibold", z: 45 },
-  saidB: { type: "text", font: "semibold", z: 45 },
-  saidC: { type: "text", font: "semibold", z: 45 },
 
   // Characters (design/slides/Character Default.png, Character Color.png, Character Color
   // Research.png). The twins come back here (they're the same actor as in the story).
-  // The bottom orange circle of the expert slide blooms out into the orange background
+  // An orange circle blooms out into Character Default's orange background
   bloom: { type: "ellipse", z: 2 },
   squiggle: { type: "path", shape: "squiggle", stroke: "#FFC800", width: 200, cap: "round", z: 2.6 },
   wave: { type: "ellipse", z: 2.7 },
   titleColor: { type: "text", font: "heading", letters: true, z: 4.5 },
   titlePalette: { type: "text", font: "heading", letters: true, z: 4.5, kern: { 5: -0.179, 6: -0.066 } }, // Figma sets "tt" tighter than the web font
   // Mula and Dulo's colours, taken from their layers in the character Figma file (no palette frame
-  // there): skin, hair and boots, Mula's dress / Dulo's sash, Dulo's dress / Mula's scarf, white
+  // there): skin, hair (brown, Michelle 2026-10-11), Mula's dress / Dulo's sash (light blue), Dulo's dress /
+  // Mula's scarf (dark blue), white
   // (eyes, buttons), nose and brows. Swatch sizes and spots are the Figma Color Palette slide's.
   swatchSkin: swatch("#D5A06E", "#D5A06E", "#3D3D3D", 242),
-  swatchHair: swatch("#3D3D3D", "#3D3D3D", "#FFFFFF", 454),
-  swatchShirt: swatch("#F2B866", "#F2B866", "#3D3D3D", 454),
-  swatchOrange: swatch("#CB6539", "#CB6539", "#FFFFFF", 242),
+  swatchHair: swatch("#6E4533", "#6E4533", "#FFFFFF", 454),
+  swatchShirt: swatch("#87D2FB", "#87D2FB", "#3D3D3D", 454),
+  swatchOrange: swatch("#638CD9", "#638CD9", "#FFFFFF", 242),
   swatchJeans: swatch("#FFFFFF", "#FFFFFF", "#3D3D3D", 454),
   swatchBlue: swatch("#AE703E", "#AE703E", "#FFFFFF", 242),
   research1: researchCardFromExport("card1-from-export.png"),
@@ -230,11 +215,6 @@ function cardTrick(finalAngle, fan, at) {
 }
 const REVEAL = { reveal: 0, at: [0.15, 0.7] };
 
-// Interviews-1: the orange circle pulls the column up from below the screen. It starts far
-// enough down to stay hidden even on screens much taller than 16:9 (a 4:3 window shows
-// about 180px below the slide), so nothing peeks in before the move.
-const PULL_UP = { dy: 2100, at: [0.05, 0.8] };
-const PUSH_DOWN = { dy: 2100, at: [0, 0.6] }; // leaving for the characters: back down it goes
 
 // Character Color: swatches pop in one at a time (start = when, as a fraction of the move)
 function popIn(x, y, start) {
@@ -245,22 +225,6 @@ function dealUp(x, y, rotate, start) {
   return { x, y, w: 481, enter: { dy: 1300, rotate, ease: "back", at: [start, Math.min(1, start + 0.4)] } };
 }
 
-// Interviews: a quote (white, 76.67px, the *word* gets the orange pill) and who said it.
-// Copy is still a placeholder in Figma, so it's [TBD] here.
-function quote(text, x, y, at) {
-  return {
-    x, y, size: 76.67, color: C.white, text,
-    enter: { dy: 70, opacity: 0, reveal: 0, at },
-    exit: { dy: -70, opacity: 0, at: [0, 0.4] }
-  };
-}
-function said(text, x, y, size, at) {
-  return {
-    x, y, size, color: C.attribution, text,
-    enter: { dy: 50, opacity: 0, at },
-    exit: { dy: -50, opacity: 0, at: [0, 0.4] }
-  };
-}
 
 // Morphology 2 and 3 share the split background (design/slides/Morphology 2.png)
 // They run past the top and bottom of the slide so they reach the window edges on screens
@@ -313,6 +277,7 @@ window.SLIDES = [
     id: "story",
     layout: "scene",
     ref: "User Story",
+    nod: true, // Mula and Dulo nod twice once the bubble is up
     bg: C.yellow,
     pace: 0.25, // a long, cinematic move
     actors: Object.assign({}, storyActors, {
@@ -327,6 +292,7 @@ window.SLIDES = [
     id: "story-learning",
     layout: "scene",
     ref: "Group 29",
+    nod: true, // Mula and Dulo nod twice once the bubble is up
     bg: C.yellow,
     pace: 0.5,
     actors: Object.assign({}, storyActors, {
@@ -337,6 +303,7 @@ window.SLIDES = [
     id: "story-wish",
     layout: "scene",
     ref: "Group 30",
+    nod: true, // Mula and Dulo nod twice once the bubble is up
     bg: C.yellow,
     pace: 0.5,
     actors: Object.assign({}, storyActors, {
@@ -349,6 +316,8 @@ window.SLIDES = [
   {
     id: "learner",
     layout: "scene",
+    // Character step 4: once they've run in, Mula and Dulo high-five (Michelle's pick)
+    react: "correct",
     ref: "User Story-1",
     bg: C.yellow,
     pace: 0.3,
@@ -439,71 +408,18 @@ window.SLIDES = [
   example("example-chinese", "Morphology Example - Chinese", "cardChinese",
     label("Chinese", 128, 495), label("\u5988\n(Mom)", 1682, 450, { align: "center" }), "langChinese", "wordChinese"), // 妈
   example("example-spanish", "Morphology Example - Spanish", "cardSpanish",
-    label("Spanish", 120, 496), label("Lavaplatos\n(Dishwasher)", 1704, 444, { align: "center" }), "langSpanish", "wordSpanish",
-    // Leaving for the Interviews: the card grows to fill the screen and becomes the dark-blue
-    // background (its words fade first; the card itself fades only at the very end)
-    { scale: 3.4, reveal: 0, at: [0, 0.65], fade: [0.75, 1] }),
-  {
-    id: "interviews",
-    layout: "scene",
-    ref: "Interviews",
-    bg: C.navy,
-    bgAt: [0.3, 0.7], // changes behind the growing card
-    pace: 0.3,
-    actors: {
-      // The circles drift in from opposite corners at different speeds
-      // (they start well outside the window, so they don't peek in on taller screens)
-      circleA: { x: 84, y: 59, w: 509, h: 509, color: C.blue, enter: { dx: -1100, dy: -950, at: [0.45, 1] } },
-      circleB: { x: 1289, y: 511, w: 509, h: 509, color: C.blue, enter: { dx: 1050, dy: 950, at: [0.55, 1] } },
-      // Quotes rise in one after the other; the pill then sweeps across the marked word
-      quoteA: quote("\u201C [TBD: Duolingo user *quote*] \u201D", 522, 146, [0.5, 1]),
-      saidA: said("Duolingo User - [TBD]", 1101, 405, 51.3, [0.6, 1]),
-      quoteB: quote("\u201C [TBD: Duolingo user *quote*] \u201D", 207, 600, [0.62, 1]),
-      saidB: said("Duolingo User - [TBD]", 207, 851, 51.3, [0.7, 1])
-    }
-  },
-  {
-    id: "interviews-expert",
-    layout: "scene",
-    ref: "Interviews-1",
-    bg: C.navy,
-    pace: 0.3,
-    actors: {
-      // The top orange circle comes up from below the screen and pulls the light-blue column
-      // up behind it: the column's top edge stays at the circle's centre the whole way, and
-      // the circles sitting on the column ride along. Same move for all four, so they stay
-      // attached. The two circles from the previous slide roll down to the bottom row (one
-      // turns white).
-      // Starts at the orange circle's centre line (Figma: y 9), so its top is always behind
-      // the circle, with no gap above it on screens taller than 16:9
-      column: { x: 84, y: -54, w: 509, h: 1734, color: C.blue, enter: PULL_UP, exit: PUSH_DOWN },
-      // Above the slide (only seen on screens taller than 16:9): continues the column up to the
-      // window edge, appearing only once everything has landed, so it never shows above the circle
-      columnAbove: { x: 84, y: -800, w: 509, h: 760, color: C.blue, enter: { opacity: 0, fade: [0.92, 1] }, exit: { opacity: 0, at: [0, 0.05] } },
-      columnTop: { x: 105, y: -288, w: 468, h: 468, color: C.orange, enter: PULL_UP, exit: PUSH_DOWN },
-      columnMid: { x: 105, y: 238, w: 468, h: 469, color: C.white, enter: PULL_UP, exit: PUSH_DOWN },
-      columnBottom: { x: 105, y: 765, w: 468, h: 468, color: C.orange, enter: PULL_UP, exit: PUSH_DOWN },
-      circleA: { x: 980, y: 885, w: 468, h: 468, color: C.blue, at: [0.15, 0.85], exit: { dy: 1200, at: [0, 0.55] } },
-      circleB: { x: 1514, y: 885, w: 468, h: 468, color: C.white, at: [0.2, 0.9], exit: { dy: 1200, at: [0.05, 0.6] } },
-      // these leave quicker than usual, before the orange bloom reaches them
-      quoteC: Object.assign(quote("\u201C [TBD: expert *quote*] \u201D", 691, 346, [0.5, 1]), { exit: { dy: -70, opacity: 0, at: [0, 0.2] } }),
-      saidC: Object.assign(said("[TBD: name], Linguistic Expert", 1107, 635, 48, [0.6, 1]), { exit: { dy: -50, opacity: 0, at: [0, 0.2] } })
-    }
-  },
+    label("Spanish", 120, 496), label("Lavaplatos\n(Dishwasher)", 1704, 444, { align: "center" }), "langSpanish", "wordSpanish"),
   {
     id: "characters",
     layout: "scene",
-    // Character step 4: they high-five once they've landed. [TBD: Michelle to confirm the slide]
-    react: "correct",
     ref: "Character Default",
     bg: C.orange,
-    bgAt: [0.58, 0.6], // swaps while the bloom covers the screen (a navy-to-orange fade goes brown)
+    bgAt: [0.58, 0.6], // swaps while the bloom covers the screen (a blue-to-orange fade goes brown)
     pace: 0.3,
     actors: {
-      // Grows out of the expert slide's bottom orange circle (centre 339, 999) to cover
-      // the whole window, behind the column as it leaves
+      // An orange circle grows from the bottom left (centre 339, 999) to cover the whole window
       bloom: { x: 339 - 2600, y: 999 - 2600, w: 5200, h: 5200, color: C.orange,
-        enter: { from: { x: 105, y: 765, w: 468, h: 468 }, at: [0.05, 0.6] }, exit: { opacity: 0, at: [0, 0.05] } },
+        enter: { from: { x: 339, y: 999, w: 0, h: 0 }, at: [0.05, 0.6] }, exit: { opacity: 0, at: [0, 0.05] } },
       // The yellow squiggle draws itself, then the twins drop in and bounce onto their shadow
       squiggle: { x: 281, y: 29, enter: { draw: 0, at: [0.2, 0.9] }, exit: { draw: 0, at: [0, 0.6] } },
       shadow: { x: 534, y: 718.6, w: 778.4, h: 161.8, color: C.shadowOnSquiggle, enter: { w: 0, h: 0, dx: 389, dy: 81, at: [0.45, 0.85] } },
