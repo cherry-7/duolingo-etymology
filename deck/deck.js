@@ -58,8 +58,9 @@
       (slide.characters || []).forEach((c) => row.append(reveal(slot(c))));
       stage.append(row);
     },
+    // The QR builds itself, tile by tile, then the line appears (Michelle; Duo no longer flies off)
     finale(stage, slide) {
-      stage.append(slot(slide.owl, "owl"), qrBlock(slide.line));
+      stage.append(qrBlock(slide.line, true));
     },
     // Live scores from the demo; streaming lives in leaderboard.js. Laid out on Figma's
     // 1920 x 1080 "Leaderboard" frame (scaled to the stage): the girl holds up the QR sign
@@ -101,14 +102,37 @@
   };
 
   // QR code to the demo, with its line underneath
-  function qrBlock(line) {
+  function qrBlock(line, tiles) {
     const qr = el("div", "qr");
     const code = el("div", "qr-code");
     code.setAttribute("role", "img");
     code.setAttribute("aria-label", "QR code for " + config.demoUrl);
-    code.innerHTML = qrSvg(config.demoUrl || "");
+    code.innerHTML = tiles ? qrTiles(config.demoUrl || "") : qrSvg(config.demoUrl || "");
     qr.append(code, el("p", null, line || "[TBD]"));
     return qr;
+  }
+
+  // The same code as qrSvg, with each dark tile its own square, so the tiles can fade in one by
+  // one (in a random order, over QR_BUILD ms)
+  const QR_BUILD = 1600;
+  function qrTiles(text) {
+    const qr = qrcode(0, "M");
+    qr.addData(text);
+    qr.make();
+    const n = qr.getModuleCount();
+    const cell = 4;
+    const margin = 2;
+    const size = n * cell + 2 * margin;
+    let tiles = "";
+    for (let r = 0; r < n; r++) {
+      for (let c = 0; c < n; c++) {
+        if (!qr.isDark(r, c)) continue;
+        const delay = Math.round(Math.random() * QR_BUILD);
+        tiles += `<rect class="qr-tile" x="${c * cell + margin}" y="${r * cell + margin}" width="${cell + 0.05}" height="${cell + 0.05}" style="transition-delay:${delay}ms"/>`;
+      }
+    }
+    return `<svg viewBox="0 0 ${size} ${size}" preserveAspectRatio="xMinYMin meet" xmlns="http://www.w3.org/2000/svg">` +
+      `<rect width="100%" height="100%" fill="white"/><g fill="black">${tiles}</g></svg>`;
   }
 
   function qrSvg(text) {
@@ -139,26 +163,22 @@
   // The continuous world behind the scene slides (deck/world.js)
   const world = window.World ? window.World.mount(document.body, slides, window.WORLD_ACTORS || {}) : null;
 
-  // Final-slide sequence: owl flies off, then the QR fades in. Replays on each visit.
-  // Timing comes from the owl's CSS transition (0s under reduced motion).
+  // Final-slide sequence: the QR's tiles fade in one by one (CSS, delays set per tile), then
+  // the line. Replays on each visit.
   function playFinale(stage) {
-    if (stage.classList.contains("owl-gone")) return;
-    stage.classList.add("owl-gone");
-    const owl = stage.querySelector(".owl");
-    const ms = parseFloat(getComputedStyle(owl).transitionDuration) * 1000 || 0;
-    stage.qrTimer = setTimeout(() => stage.classList.add("show-qr"), ms);
+    if (stage.classList.contains("show-qr")) return;
+    stage.classList.remove("qr-built");
+    stage.classList.add("show-qr");
   }
 
   function resetFinale(stage) {
-    clearTimeout(stage.qrTimer);
-    stage.classList.remove("owl-gone", "show-qr");
+    stage.classList.remove("show-qr", "qr-built");
   }
 
-  // Jump straight to the end of the sequence (owl gone, QR showing), e.g. when the
-  // deck opens on the slide after it, so going back finds the finale already finished
+  // Jump straight to the end of the sequence (the QR built), e.g. when the deck opens on the
+  // slide after it, so going back finds the finale already finished
   function finishFinale(stage) {
-    clearTimeout(stage.qrTimer);
-    stage.classList.add("owl-gone", "show-qr");
+    stage.classList.add("show-qr", "qr-built");
   }
 
   // Does slide i take its QR over from the slide before it?
@@ -235,7 +255,9 @@
     const fullDx = from.left + from.width / 2 - (to.left + to.width / 2);
     const fullDy = from.top + from.height / 2 - (to.top + to.height / 2);
     qr.style.transformOrigin = `${to.left + to.width / 2 - box.left}px ${to.top + to.height / 2 - box.top}px`;
-    qr.style.transform = `translate(${fullDx * (1 - q)}px, ${fullDy * (1 - q)}px) scale(${scale})`;
+    // ...and clicks into place on the sign: a quick press down and back once it lands
+    const click = Math.sin(Math.PI * clamp((t - 0.8) / 0.12, 0, 1));
+    qr.style.transform = `translate(${fullDx * (1 - q)}px, ${fullDy * (1 - q)}px) scale(${scale * (1 - 0.08 * click)})`;
     // If the QR hadn't appeared on the previous slide yet, fade it in on the way
     const shown = prev.querySelector(".show-qr") || !prev.querySelector(".layout-finale");
     qr.style.opacity = shown ? "" : q;

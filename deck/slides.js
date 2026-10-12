@@ -735,7 +735,6 @@ window.SLIDES = [
     id: "finale",
     layout: "finale",
     transition: "window",
-    owl: { src: CHARACTERS + "duo.png", label: "Duo" },
     line: "Go ahead, scan" // from SPEC.md
   },
   {
