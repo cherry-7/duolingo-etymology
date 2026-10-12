@@ -1,5 +1,7 @@
 // Multiple choice: pick the meaning of a word (or part).
-import { h, shuffle, promptEl } from "../util.js";
+// An option with `title` is drawn as a card: radical art on the left, bold title and
+// detail lines in the middle, an icon on the right (labeled placeholder until art exists).
+import { h, shuffle, promptEl, placeholder } from "../util.js";
 
 export function render(q, ctx) {
   let selected = null;
@@ -12,7 +14,8 @@ export function render(q, ctx) {
       "button",
       {
         type: "button",
-        class: "tile option",
+        class: opt.title ? "tile option option-card" : "tile option",
+        "aria-label": opt.title ? opt.text : null,
         onclick: () => {
           ctx.playSound();
           selected = opt;
@@ -20,7 +23,7 @@ export function render(q, ctx) {
           ctx.useCheck(true, check);
         }
       },
-      opt.text
+      opt.title ? card(opt, ctx) : opt.text
     );
     list.append(btn);
     return btn;
@@ -51,4 +54,12 @@ export function render(q, ctx) {
     h("p", { class: "word" }, q.word),
     list
   );
+}
+
+function card(opt, ctx) {
+  return [
+    opt.image ? ctx.glyph(opt.image, `[TBD: ${opt.text}]`) : null,
+    h("span", { class: "card-text" }, h("strong", { class: "card-title" }, opt.title), (opt.lines || []).map((line) => h("span", {}, line))),
+    opt.icon ? ctx.img(opt.icon, "[TBD: icon]") : placeholder("[TBD: icon]", "card-icon")
+  ];
 }

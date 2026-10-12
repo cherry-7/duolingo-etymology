@@ -1,7 +1,7 @@
 // Demo flow: nickname → lesson (10 questions, 3 language sets) → finish.
 import { CONFIG } from "./config.js";
 import { STRINGS } from "./strings.js";
-import { h, placeholder, assetImg, fileExists, playSound } from "./util.js";
+import { h, placeholder, assetImg, glyphImg, fileExists, playSound } from "./util.js";
 import * as drag from "./formats/drag.js";
 import * as choice from "./formats/choice.js";
 import * as match from "./formats/match.js";
@@ -343,6 +343,7 @@ function makeCtx(q) {
   };
   return {
     img: (file, label) => assetImg(file && `${CONFIG.assets.questions}${file}`, label),
+    glyph: (file, label) => glyphImg(file && `${CONFIG.assets.questions}${file}`, label),
     useCheck(visible, handler = null) {
       check = { visible, handler };
       applyCheck();

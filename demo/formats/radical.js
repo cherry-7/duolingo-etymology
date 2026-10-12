@@ -2,6 +2,8 @@
 // The empty spot sits left of the given part, as 日 sits left of 月 in 明; once the
 // right radical lands, the two pieces merge into the finished character.
 // Tap-to-place also works: tap a radical, then tap the character (or use Enter/Space).
+// Optional SVG art (radicals[].image, rootImage, characterImage) replaces the text glyphs,
+// because a radical drawn on its own looks different from the same radical inside a character.
 import { h, shuffle, buzz, promptEl } from "../util.js";
 import { makeDraggable } from "../drag.js";
 
@@ -15,7 +17,7 @@ export function render(q, ctx) {
     "div",
     { class: "compound", role: "button", tabindex: "0", "aria-label": q.character },
     zone,
-    h("span", { class: "root" }, q.root)
+    h("span", { class: "root" }, q.rootImage ? ctx.glyph(q.rootImage, `[TBD: ${q.root}]`) : q.root)
   );
   // The finished character is the first character of `character` ("明 (míng): bright" → 明)
   const glyph = Array.from(q.character.trim())[0];
@@ -50,7 +52,8 @@ export function render(q, ctx) {
     // After the green jump, the two pieces become one character
     setTimeout(() => {
       compound.classList.add("is-merged");
-      compound.replaceChildren(h("span", { class: "root merged-glyph" }, glyph));
+      const finished = q.characterImage ? ctx.glyph(q.characterImage, `[TBD: ${glyph}]`) : glyph;
+      compound.replaceChildren(h("span", { class: "root merged-glyph" }, finished));
     }, 700);
     return true;
   }
@@ -67,7 +70,12 @@ export function render(q, ctx) {
   });
 
   for (const part of shuffle(q.radicals)) {
-    const tile = h("div", { class: "tile part", role: "button", tabindex: "0" }, part.text);
+    const tile = h(
+      "div",
+      { class: `tile part${part.image ? " has-glyph" : ""}`, role: "button", tabindex: "0", "aria-label": `${part.text} (${part.meaning})` },
+      part.image ? ctx.glyph(part.image, `[TBD: ${part.text}]`) : part.text,
+      part.image ? h("span", { class: "part-meaning" }, `(${part.meaning})`) : null
+    );
     if (part.isCorrect) correctTile = tile;
     makeDraggable(tile, {
       targets: () => [zone],
