@@ -112,6 +112,8 @@ window.WORLD_ACTORS = {
   bubble: { type: "bubble", z: 6 },
   // Mula and Dulo chatting (assets/deck/talking: arms gesturing, mouths moving; a looping SVG)
   talking: { type: "img", src: DECK_ART + "talking/talking.svg", w: 1217, h: 1112, z: 5 },
+  // Mula and Dulo hug into the yin-yang (assets/deck/yin-yang: plays once, then holds and breathes)
+  yinyang: { type: "img", src: DECK_ART + "yin-yang/yin-yang.svg", w: 1360, h: 1200, z: 5 },
   names: { type: "text", font: "condensed", z: 7 },
   frame: { type: "frame", z: 8 },
   // Morphology: a lilac circle opens over the story, then the word splits in two
@@ -382,8 +384,13 @@ window.SLIDES = [
     ref: "Opening",
     bg: C.orange,
     pace: 0.05, // slow: the light finds "This", then the black slowly fades away (about 4s)
+    // After a few seconds of idling, Mula and Dulo switch into the yin-yang hug (Michelle)
+    swap: { from: "twins", to: "yinyang", after: 3000 },
     actors: Object.assign({}, OPENING, {
-      dark: { x: SPOT.x, y: SPOT.y, w: SPOT.r, reveal: 1, at: [0, 1] }
+      dark: { x: SPOT.x, y: SPOT.y, w: SPOT.r, reveal: 1, at: [0, 1] },
+      // hidden until the swap; the yin-yang drawing at the pair's size and feet line (Dulo's bun
+      // at y 175, their feet at y 1059, centred on their feet)
+      yinyang: { x: 340.5, y: 134, w: 1116.3, opacity: 0 }
     })
   },
   {
