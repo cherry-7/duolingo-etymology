@@ -304,6 +304,9 @@ window.World = (function () {
           });
         }
       }
+      const REACT_PAUSE = 500; // ms they stand still between arriving and reacting
+      let pendingReact = null;
+      let pendingTimer = 0;
       let reacting = null;
       let reactStart = 0;
       let reactFrame = 0;
@@ -341,14 +344,25 @@ window.World = (function () {
       return (s) => {
         node.style.opacity = s.opacity;
         node.style.transform = `translate(${s.x}px, ${s.y + s.w * drop}px) scale(${s.w / bw}) rotate(${s.rotate || 0}deg)`;
-        // A reaction takes over as soon as the deck is heading onto its slide (it doesn't wait
-        // for the move or the run to finish); otherwise they run while moving, or stand
-        if (s.react) { react(s.react); wasRunning = null; return; }
-        react(null);
         const running = !!s.move && s.move.t > 0 && s.move.t < 1;
-        if (running) runPose(s.move);
+        // A reaction on this slide: they finish their run, stand for REACT_PAUSE, then react
+        // (the wait is a timer, since the deck stops rendering once it has settled)
+        const runDone = !s.move || s.move.t >= 0.97;
+        if (s.react && reacting === s.react) return;
+        if (s.react && runDone) {
+          if (pendingReact !== s.react) {
+            pendingReact = s.react;
+            clearTimeout(pendingTimer);
+            pendingTimer = setTimeout(() => react(pendingReact), REACT_PAUSE);
+          }
+        } else if (pendingReact) {
+          pendingReact = null;
+          clearTimeout(pendingTimer);
+        }
+        if (!s.react) react(null);
+        if (running && !runDone) runPose(s.move);
         else if (wasRunning !== false) stand();
-        wasRunning = running;
+        wasRunning = running && !runDone;
       };
     },
 
@@ -811,8 +825,8 @@ window.World = (function () {
         } else {
           s = { opacity: 0, x: -9999, y: 0, w: 1, h: 1, draw: 0, width: 0, size: 1, scale: 1, tail: 0, padX: 0, textA: "" };
         }
-        // A pair reacts (e.g. the correct-answer high five) as soon as the deck is past halfway to
-        // its slide, so it starts right away instead of after the move settles
+        // A pair reacts (e.g. the correct-answer high five) on its slide: the pair waits for its run
+        // to finish, pauses, then reacts
         if (actors[key].type === "pair") {
           const near = Math.round(pos);
           s.react = slides[near] && slides[near].react && slides[near].actors[key] ? slides[near].react : null;
