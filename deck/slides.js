@@ -101,6 +101,8 @@ window.WORLD_ACTORS = {
   // Same swirl in its "learner" spot: the story one unswirls, then this one swirls in
   swirlOrangeLearner: { type: "path", shape: "swirlStory", stroke: C.orange, width: 50, z: 1, idle: "drift", idleDelay: "-8s" },
   title: { type: "text", font: "title", z: 2 },
+  // The deck opens in the dark; a flashlight finds "Meet", then the black fades away (Michelle)
+  dark: { type: "spotlight", light: [0.05, 0.4], fade: [0.62, 1], z: 20 },
   shadow: { type: "ellipse", z: 3 },
   saissha: { type: "img", src: DECK_ART + "saissha.png", w: 742, h: 963, z: 4, idle: "breathe" },
   // Mula (left) and Dulo (right), built from their Figma parts; they take the old twins.png slot
@@ -108,6 +110,10 @@ window.WORLD_ACTORS = {
   // Dulo 520): each moved 65 inward, so the gap between them is halved and the pair stays centred. box: the pair's outline in character units.
   twins: { type: "pair", members: [{ who: "mula", dx: 65 }, { who: "dulo", dx: 455 }], box: [95, 60, 950, 666], slotAspect: 944 / 1262, z: 5 },
   bubble: { type: "bubble", z: 6 },
+  // Mula and Dulo chatting (assets/deck/talking: arms gesturing, mouths moving; a looping SVG)
+  talking: { type: "img", src: DECK_ART + "talking/talking.svg", w: 1217, h: 1112, z: 5 },
+  // Mula and Dulo hug into the yin-yang (assets/deck/yin-yang: plays once, then holds and breathes)
+  yinyang: { type: "img", src: DECK_ART + "yin-yang/yin-yang.svg", w: 1360, h: 1200, z: 5 },
   names: { type: "text", font: "condensed", z: 7 },
   frame: { type: "frame", z: 8 },
   // Morphology: a lilac circle opens over the story, then the word splits in two
@@ -326,7 +332,8 @@ const storyActors = {
   swirlOrange: { x: 726.7, y: 113.3, enter: { draw: 0, at: [0.1, 1] }, exit: { draw: 0, at: [0, 0.5] } },
   shadow: { x: 1183, y: 935, w: 629, h: 76, color: C.shadowOnYellow, at: [0.1, 0.9] },
   saissha: { x: 107, y: 117, w: 742, enter: { dx: -1300, at: [0.2, 0.8] } },
-  twins: { x: 1235, y: 540, w: 590.73, at: [0, 1] } // the run takes the whole move
+  // the run takes the whole move; on to the learner slide they fade into the talking pair
+  twins: { x: 1235, y: 540, w: 590.73, at: [0, 1], exit: { opacity: 0, at: [0.15, 0.55] } }
 };
 
 // One example after English: the stack stays, the previous top card flies off to reveal
@@ -339,27 +346,53 @@ function example(id, ref, card, lang, whole, langKey, wordKey, cardExit) {
   return { id, layout: "scene", ref, bg: C.blue, pace: 0.45, actors };
 }
 
+// The flashlight on the opening title's first word, "Meet" (stage coordinates)
+const SPOT = { x: 366, y: 165, r: 325 }; // "Meet" spans x 132-601, y 31-285 at size 210
+
+// The opening title slide. The black first slide has it all in place under the darkness, so
+// the flashlight and the fade reveal it as it is
+const OPENING = {
+  swirlYellow: { x: 0, y: 0, exit: { draw: 0, at: [0, 0.9] } },
+  title: {
+    // Michelle's title; 260 (Figma's size for "TITLE TITLE") runs off the slide, 210 fits one line
+    x: 959.5, y: 0, align: "center", size: 210, color: C.white,
+    text: "Meet Mula & Dulo", // Michelle
+    exit: { dy: -450, opacity: 0, at: [0, 0.5] }
+  },
+  shadow: { x: 323, y: 944, w: 1158, h: 149, color: C.shadowOnOrange },
+  twins: { x: 329, y: 119, w: 1261.65 },
+  names: {
+    x: 1828, y: 666, align: "right", size: 48, color: C.white,
+    text: "Ame Wang,\nDaniel Thomas,\nMichelle Shen,\nNina Zhang,\nSaissha Jain",
+    exit: { dx: 400, opacity: 0, at: [0, 0.4] }
+  }
+};
+
 window.SLIDES = [
+  {
+    // A completely black screen to start
+    id: "dark",
+    layout: "scene",
+    bg: C.orange,
+    actors: Object.assign({}, OPENING, {
+      dark: { x: SPOT.x, y: SPOT.y, w: SPOT.r, reveal: 0 }
+    })
+  },
   {
     id: "opening",
     layout: "scene",
     ref: "Opening",
     bg: C.orange,
-    actors: {
-      swirlYellow: { x: 0, y: 0, exit: { draw: 0, at: [0, 0.9] } },
-      title: {
-        x: 959.5, y: 0, align: "center", size: 260, color: C.white,
-        text: "[TBD: title]", // Figma still says "TITLE TITLE"
-        exit: { dy: -450, opacity: 0, at: [0, 0.5] }
-      },
-      shadow: { x: 323, y: 944, w: 1158, h: 149, color: C.shadowOnOrange },
-      twins: { x: 329, y: 119, w: 1261.65 },
-      names: {
-        x: 1828, y: 666, align: "right", size: 48, color: C.white,
-        text: "Ame Wang,\nDaniel Thomas,\nMichelle Shen,\nNina Zhang,\nSaissha Jain",
-        exit: { dx: 400, opacity: 0, at: [0, 0.4] }
-      }
-    }
+    pace: 0.05, // slow: the light finds "Meet", then the black slowly fades away (about 4s)
+    // A moment of idling, then Mula and Dulo switch into the yin-yang hug (Michelle). It counts
+    // from when the black has all but gone (the slow reveal takes a while longer to come to rest)
+    swap: { from: "twins", to: "yinyang", after: 200, near: 0.15 },
+    actors: Object.assign({}, OPENING, {
+      dark: { x: SPOT.x, y: SPOT.y, w: SPOT.r, reveal: 1, at: [0, 1] },
+      // hidden until the swap; the yin-yang drawing at the pair's size and feet line (Dulo's bun
+      // at y 175, their feet at y 1059, centred on their feet)
+      yinyang: { x: 340.5, y: 134, w: 1116.3, opacity: 0 }
+    })
   },
   {
     id: "story",
@@ -404,8 +437,6 @@ window.SLIDES = [
   {
     id: "learner",
     layout: "scene",
-    // Character step 4: once they've run in, Mula and Dulo high-five (Michelle's pick)
-    react: "correct",
     ref: "User Story-1",
     bg: C.yellow,
     pace: 0.3,
@@ -414,7 +445,9 @@ window.SLIDES = [
       swirlOrangeLearner: { x: -76.6, y: 42.1, enter: { draw: 0, at: [0.4, 1] }, exit: { draw: 0, at: [0, 0.7] } },
       shadow: { x: 794, y: 884, w: 1051, h: 127, color: C.shadowOnYellow, exit: { opacity: 0, at: [0, 0.4] } },
       saissha: { x: 107, y: 529.87, w: 424, exit: { dx: -1000, at: [0, 0.6] } },
-      twins: { x: 854, y: 254.93, w: 971.73, exit: { dx: 1700, at: [0, 0.9] } },
+      // Mula and Dulo chat here (Michelle's pick, replacing the run-in and high five): the standing
+      // pair fades out and the talking pair fades in, same height and feet line as the pair here
+      talking: { x: 895.5, y: 246.5, w: 866, enter: { opacity: 0, at: [0.15, 0.55] }, exit: { opacity: 0, at: [0, 0.3] } },
       bubble: {
         x: 181, y: 198, w: 1061.83, h: 195, size: 80, tail: 1, padX: 61, // Figma's text starts with a space
         text: "That's the learner we're teaching for.",

@@ -589,6 +589,27 @@ window.World = (function () {
       };
     },
 
+    // Darkness with a flashlight: a black layer over the whole window with a soft circle of light
+    // at (x, y). s.reveal runs 0 -> 1: the light switches on and opens to radius w first
+    // (def.light: [start, end] of that), then the black fades away (def.fade)
+    spotlight(def, layer) {
+      const node = el("div", "actor actor-spotlight", layer);
+      node.style.cssText = "left:-1200px;top:-1200px;width:4320px;height:3480px;pointer-events:none";
+      const [l0, l1] = def.light || [0, 0.45];
+      const [f0, f1] = def.fade || [0.55, 1];
+      return (s) => {
+        const r = s.w * soft(clamp((s.reveal - l0) / (l1 - l0), 0, 1));
+        const dark = 1 - soft(clamp((s.reveal - f0) / (f1 - f0), 0, 1));
+        node.style.opacity = s.opacity * dark;
+        node.style.visibility = s.opacity * dark > 0 ? "visible" : "hidden";
+        const cx = s.x + 1200;
+        const cy = s.y + 1200;
+        node.style.background = r > 0
+          ? `radial-gradient(circle ${r}px at ${cx}px ${cy}px, rgba(0,0,0,0) 0, rgba(0,0,0,0) 78%, #000 100%)`
+          : "#000";
+      };
+    },
+
     // Solid rectangle (panels, dividers); can grow from any edge by animating w/h
     rect(def, layer) {
       const node = el("div", "actor actor-rect", layer);
@@ -838,11 +859,75 @@ window.World = (function () {
     container.prepend(world); // behind the slides
     const stage = el("div", "world-stage", world);
     const draw = {};
+    const nodes = {}; // each actor's outer element (for swaps)
     const order = Object.keys(actors).sort((a, b) => (actors[a].z || 0) - (actors[b].z || 0));
     order.forEach((key) => {
       const def = actors[key];
       draw[key] = kinds[def.type](def, stage);
+      nodes[key] = stage.lastElementChild;
     });
+
+    // A slide's swap: { from, to, after (ms), near }. Once the deck is within `near` of the
+    // slide (in slides; default 0.02, i.e. arrived) and
+    // `after` has passed, actor `from` fades out as actor `to` fades in (an img starts its
+    // animation over). Leaving the slide undoes it.
+    const SWAP_FADE = 350;
+    // Swapped-in images are fetched once up front; each swap restarts one from that copy in
+    // memory (a new blob URL is a new image, so its animation starts from the beginning), with
+    // no wait for the network. Opened from disk (no fetch), it falls back to reloading the file.
+    const swapArt = {};
+    slides.forEach((slide) => {
+      const to = slide.swap && actors[slide.swap.to];
+      if (!to || !to.src || swapArt[to.src] || !window.fetch) return;
+      swapArt[to.src] = fetch(to.src).then((r) => (r.ok ? r.text() : null)).catch(() => null);
+    });
+    let swapUrl = null;
+    let swapSlide = null; // the slide whose swap is pending or done
+    let swapTimer = 0;
+    let swapped = false;
+    function crossfadeNodes(out, inn) {
+      [out, inn].forEach((n) => { n.style.transition = `opacity ${SWAP_FADE}ms ease-in-out`; });
+      out.style.opacity = 0;
+      inn.style.opacity = 1;
+      setTimeout(() => [out, inn].forEach((n) => { n.style.transition = ""; }), SWAP_FADE + 50);
+    }
+    function swapFor(pos) {
+      const near = Math.round(pos);
+      const slide = slides[near];
+      const sw = slide && slide.swap;
+      const arrived = sw && Math.abs(pos - near) < (sw.near || 0.02);
+      if (!arrived) {
+        if (swapSlide) {
+          // leaving: fade back (the slide's own opacities take over, eased by the transition)
+          const back = swapSlide.swap;
+          if (swapped) {
+            [nodes[back.from], nodes[back.to]].forEach((n) => { n.style.transition = `opacity ${SWAP_FADE}ms ease-in-out`; });
+            setTimeout(() => [nodes[back.from], nodes[back.to]].forEach((n) => { n.style.transition = ""; }), SWAP_FADE + 50);
+          }
+          clearTimeout(swapTimer);
+          swapSlide = null;
+          swapped = false;
+        }
+        return;
+      }
+      if (swapSlide === slide) return;
+      swapSlide = slide;
+      swapped = false;
+      clearTimeout(swapTimer);
+      const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+      swapTimer = setTimeout(() => {
+        const img = nodes[sw.to].querySelector("img");
+        const go = () => { swapped = true; crossfadeNodes(nodes[sw.from], nodes[sw.to]); };
+        if (!img) return go();
+        // start the animation over: a fresh copy of the image, shown once it has loaded
+        const show = (src) => { img.onload = img.onerror = () => { img.onload = img.onerror = null; go(); }; img.src = src; };
+        Promise.resolve(swapArt[actors[sw.to].src]).then((text) => {
+          if (swapUrl) URL.revokeObjectURL(swapUrl);
+          swapUrl = text ? URL.createObjectURL(new Blob([text], { type: "image/svg+xml" })) : null;
+          show(swapUrl || actors[sw.to].src + "?play=" + Date.now());
+        });
+      }, reduce ? 0 : sw.after);
+    }
 
     // Bubbles with no size get one from their text (measured once fonts load)
     function measure() {
@@ -942,7 +1027,12 @@ window.World = (function () {
           s.nod = here ? slides[near].id : null;
         }
         draw[key](s);
+        // a swap that has happened keeps its actors where it left them while the deck stays
+        const sw = swapSlide && swapSlide.swap;
+        if (swapped && sw && key === sw.from) nodes[key].style.opacity = 0;
+        if (swapped && sw && key === sw.to) nodes[key].style.opacity = 1;
       });
+      swapFor(pos);
     }
 
     // A pair moving sideways runs (character step 3); dir is the way it goes on screen, which
