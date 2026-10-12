@@ -101,7 +101,7 @@ window.WORLD_ACTORS = {
   // Same swirl in its "learner" spot: the story one unswirls, then this one swirls in
   swirlOrangeLearner: { type: "path", shape: "swirlStory", stroke: C.orange, width: 50, z: 1, idle: "drift", idleDelay: "-8s" },
   title: { type: "text", font: "title", z: 2 },
-  // The deck opens in the dark; a flashlight finds "This", then the black fades away (Michelle)
+  // The deck opens in the dark; a flashlight finds "Meet", then the black fades away (Michelle)
   dark: { type: "spotlight", light: [0.05, 0.4], fade: [0.62, 1], z: 20 },
   shadow: { type: "ellipse", z: 3 },
   saissha: { type: "img", src: DECK_ART + "saissha.png", w: 742, h: 963, z: 4, idle: "breathe" },
@@ -346,8 +346,8 @@ function example(id, ref, card, lang, whole, langKey, wordKey, cardExit) {
   return { id, layout: "scene", ref, bg: C.blue, pace: 0.45, actors };
 }
 
-// The flashlight on the opening title's first word, "This" (stage coordinates)
-const SPOT = { x: 270, y: 165, r: 290 }; // "This" spans x 77-464, y 31-285 at size 210
+// The flashlight on the opening title's first word, "Meet" (stage coordinates)
+const SPOT = { x: 366, y: 165, r: 325 }; // "Meet" spans x 132-601, y 31-285 at size 210
 
 // The opening title slide. The black first slide has it all in place under the darkness, so
 // the flashlight and the fade reveal it as it is
@@ -356,7 +356,7 @@ const OPENING = {
   title: {
     // Michelle's title; 260 (Figma's size for "TITLE TITLE") runs off the slide, 210 fits one line
     x: 959.5, y: 0, align: "center", size: 210, color: C.white,
-    text: "This is Mula & Dulo", // Michelle
+    text: "Meet Mula & Dulo", // Michelle
     exit: { dy: -450, opacity: 0, at: [0, 0.5] }
   },
   shadow: { x: 323, y: 944, w: 1158, h: 149, color: C.shadowOnOrange },
@@ -383,7 +383,7 @@ window.SLIDES = [
     layout: "scene",
     ref: "Opening",
     bg: C.orange,
-    pace: 0.05, // slow: the light finds "This", then the black slowly fades away (about 4s)
+    pace: 0.05, // slow: the light finds "Meet", then the black slowly fades away (about 4s)
     // A moment of idling, then Mula and Dulo switch into the yin-yang hug (Michelle). It counts
     // from when the black has all but gone (the slow reveal takes a while longer to come to rest)
     swap: { from: "twins", to: "yinyang", after: 200, near: 0.15 },
