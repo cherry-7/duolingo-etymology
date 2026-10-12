@@ -338,6 +338,8 @@ window.World = (function () {
         }
       }
       const REACT_PAUSE = 500; // ms they stand still between arriving and reacting
+      let reactLoopGap = null; // ms between plays on a slide with reactLoop
+      let reactLoopTimer = 0;
       let pendingReact = null;
       let pendingTimer = 0;
       let reacting = null;
@@ -355,7 +357,15 @@ window.World = (function () {
         reactStart = performance.now();
         const tick = (now) => {
           const t = (now - reactStart) / 1000;
-          if (t >= R.duration) { finishReaction(); return; }
+          if (t >= R.duration) {
+            finishReaction();
+            // a slide with reactLoop plays it again after that pause, while it's still up
+            if (reactLoopGap != null) {
+              clearTimeout(reactLoopTimer);
+              reactLoopTimer = setTimeout(() => { if (reacting === name && reactLoopGap != null) { reacting = null; react(name); } }, reactLoopGap);
+            }
+            return;
+          }
           pose(R, Math.floor(t * R.fps) / R.fps); // held frames: R.fps per second
           reactFrame = requestAnimationFrame(tick);
         };
@@ -445,6 +455,8 @@ window.World = (function () {
           node.style.transform = `translate(${s.x}px, ${s.y + s.w * drop}px) scale(${s.w / bw}) rotate(${s.rotate || 0}deg)`;
           return;
         }
+        reactLoopGap = s.react ? s.reactLoop ?? null : null;
+        if (!s.react) clearTimeout(reactLoopTimer);
         if (s.nod !== nodded) {
           nodded = s.nod;
           if (s.nod && !reacting) nod();
@@ -1052,6 +1064,7 @@ window.World = (function () {
         if (actors[key].type === "pair") {
           const near = Math.round(pos);
           s.react = slides[near] && slides[near].react && slides[near].actors[key] ? slides[near].react : null;
+          s.reactLoop = s.react ? slides[near].reactLoop : null;
           // ...and nods once a slide with nod: true has arrived (its bubble is up)
           const here = slides[near] && slides[near].nod && slides[near].actors[key] && Math.abs(pos - near) < 0.02;
           s.nod = here ? slides[near].id : null;
@@ -1076,21 +1089,42 @@ window.World = (function () {
       const src = actors[key] && actors[key].src;
       if (src && !swapArt[src] && window.fetch) swapArt[src] = fetch(src).then((r) => (r.ok ? r.text() : null)).catch(() => null);
     }));
-    function restartFor(pos) {
-      const near = Math.round(pos);
-      const slide = slides[near];
-      if (slide === restartSlide) return;
-      restartSlide = slide;
-      (slide && slide.restart || []).forEach((key) => {
-        const img = nodes[key] && nodes[key].querySelector("img");
-        const src = actors[key].src;
-        if (!img) return;
-        Promise.resolve(swapArt[src]).then((text) => {
+    // A slide's restartEvery: { key: ms }. Those images start over every ms while slides that
+    // list them are up (a quick fade covers the jump back to the first frame)
+    const loops = {};
+    function restartImg(key, fade) {
+      const img = nodes[key] && nodes[key].querySelector("img");
+      const src = actors[key].src;
+      if (!img) return;
+      Promise.resolve(swapArt[src]).then((text) => {
+        const swap = () => {
           if (restartUrls[key]) URL.revokeObjectURL(restartUrls[key]);
           restartUrls[key] = text ? URL.createObjectURL(new Blob([text], { type: "image/svg+xml" })) : null;
           img.src = restartUrls[key] || src + "?play=" + Date.now();
-        });
+          img.style.opacity = 1;
+        };
+        if (!fade) return swap();
+        img.style.transition = "opacity 0.25s";
+        img.style.opacity = 0;
+        setTimeout(swap, 250);
       });
+    }
+    function loopFor(slide) {
+      const want = (slide && slide.restartEvery) || {};
+      Object.keys(loops).forEach((key) => { if (!want[key]) { clearInterval(loops[key]); delete loops[key]; } });
+      Object.entries(want).forEach(([key, ms]) => { if (!loops[key]) loops[key] = setInterval(() => restartImg(key, true), ms); });
+    }
+    slides.forEach((slide) => Object.keys(slide.restartEvery || {}).forEach((key) => {
+      const src = actors[key] && actors[key].src;
+      if (src && !swapArt[src] && window.fetch) swapArt[src] = fetch(src).then((r) => (r.ok ? r.text() : null)).catch(() => null);
+    }));
+    function restartFor(pos) {
+      const near = Math.round(pos);
+      const slide = slides[near];
+      loopFor(slide);
+      if (slide === restartSlide) return;
+      restartSlide = slide;
+      (slide && slide.restart || []).forEach((key) => restartImg(key, false));
     }
 
     // A pair moving sideways runs (character step 3); dir is the way it goes on screen, which

@@ -333,14 +333,19 @@ function posesStep(id, labels, second) {
   });
   const slide = { id, layout: "scene", ref: "Character Poses Animation", bg: C.purple, pace: 0.6, actors };
   if (second) {
-    // walking: the second pair runs in place in the middle oval
-    actors.twinsWalk = PAIR_IN_OVAL(OVALS.gifCorrect.x);
+    // walking: the second pair runs in place in the middle oval. Running, Mula dashes ahead with
+    // her arm out, so the pair sits 370 wide and further left to stay centred in the oval
+    actors.twinsWalk = Object.assign(PAIR_IN_OVAL(OVALS.gifCorrect.x), { x: 667, y: 270, w: 370 });
     slide.runLoop = ["twinsWalk"];
   } else {
     // correct answer: the pair in the middle oval high-fives once the slide arrives; the
     // yin-yang starts over as its oval drops in
     actors.twins = PAIR_IN_OVAL(OVALS.gifCorrect.x);
     slide.react = "correct";
+    // both loop while the slide is up (Michelle): the high five again 1.5s after it ends, the
+    // yin-yang over every 5s (hug, a hold, then a quick fade into the next one)
+    slide.reactLoop = 1500;
+    slide.restartEvery = { gifFinished: 5000 };
     if (!labels.length) slide.restart = ["gifFinished"];
   }
   return slide;
