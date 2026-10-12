@@ -94,6 +94,7 @@ split("13", "faceDulo", check("faceDulo", cut(A["13"].ring, EVERYTHING, MULA_FAC
 
 // The after drawing has five hands; the one at Dulo's waist goes (Michelle's call, "D")
 delete A["10"];
+delete A["11"]; // the bit of hair that showed beside that hand; without it, it's just a spot on her dress
 
 // Mula's open mouth keeps its colours from the before drawing (the after one has it brown)
 A["24"].fill = B["31"].fill;
@@ -111,7 +112,7 @@ const MAP = [
   [["1"], ["hairDulo"]], [["20"], ["hairMula"]],
   // the little bits of hair showing between arms and bodies would slide across the dresses:
   // the old ones close up early, the new ones open late
-  [["5"], []], [["6"], []], [["7"], []], [["26"], []], [["37"], []], [[], ["23"]], [[], ["11"]], [[], ["1b"]], [[], ["5"]],
+  [["5"], []], [["6"], []], [["7"], []], [["26"], []], [["37"], []], [[], ["23"]], [[], ["1b"]], [[], ["5"]],
   // clothes: the dresses become the yin and the yang. Dulo's light sash becomes the light dot in
   // her dark half, Mula's dark scarf the dark dot in her light half.
   [["2", "40", "46"], ["2a"]], [[], ["2b"]], [["3"], ["12"]], [["24"], ["6"]], [["35", "22"], ["3"]],
