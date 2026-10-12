@@ -109,3 +109,4 @@ Work queue for the deck and demo.
 - [ ] APPROVED (2026-10-11, Michelle in chat): "Make the closing eyes a U shape instead of a straight line, and also make it so that Dulo's eyelids close with the blinks": the closed eyes in the nod are a U (same colour); Dulo's eyelids stretch down to the eye's centre line on every blink and while nodding.
 - [ ] APPROVED (2026-10-11, Michelle in chat): "Remove Dulo's tinted eyelids when she is blinking": her tinted lids fade out as her eyes shut and back in as they open, on blinks and in the nod (replaces the lids stretching down).
 - [ ] APPROVED (2026-10-11, Michelle in chat): "Please add blinks to the yin-yang logo too": once they hold the yin-yang, Mula blinks every 4.2s and Dulo every 5.3s (same blink as the deck, Dulo's tinted lids go away while her eyes are shut).
+- [ ] APPROVED (2026-10-11, Michelle in chat): "Remove the blinks actually": the yin-yang has no blinks again (replaces the entry above).

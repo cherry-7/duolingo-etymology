@@ -197,25 +197,7 @@ const s = (x) => x.toFixed(3) + "s";
 const FILL_AT = [T.morph[0] + (T.morph[1] - T.morph[0]) * 0.25, T.morph[1] - (T.morph[1] - T.morph[0]) * 0.2];
 const span = ([a, b]) => `begin="${s(a)}" dur="${s(b - a)}"`;
 const EASE = 'calcMode="spline" keyTimes="0;1" keySplines="0.45 0 0.2 1"';
-// Blinks once they're holding the yin-yang, like the deck's idle blink: each eye (white and
-// pupil) squeezes shut about the white's centre; Dulo's tinted lids go away while it's shut.
-// Mula every 4.2s, Dulo every 5.3s, so never together.
-const EYE = {
-  "17": "mula", "18": ["mula", "17"], "19": "mula", "20": ["mula", "19"],
-  "14": "dulo", "16": ["dulo", "14"], "21": "dulo", "22": ["dulo", "21"]
-};
-const LID = { "15": "dulo", "29": "dulo" };
-const blink = (p, svg) => {
-  const eye = EYE[p.to];
-  if (eye) {
-    const [who, white] = Array.isArray(eye) ? eye : [eye, p.to];
-    const [cx, cy] = centroid(A[white].ring);
-    return `<g class="blink blink-${who}" style="transform-origin:${cx.toFixed(1)}px ${cy.toFixed(1)}px">${svg}</g>`;
-  }
-  if (LID[p.to]) return `<g class="blink-lid">${svg}</g>`;
-  return svg;
-};
-const body = pieces.map((p) => blink(p, (() => {
+const body = pieces.map((p) => {
   const cls = p.mula ? ' class="mula"' : "";
   // only at the very end, once the pieces are in place, so it never shows as a ghost
   if (p.under) return `<path d="${toD(p.b)}" fill="${p.fillB}" opacity="0"><animate attributeName="opacity" values="0;1" ${span([T.morph[1] - 0.08, T.morph[1]])} fill="freeze"/></path>`;
@@ -227,7 +209,7 @@ const body = pieces.map((p) => blink(p, (() => {
   }
   const fill = p.fillA === p.fillB ? "" : `<animate attributeName="fill" values="${p.fillA};${p.fillB}" ${span(T.morph)} fill="freeze" ${EASE}/>`;
   return `<path${cls} d="${toD(p.a)}" fill="${p.fillA}"><animate attributeName="d" values="${toD(p.a)};${toD(p.b)}" ${span(T.morph)} fill="freeze" ${EASE}/>${fill}</path>`;
-})())).join("\n");
+}).join("\n");
 
 // Mula's hop as CSS keyframes over the crouch + hop; Mula's pieces share it
 const total = T.hop[1] + 0.2;
@@ -257,12 +239,6 @@ const css = `
 @keyframes settle { from { transform: none; } 35% { transform: scale(1.03, 0.96); } to { transform: none; } }
 .breathe { transform-box: view-box; transform-origin: ${ground[0]}px ${ground[1]}px; animation: breathe 2.6s ease-in-out ${s(T.breathe)} infinite; }
 @keyframes breathe { 0%, 100% { transform: none; } 45% { transform: scale(1, 1.012); } }
-.blink { transform-box: view-box; animation: blink var(--every) linear ${s(T.breathe)} infinite; }
-.blink-mula { --every: 4.2s; }
-.blink-dulo, .blink-lid { --every: 5.3s; }
-.blink-lid { animation: blink-lid var(--every) linear ${s(T.breathe)} infinite; }
-@keyframes blink { 0%, 93% { transform: none; } 95.5% { transform: scale(1, 0.08); } 98%, 100% { transform: none; } }
-@keyframes blink-lid { 0%, 93.5% { opacity: 1; } 95%, 96.5% { opacity: 0; } 98%, 100% { opacity: 1; } }
 /* reduced motion: just the finished yin-yang */
 .still { display: none; }
 @media (prefers-reduced-motion: reduce) { .live { display: none; } .still { display: inline; } }
