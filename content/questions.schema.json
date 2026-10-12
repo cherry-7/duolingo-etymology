@@ -14,7 +14,8 @@
       { "$ref": "#/$defs/order" },
       { "$ref": "#/$defs/split" },
       { "$ref": "#/$defs/odd" },
-      { "$ref": "#/$defs/construction" }
+      { "$ref": "#/$defs/construction" },
+      { "$ref": "#/$defs/radical" }
     ]
   },
   "$defs": {
@@ -271,6 +272,36 @@
           "description": "Optional meaning of the finished word, shown on success."
         },
         "animationId": { "type": "string" },
+        "hint": { "$ref": "#/$defs/hint" },
+        "correction": { "$ref": "#/$defs/correction" }
+      }
+    },
+    "radical": {
+      "type": "object",
+      "description": "Build a Chinese character by placing its radicals in order.",
+      "required": ["type", "language", "prompt", "character", "root", "radicals", "answerMeaning"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "radical" },
+        "language": { "$ref": "#/$defs/language" },
+        "prompt": { "$ref": "#/$defs/prompt" },
+        "character": { "type": "string" },
+        "root": { "type": "string" },
+        "radicals": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "required": ["text", "meaning", "isCorrect"],
+            "additionalProperties": false,
+            "properties": {
+              "text": { "type": "string" },
+              "meaning": { "type": "string" },
+              "isCorrect": { "type": "boolean" }
+            }
+          }
+        },
+        "answerMeaning": { "type": "string" },
         "hint": { "$ref": "#/$defs/hint" },
         "correction": { "$ref": "#/$defs/correction" }
       }

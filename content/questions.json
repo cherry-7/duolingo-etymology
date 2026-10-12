@@ -36,47 +36,46 @@
   {
     "type": "match",
     "language": "Chinese",
-    "prompt": "A compound combines meaningful word parts. Match each word to the parts used to build it.",
+    "prompt": "Match each Chinese character to the components that combine to form it.",
     "pairs": [
       {
-        "part": "火山 (huǒshān): volcano",
-        "meaning": "火 (fire) + 山 (mountain)"
+        "part": "明 (míng): bright",
+        "meaning": "日 (sun) + 月 (moon)"
       },
       {
-        "part": "木屋 (mùwū): wooden house",
-        "meaning": "木 (wood) + 屋 (house)"
+        "part": "林 (lín): grove",
+        "meaning": "木 (wood) + 木 (wood)"
       },
       {
-        "part": "火山岩 (huǒshānyán): volcanic rock",
-        "meaning": "火山 (volcano) + 岩 (rock)"
+        "part": "森 (sēn): forest",
+        "meaning": "木 (wood) + 木 (wood) + 木 (wood)"
       }
     ]
   },
   {
-    "type": "drag",
+    "type": "radical",
     "language": "Chinese",
-    "prompt": "Build the compound for a wooden house. Start with 木 (wood) and add the part naming the thing made from it.",
-    "root": "木",
-    "parts": [
+    "prompt": "Complete the character by dragging the missing radical into the empty spot.",
+    "character": "明 (míng): bright",
+    "root": "月",
+    "radicals": [
+      {
+        "text": "日",
+        "meaning": "Sun",
+        "isCorrect": true
+      },
+      {
+        "text": "木",
+        "meaning": "Wood",
+        "isCorrect": false
+      },
       {
         "text": "山",
         "meaning": "Mountain",
         "isCorrect": false
-      },
-      {
-        "text": "屋",
-        "meaning": "House",
-        "isCorrect": true
-      },
-      {
-        "text": "岩",
-        "meaning": "Rock",
-        "isCorrect": false
       }
     ],
-    "answerMeaning": "木屋 (mùwū): wooden house. 木 gives the material; 屋 names the house.",
-    "rootImage": "chinese-muwu-root.png",
-    "completeImage": "chinese-muwu-complete.png"
+    "answerMeaning": "明 (míng): bright. 日 (sun) joins 月 (moon) to form the character for bright."
   },
   {
     "type": "order",
