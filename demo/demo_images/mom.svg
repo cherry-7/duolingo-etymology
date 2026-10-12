@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" role="img" aria-label="A mom blinks and rocks her sleeping baby">
+  <style>
+    .sway{transform-box:view-box;transform-origin:150px 300px;animation:sway 2.4s ease-in-out infinite}
+    .tilt{transform-box:view-box;transform-origin:150px 120px;animation:tilt 2.4s ease-in-out infinite}
+    .rock{transform-box:view-box;transform-origin:150px 214px;animation:rock 2.4s ease-in-out infinite}
+    .eye{transform-box:fill-box;transform-origin:center;animation:blink 4.8s infinite}
+    .z{animation:float 2.4s ease-out infinite;opacity:0}
+    .z2{animation-delay:-.8s}.z3{animation-delay:-1.6s}
+    @keyframes sway{0%,100%{transform:rotate(-1.5deg)}50%{transform:rotate(1.5deg)}}
+    @keyframes tilt{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(2deg)}}
+    @keyframes rock{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
+    @keyframes blink{0%,42%,50%,100%{transform:scaleY(1)}46%{transform:scaleY(.1)}}
+    @keyframes float{0%{transform:translate(0,0) scale(.6);opacity:0}25%{opacity:1}100%{transform:translate(-14px,-34px) scale(1.1);opacity:0}}
+    @media (prefers-reduced-motion:reduce){.sway,.tilt,.rock,.eye,.z{animation:none}.z{opacity:1}}
+  </style>
+  <!-- soft backdrop -->
+  <circle cx="150" cy="158" r="122" fill="#FDEBEE"/>
+
+  <g class="sway">
+    <!-- long hair behind -->
+    <path fill="#8A4B2F" d="M150 30Q96 30 94 100L88 190Q88 206 104 206H196Q212 206 212 190L206 100Q204 30 150 30Z"/>
+    <!-- neck, skirt, sweater -->
+    <rect x="138" y="110" width="24" height="38" rx="8" fill="#E9A37C"/>
+    <rect x="98" y="258" width="104" height="42" fill="#3F3C3C"/>
+    <path fill="#EE7D86" d="M74 300V200Q74 146 124 140H176Q226 146 226 200V270Q226 280 216 280H84Q74 280 74 270Z"/>
+
+    <!-- head -->
+    <g class="tilt">
+      <ellipse cx="150" cy="86" rx="34" ry="40" fill="#F5BE97"/>
+      <path fill="#8A4B2F" d="M114 98Q104 40 152 40Q198 42 188 102Q180 70 160 62Q142 84 114 98Z"/>
+      <circle cx="130" cy="104" r="6" fill="#F49AA1"/>
+      <circle cx="170" cy="104" r="6" fill="#F49AA1"/>
+      <g fill="#3F3C3C">
+        <ellipse class="eye" cx="139" cy="92" rx="3.4" ry="4.4"/>
+        <ellipse class="eye" cx="161" cy="92" rx="3.4" ry="4.4"/>
+      </g>
+      <path d="M143 108Q150 114 157 108" fill="none" stroke="#3F3C3C" stroke-width="2.4" stroke-linecap="round"/>
+    </g>
+
+    <!-- baby, cradling arm and hands rock together -->
+    <g class="rock">
+      <rect x="96" y="224" width="120" height="30" rx="15" fill="#E46A75" transform="rotate(-10 156 239)"/>
+      <ellipse cx="156" cy="208" rx="64" ry="34" fill="#D4EDFB" transform="rotate(-14 156 208)"/>
+      <circle cx="112" cy="194" r="31" fill="#D4EDFB"/>
+      <circle cx="114" cy="198" r="19" fill="#F5BE97"/>
+      <path d="M106 181Q114 175 122 181" fill="none" stroke="#8A4B2F" stroke-width="3" stroke-linecap="round"/>
+      <g fill="none" stroke="#3F3C3C" stroke-width="2.2" stroke-linecap="round">
+        <path d="M104 198Q108 202 112 198"/>
+        <path d="M117 198Q121 202 125 198"/>
+      </g>
+      <circle cx="105" cy="206" r="3.5" fill="#F49AA1"/>
+      <circle cx="125" cy="206" r="3.5" fill="#F49AA1"/>
+      <!-- front sleeve across the blanket, then hands -->
+      <rect x="150" y="214" width="62" height="26" rx="13" fill="#EE7D86" transform="rotate(-18 181 227)"/>
+      <rect x="154" y="190" width="28" height="22" rx="11" fill="#F5BE97"/>
+      <rect x="196" y="208" width="24" height="20" rx="10" fill="#F5BE97"/>
+    </g>
+  </g>
+
+  <!-- sleepy z's -->
+  <g fill="#8FC3E6" font-family="Fredoka,'Arial Rounded MT Bold',sans-serif" font-weight="700">
+    <text class="z" x="64" y="186" font-size="18">z</text>
+    <text class="z z2" x="58" y="178" font-size="22">z</text>
+    <text class="z z3" x="54" y="168" font-size="15">z</text>
+  </g>
+</svg>

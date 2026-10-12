@@ -49,13 +49,31 @@ export function glyphImg(src, label, extraClass = "") {
   }
   if (!svgCache.has(src)) svgCache.set(src, fetch(src).then((r) => (r.ok ? r.text() : Promise.reject(r.status))));
   svgCache.get(src).then(
-    (text) => (wrap.innerHTML = text),
+    (text) => {
+      wrap.innerHTML = text;
+      fitSvg(wrap.querySelector("svg"));
+    },
     () => {
       console.warn(`Missing glyph: ${src}`);
       wrap.replaceWith(placeholder(label, extraClass));
     }
   );
   return wrap;
+}
+
+// Size an inlined SVG by its viewBox instead of its width/height attributes. Safari keeps
+// the attribute width (e.g. 465px for 女) when CSS says width: auto, so the drawing landed
+// far outside its tile and looked missing; with the attributes gone and an aspect ratio
+// set, every browser makes it as tall as its box and as wide as its proportions.
+function fitSvg(svg) {
+  if (!svg) return;
+  const vb = (svg.getAttribute("viewBox") || "").trim().split(/[\s,]+/).map(Number);
+  const w = vb[2] || parseFloat(svg.getAttribute("width"));
+  const hgt = vb[3] || parseFloat(svg.getAttribute("height"));
+  if (!vb[2] && w && hgt) svg.setAttribute("viewBox", `0 0 ${w} ${hgt}`);
+  svg.removeAttribute("width");
+  svg.removeAttribute("height");
+  if (w && hgt) svg.style.aspectRatio = `${w} / ${hgt}`;
 }
 
 // Text with __word__ marks rendered underlined (e.g. "the __gender__ of 妈").

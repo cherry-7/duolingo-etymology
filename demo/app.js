@@ -474,9 +474,17 @@ function showBoundary(nxt) {
     h(
       "div",
       { class: "boundary" },
+      // the twins (thinking) tell the player to swipe
+      h(
+        "div",
+        { class: "twins-row boundary-twins" },
+        h("div", { class: "twins-stage" }, h("img", { class: "twins-img", src: CONFIG.twinsAnimations.idle.src, alt: "", draggable: "false" })),
+        // only the first word ("Swipe") is bold
+        h("div", { class: "speech" }, h("p", { class: "speech-line is-regular" },
+          h("strong", {}, STRINGS.swipeToNext.split(" ")[0]), STRINGS.swipeToNext.slice(STRINGS.swipeToNext.indexOf(" "))))
+      ),
       h("p", { class: "boundary-lang" }, nxt.lang),
-      h("div", { class: "swipe-hint", "aria-hidden": "true" }, "→"),
-      h("p", { class: "muted" }, STRINGS.swipeToNext)
+      h("div", { class: "swipe-hint", "aria-hidden": "true" }, "→")
     )
   );
   $("progress-fill").style.width = `${Math.round(((state.i + 1) / state.lesson.length) * 100)}%`;
@@ -555,7 +563,7 @@ function slideIn(el) {
   el.classList.add("slide-in");
 }
 
-/* ---------- completion animation (Rive or placeholder) ---------- */
+/* ---------- completion animation (SVG, Rive or placeholder) ---------- */
 
 let riveLoading = null;
 function loadRive() {
@@ -574,6 +582,10 @@ function animationUrl(q) {
   return q.animationId ? `${CONFIG.assets.animations}${q.animationId}.riv` : null;
 }
 
+function animationImageUrl(q) {
+  return q.animationId ? `${CONFIG.assets.animationImages}${q.animationId}.svg` : null;
+}
+
 function preloadAnimation(q) {
   const url = animationUrl(q);
   if (url) fileExists(url).then((ok) => ok && loadRive().catch(() => {}));
@@ -585,6 +597,15 @@ async function playAnimation(q, slot) {
   const url = animationUrl(q);
   const label = q.animationId ? `[TBD: animation ${q.animationId}]` : "[TBD: animation (none specified)]";
   slot.classList.add("has-anim");
+
+  // An animated SVG for this question wins over a Rive file
+  const image = animationImageUrl(q);
+  if (image && (await fileExists(image))) {
+    slot.append(h("div", { class: "anim-overlay" }, h("img", { class: "anim-image", src: image, alt: "", draggable: "false" })));
+    // The feedback sheet shortens the lesson body; keep the animation on screen
+    slot.scrollIntoView({ block: "nearest" });
+    return;
+  }
 
   if (!url || !(await fileExists(url))) {
     console.warn(q.animationId ? `Missing animation: ${q.animationId} (${url})` : "Missing animation: question has no animationId", q);
@@ -614,18 +635,13 @@ function finish() {
     h("h1", { class: "title" }, STRINGS.finishTitle),
     avatarEl(state.avatar, "lg"),
     h("p", { class: "nick-echo" }, state.name),
-    h("p", { class: "score" }, String(score)),
-    h(
-      "div",
-      { class: "stats" },
-      h("div", {}, h("span", { class: "stat-n" }, `${state.firstTry}/${state.lesson.length}`), h("span", {}, STRINGS.statFirstTry))
-    ),
+    h("p", { class: "score" }, `${score}/${state.lesson.length}`),
+    h("p", { id: "finish-place", class: "finish-place" }),
     h(
       "div",
       { class: "twins-row" },
-      h("div", { class: "twins-stage is-high-five" },
-        h("iframe", { class: "twins-frame", src: `${CONFIG.twinsHighFive}?play`, title: "Mula and Dulo", tabindex: "-1", "aria-hidden": "true" })),
-      h("div", { class: "speech" }, h("p", { class: "speech-line" }, STRINGS.finishBubble))
+      h("div", { class: "twins-stage" }, h("img", { class: "twins-img", src: CONFIG.twinsAnimations.yinYang.src, alt: "", draggable: "false" })),
+      h("div", { class: "speech" }, h("p", { class: "speech-line is-regular" }, STRINGS.finishBubble))
     ),
     h("p", { id: "submit-status", class: "muted submit-status" }, STRINGS.submitting)
   );
@@ -634,9 +650,39 @@ function finish() {
   playSound(SOUNDS.completed);
   // mistakes are sent only to break leaderboard ties, never to lower the score
   submitScore(state.name, score, { avatar: state.avatar.id, mistakes: state.mistakes }).then(
-    () => ($("submit-status").textContent = STRINGS.submitted),
+    (key) => {
+      $("submit-status").textContent = STRINGS.submitted;
+      showPlace(key);
+    },
     () => ($("submit-status").textContent = STRINGS.submitFailed)
   );
+}
+
+// The deck's leaderboard slide shows the top 4 (deck/slides.js "leaderboard", limit: 4)
+const LEADERBOARD_SHOWN = 4;
+
+// Under the score: "You're 2nd place!" when the player made the deck's top 4, otherwise
+// "You're on the leaderboard!" (also if the scores can't be read back)
+async function showPlace(key) {
+  const line = $("finish-place");
+  line.textContent = STRINGS.finishOnBoard;
+  try {
+    const r = await fetch(`${window.FIREBASE_CONFIG.databaseURL}/scores.json`);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    // Same ranking as the deck (deck/leaderboard.js): score, then fewer mistakes, then first to finish
+    const ranked = Object.entries((await r.json()) || {})
+      .filter(([, s]) => s && typeof s.name === "string" && typeof s.score === "number")
+      .sort(([, a], [, b]) => b.score - a.score || (a.mistakes || 0) - (b.mistakes || 0) || (a.ts || 0) - (b.ts || 0));
+    const place = ranked.findIndex(([k]) => k === key) + 1;
+    if (place >= 1 && place <= LEADERBOARD_SHOWN) line.textContent = STRINGS.finishPlace.replace("{place}", ordinal(place));
+  } catch (e) {
+    console.warn("Couldn't read the leaderboard for the player's place", e);
+  }
+}
+
+function ordinal(n) {
+  const suffix = n % 100 >= 11 && n % 100 <= 13 ? "th" : { 1: "st", 2: "nd", 3: "rd" }[n % 10] || "th";
+  return `${n}${suffix}`;
 }
 
 /* ---------- boot ---------- */

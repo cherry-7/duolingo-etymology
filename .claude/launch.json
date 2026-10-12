@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "svg-preview",
+      "runtimeExecutable": "/bin/sh",
+      "runtimeArgs": ["-c", "cd /private/tmp/claude-501/-Users-ninazhang-Documents-Github-duolingo-etymology/745d4908-aa97-4a69-b3fd-c00cc9081ce8/scratchpad/preview && exec /usr/bin/python3 -m http.server 8765"],
+      "port": 8765
+    },
+    {
+      "name": "demo",
+      "runtimeExecutable": "/bin/sh",
+      "runtimeArgs": ["-c", "cd /private/tmp/claude-501/-Users-ninazhang-Documents-Github-duolingo-etymology/e0ac906d-e961-4d06-aa79-b34e99a37a64/scratchpad/site && exec /usr/bin/python3 -m http.server 8766"],
+      "port": 8766
+    }
+  ]
+}
