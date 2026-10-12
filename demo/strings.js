@@ -1,12 +1,13 @@
 // Every visible string in the demo. Replace [TBD] values once copy is approved.
 // Functional labels (start, continue, check, next…) are placeholders too.
 export const STRINGS = {
-  nicknameTitle: "[TBD: nickname screen title]",
-  nicknameLabel: "[TBD: nickname label]",
-  nicknamePlaceholder: "[TBD]",
+  nicknameTitle: "Morphology Demo",
+  nicknameLabel: "Enter a nickname to play",
+  nicknamePlaceholder: "Duo Keyshauna Renee Lingo",
   start: "Start",
 
-  greeting: "Hi, {name}!", // shown under the avatar; {name} = the player's nickname
+  greeting: "Hi, {name}!",
+  greetingNext: "Let's begin.", // under the greeting, not bold // shown under the avatar; {name} = the player's nickname
   continue: "Continue",
   check: "Check",
   tryAgain: "Got it",

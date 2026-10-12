@@ -279,7 +279,8 @@ function revealAvatar() {
     // only the nickname is bold
     h("p", { class: "greeting" }, ...STRINGS.greeting.split(/(\{name\})/).map((part) =>
       part === "{name}" ? h("strong", {}, state.name) : part
-    ))
+    )),
+    h("p", { class: "greeting-next" }, STRINGS.greetingNext)
   );
   reveal.hidden = false;
   const btn = $("nick-continue");

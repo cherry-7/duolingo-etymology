@@ -136,3 +136,7 @@ Work queue for the deck and demo.
   6. The leaderboard slide takes the Figma "Leaderboard" look (girl holding the QR sign, four orange score bars); the live scores, QR handoff from the QR slide and Firebase wiring stay as they were.
 - [ ] APPROVED (2026-10-12, Michelle in chat): Nina's Chinese prompts: typo fixes ("indicates", "Click the correct answer block") and a shorter Q4 instruction: "Build the character for “mom”" / "马 (mǎ) gives the sound. Add the radical that gives the meaning." The card icons stay as [TBD: icon] placeholders for now.
 - [ ] APPROVED (2026-10-12, Michelle in chat): Michelle's updated Frame 6 avatar (design/demo/avatars/Frame 6.png, committed on the old demo/finish-title branch) brought into main and copied to assets/characters/framesix.png.
+- [ ] APPROVED (2026-10-12, Michelle in chat): Twins animations about 1.5x larger in the demo (168px tall instead of 112px), in the question strip and on the finish screen.
+- [ ] APPROVED (2026-10-12, Michelle in chat): Nickname screen: the twins' idle/thinking animation above the title "Morphology Demo" (also the browser tab title); "Enter a nickname to play" above the field; the field's placeholder reads "Duo Keyshauna Renee Lingo" (updated from "Enter your nickname!" / "Nickname").
+- [ ] APPROVED (2026-10-12, Michelle in chat): Nickname screen: the field's hint text is light grey; the "Morphology Demo" title is Duo green.
+- [ ] APPROVED (2026-10-12, Michelle in chat): Avatar screen: "Let's begin." under "Hi, [nickname]!", not bold.
