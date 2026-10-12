@@ -59,7 +59,15 @@ const area = (r) => Math.abs(r.reduce((s, [x, y], i) => { const [u, v] = r[(i + 
 const centroid = (r) => r.reduce(([sx, sy], [x, y]) => [sx + x / r.length, sy + y / r.length], [0, 0]);
 const move = (r, dx, dy) => r.map(([x, y]) => [x + dx, y + dy]);
 // largest outer ring of a clipping result
-const biggest = (multi) => multi.map((poly) => poly[0]).sort((a, b) => area(b) - area(a))[0].slice(0, -1);
+const biggest = (multi) => {
+  const rings = multi.map((poly) => poly[0]).sort((a, b) => area(b) - area(a));
+  return rings[0].slice(0, -1);
+};
+// a cut must not drop a real piece (an island bigger than a sliver)
+const keepAll = (name, multi) => {
+  const lost = multi.map((poly) => poly[0]).sort((a, b) => area(b) - area(a)).slice(1).filter((r) => area(r) > 200);
+  if (lost.length) throw new Error(name + " drops " + lost.map((r) => area(r) | 0).join(", ") + " px of shape");
+};
 const clip = (r, cut) => biggest(pc.intersection([closed(r)], [closed(cut)]));
 const minus = (r, ...cuts) => biggest(pc.difference([closed(r)], ...cuts.map((c) => [closed(c)])));
 const closed = (r) => [...r, r[0]];
@@ -72,14 +80,24 @@ const A = read("after-source.svg", O);
 const [ox, oy] = O;
 const at = (pts) => pts.map(([x, y]) => [x + ox, y + oy]);
 const MULA_HAIR = at([[0, 0], [530, 0], [548, 215], [598, 330], [598, 700], [0, 1148]]);
-const MULA_FACE = at([[0, 0], [596, 0], [600, 330], [572, 482], [430, 482], [430, 1148], [0, 1148]]);
+const MULA_FACE = at([[0, 0], [596, 0], [600, 330], [572, 482], [572, 1148], [0, 1148]]); // her chin too
 const DULO_HAND = at([[250, 482], [430, 482], [430, 640], [250, 640]]);
 const split = (id, name, ring) => { A[name] = Object.assign({}, A[id], { id: name, ring, d: toD(ring), z: A[id].z + 0.01 * Object.keys(A).length }); };
+const check = (name, multi) => { keepAll(name, multi); return biggest(multi); };
+const cut = (r, keep, ...drop) => pc.difference(pc.intersection([closed(r)], [closed(keep)]), ...drop.map((c) => [closed(c)]));
 split("1a", "hairMula", clip(A["1a"].ring, MULA_HAIR));
-split("1a", "hairDulo", minus(A["1a"].ring, A.hairMula.ring)); // keeps the bun the cut line clips
-split("13", "handDulo", clip(A["13"].ring, DULO_HAND));
-split("13", "faceMula", clip(minus(A["13"].ring, DULO_HAND), MULA_FACE));
-split("13", "faceDulo", minus(A["13"].ring, MULA_FACE, DULO_HAND));
+split("1a", "hairDulo", check("hairDulo", pc.difference([closed(A["1a"].ring)], [closed(A.hairMula.ring)]))); // keeps the bun the cut line clips
+const EVERYTHING = [[-9999, -9999], [9999, -9999], [9999, 9999], [-9999, 9999]];
+split("13", "handDulo", check("handDulo", cut(A["13"].ring, DULO_HAND)));
+split("13", "faceMula", check("faceMula", cut(A["13"].ring, MULA_FACE, DULO_HAND)));
+split("13", "faceDulo", check("faceDulo", cut(A["13"].ring, EVERYTHING, MULA_FACE, DULO_HAND)));
+
+// The after drawing has five hands; the one at Dulo's waist goes (Michelle's call, "D")
+delete A["10"];
+
+// Mula's open mouth keeps its colours from the before drawing (the after one has it brown)
+A["24"].fill = B["31"].fill;
+A["25"].fill = B["32"].fill;
 
 // Mula's shapes in the before drawing (they hop); everything else is Dulo's
 const MULA = new Set(["20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34",
@@ -101,7 +119,7 @@ const MAP = [
   // skin: faces, ears, hands (Mula's reaching hand wraps round Dulo's far shoulder, Dulo's lands on
   // Mula's shoulder), legs
   [["21"], ["faceMula"]], [["8"], ["faceDulo"]], [["4"], ["handDulo"]], [["23"], ["9"]], [["36"], ["4"]],
-  [["50"], ["8", "10"]], [["18"], ["31", "32"]], [["11"], []], [["19"], ["30"]], [["34"], ["33"]],
+  [["50"], ["8"]], [["18"], ["31", "32"]], [["11"], []], [["19"], ["30"]], [["34"], ["33"]],
   [["47", "48"], ["7"]], [["45"], ["37"]], [["49"], ["38"]],
   // eyes, lids, noses, mouths
   [["27"], ["17"]], [["28"], ["18"]], [["29"], ["19"]], [["30"], ["20"]],
@@ -148,6 +166,9 @@ MAP.forEach(([from, to]) => {
     src.forEach((s) => pieces.push({ shrink: true, from: s.id, a: s.ring, fillA: s.fill, z: A[SHRINK_Z[s.id]].z + 0.5, mula: MULA.has(s.id) }));
   }
 });
+// The cut-apart hair and faces leave hairline seams where the pieces meet: the uncut shapes
+// lie under them, fading in as the merge ends
+["1a", "13"].forEach((id) => pieces.push({ under: true, to: id, b: A[id].ring, fillB: A[id].fill, z: A[id].z }));
 pieces.sort((p, q) => p.z - q.z);
 
 // The pieces are stacked in the after drawing's order. Where that differs from the before
@@ -155,9 +176,9 @@ pieces.sort((p, q) => p.z - q.z);
 // the before drawing; the cut part fills back in as it morphs.
 const polyArea = (multi) => multi.reduce((s, poly) => s + area(poly[0]) - poly.slice(1).reduce((h, r) => h + area(r), 0), 0);
 pieces.forEach((q, qi) => {
-  if (q.grow) return;
+  if (q.grow || q.under) return;
   const qz = B[q.from].z;
-  const above = pieces.filter((p, pi) => pi > qi ? false : !p.grow && B[p.from].z > qz); // drawn under q now, over it before
+  const above = pieces.filter((p, pi) => pi > qi ? false : !p.grow && !p.under && B[p.from].z > qz); // drawn under q now, over it before
   above.forEach((p) => {
     const pa = p.a; // both still where they start (Mula hasn't hopped yet)
     const overlap = pc.intersection([closed(q.a)], [closed(pa)]);
@@ -172,10 +193,13 @@ pieces.forEach((q, qi) => {
 
 // ---- SVG -------------------------------------------------------------------------------
 const s = (x) => x.toFixed(3) + "s";
+const FILL_AT = [T.morph[0] + (T.morph[1] - T.morph[0]) * 0.25, T.morph[1] - (T.morph[1] - T.morph[0]) * 0.2];
 const span = ([a, b]) => `begin="${s(a)}" dur="${s(b - a)}"`;
 const EASE = 'calcMode="spline" keyTimes="0;1" keySplines="0.45 0 0.2 1"';
 const body = pieces.map((p) => {
   const cls = p.mula ? ' class="mula"' : "";
+  // only at the very end, once the pieces are in place, so it never shows as a ghost
+  if (p.under) return `<path d="${toD(p.b)}" fill="${p.fillB}" opacity="0"><animate attributeName="opacity" values="0;1" ${span([T.morph[1] - 0.08, T.morph[1]])} fill="freeze"/></path>`;
   if (p.grow || p.shrink) {
     const r = p.grow ? p.b : p.a;
     const [cx, cy] = centroid(r);
@@ -222,7 +246,6 @@ const css = `
 // Fillers: the finished yin and yang under everything, fading in during the
 // merge, so no gap opens between the dresses while they reshape; they only ever show inside
 // the final outline
-const FILL_AT = [T.morph[0] + (T.morph[1] - T.morph[0]) * 0.25, T.morph[1] - (T.morph[1] - T.morph[0]) * 0.2];
 const fillers = ["2a", "3"].map((id) =>
   `<path d="${A[id].d}" fill="${A[id].fill}" opacity="0"><animate attributeName="opacity" values="0;1" ${span(FILL_AT)} fill="freeze"/></path>`).join("\n");
 
@@ -234,7 +257,7 @@ ${fillers}
 ${body}
 </g></g></g>
 <g class="still">
-${Object.values(A).filter((p) => !["1a", "13"].includes(p.id)).sort((p, q) => p.z - q.z).map((p) => `<path d="${p.d}" fill="${p.fill}"/>`).join("\n")}
+${Object.values(A).sort((p, q) => p.z - q.z).map((p) => `<path d="${p.d}" fill="${p.fill}"/>`).join("\n")}
 </g>
 </svg>
 `;
