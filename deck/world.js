@@ -235,11 +235,12 @@ window.World = (function () {
 
       // Running (step 3): w blends from standing into the run at the start of the move and back at
       // the end; the legs cycle with the distance covered, so scrolling back plays it in reverse.
-      function runPose(move) {
-        const t = clamp(move.t, 0, 1);
-        const w = soft(clamp(t / 0.2, 0, 1)) * soft(clamp((1 - t) / 0.2, 0, 1));
-        const dir = move.dir > 0 ? "right" : "left";
-        const phase = (t * move.dist) / run.stride; // steps taken
+      // loop: { phase } runs in place (fully into the run, legs at that step), e.g. the Walking oval
+      function runPose(move, loop) {
+        const t = loop ? 0.5 : clamp(move.t, 0, 1);
+        const w = loop ? 1 : soft(clamp(t / 0.2, 0, 1)) * soft(clamp((1 - t) / 0.2, 0, 1));
+        const dir = loop || move.dir > 0 ? "right" : "left";
+        const phase = loop ? loop.phase : (t * move.dist) / run.stride; // steps taken
         const swing = Math.sin(phase * Math.PI) * w; // -1..1, one leg forward per step
         const bob = Math.abs(Math.sin(phase * Math.PI)) * run.bob * w;
         members.forEach((m) => {
@@ -417,9 +418,33 @@ window.World = (function () {
         });
       }
 
+      // Running in place on a slide with runLoop (steps per second as in the walk across)
+      const LOOP_STEPS = 2.4;
+      let loopFrame = 0;
+      let loopStart = 0;
+      function loopRun(on) {
+        if (on === !!loopFrame) return;
+        cancelAnimationFrame(loopFrame);
+        loopFrame = 0;
+        if (!on) { stand(); return; }
+        const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (reduce) return;
+        loopStart = performance.now();
+        const tick = (now) => {
+          runPose(null, { phase: ((now - loopStart) / 1000) * LOOP_STEPS });
+          loopFrame = requestAnimationFrame(tick);
+        };
+        loopFrame = requestAnimationFrame(tick);
+      }
+
       stand();
       return (s) => {
         node.style.opacity = s.opacity;
+        loopRun(!!s.loopRun);
+        if (s.loopRun) {
+          node.style.transform = `translate(${s.x}px, ${s.y + s.w * drop}px) scale(${s.w / bw}) rotate(${s.rotate || 0}deg)`;
+          return;
+        }
         if (s.nod !== nodded) {
           nodded = s.nod;
           if (s.nod && !reacting) nod();
@@ -493,8 +518,11 @@ window.World = (function () {
         const img = el("img", null, node);
         img.src = def.src;
         img.alt = def.label || "";
+        // def.fit: the image's share of the slot, so the oval's curve doesn't clip it
+        if (def.fit) img.style.width = img.style.height = def.fit * 100 + "%";
         img.onerror = () => { img.remove(); el("span", "slot-label", node).textContent = def.label; };
-      } else {
+      } else if (!def.blank) {
+        // def.blank: an empty slot for something drawn over it (e.g. the pair in the Correct oval)
         el("span", "slot-label", node).textContent = def.label || "[TBD]";
       }
       return (s) => {
@@ -1027,6 +1055,8 @@ window.World = (function () {
           // ...and nods once a slide with nod: true has arrived (its bubble is up)
           const here = slides[near] && slides[near].nod && slides[near].actors[key] && Math.abs(pos - near) < 0.02;
           s.nod = here ? slides[near].id : null;
+          // ...and runs in place on a slide that lists it in runLoop
+          s.loopRun = !!(slides[near] && slides[near].runLoop && slides[near].runLoop.includes(key) && slides[near].actors[key]);
         }
         draw[key](s);
         // a swap that has happened keeps its actors where it left them while the deck stays
@@ -1035,6 +1065,32 @@ window.World = (function () {
         if (swapped && sw && key === sw.to) nodes[key].style.opacity = 1;
       });
       swapFor(pos);
+      restartFor(pos);
+    }
+
+    // A slide's restart: [actor keys]. Their images start their animations over when the slide
+    // arrives (from the copies fetched up front), e.g. the yin-yang oval plays as it drops in
+    let restartSlide = null;
+    const restartUrls = {};
+    slides.forEach((slide) => (slide.restart || []).forEach((key) => {
+      const src = actors[key] && actors[key].src;
+      if (src && !swapArt[src] && window.fetch) swapArt[src] = fetch(src).then((r) => (r.ok ? r.text() : null)).catch(() => null);
+    }));
+    function restartFor(pos) {
+      const near = Math.round(pos);
+      const slide = slides[near];
+      if (slide === restartSlide) return;
+      restartSlide = slide;
+      (slide && slide.restart || []).forEach((key) => {
+        const img = nodes[key] && nodes[key].querySelector("img");
+        const src = actors[key].src;
+        if (!img) return;
+        Promise.resolve(swapArt[src]).then((text) => {
+          if (restartUrls[key]) URL.revokeObjectURL(restartUrls[key]);
+          restartUrls[key] = text ? URL.createObjectURL(new Blob([text], { type: "image/svg+xml" })) : null;
+          img.src = restartUrls[key] || src + "?play=" + Date.now();
+        });
+      });
     }
 
     // A pair moving sideways runs (character step 3); dir is the way it goes on screen, which
