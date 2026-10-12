@@ -204,3 +204,12 @@ Work queue for the deck and demo.
   The background turns blue while the palette's blue wave covers the screen. No entrance was given, so everything fades in (the deck's default).
 - [ ] APPROVED (2026-10-12, Michelle in chat): "Change the hindi text on the flashcard to Vidyalaya (School)", clarified as "It's alaya instead of laya". The Hindi card reads "Vidya | alaya" (Knowledge | Home); the pair moved left to stay centred on the card. The side label stays "Vidyalaya (School)".
 - [ ] APPROVED (2026-10-12, Michelle in chat: "merge it"): Merge deck/ui-scenario (updated UI scenario screens, Iterations slide after the color palette, Hindi card "Vidya | alaya") into main.
+- [ ] APPROVED (2026-10-12, Michelle in chat, with her updated Leaderboard.svg): "can you make the qr code bigger in the leaderboard". The leaderboard follows her updated frame:
+  - Bigger sign: the board is 449px, its stick is longer, and both keep the orange shadow.
+  - Bigger live QR: 380 x 383, up from 259 x 261, tilted 11.76° with the sign.
+  - "Go ahead, scan!" runs up the left side of the sign (60px, reading upwards).
+  - The purple wave sits 40px lower.
+
+  The girl, title, bars and circle are unchanged.
+- [ ] APPROVED (2026-10-12, Michelle in chat): "Make the names of the poses in the character poses come up automatically one by one instead of me clicking." Each Character Poses Animation slide now raises its three labels by itself, one after another, as the ovals land. The six click-per-label steps are gone; each slide is one click.
+- [ ] APPROVED (2026-10-12, Michelle in chat: "merge it"): Merge deck/lb-qr (bigger sign and QR on the leaderboard, pose labels rising in on their own) into main.
