@@ -867,10 +867,21 @@ window.World = (function () {
       nodes[key] = stage.lastElementChild;
     });
 
-    // A slide's swap: { from, to, after (ms), fade (ms) }. Once the slide has arrived and
+    // A slide's swap: { from, to, after (ms), near }. Once the deck is within `near` of the
+    // slide (in slides; default 0.02, i.e. arrived) and
     // `after` has passed, actor `from` fades out as actor `to` fades in (an img starts its
     // animation over). Leaving the slide undoes it.
     const SWAP_FADE = 350;
+    // Swapped-in images are fetched once up front; each swap restarts one from that copy in
+    // memory (a new blob URL is a new image, so its animation starts from the beginning), with
+    // no wait for the network. Opened from disk (no fetch), it falls back to reloading the file.
+    const swapArt = {};
+    slides.forEach((slide) => {
+      const to = slide.swap && actors[slide.swap.to];
+      if (!to || !to.src || swapArt[to.src] || !window.fetch) return;
+      swapArt[to.src] = fetch(to.src).then((r) => (r.ok ? r.text() : null)).catch(() => null);
+    });
+    let swapUrl = null;
     let swapSlide = null; // the slide whose swap is pending or done
     let swapTimer = 0;
     let swapped = false;
@@ -884,7 +895,7 @@ window.World = (function () {
       const near = Math.round(pos);
       const slide = slides[near];
       const sw = slide && slide.swap;
-      const arrived = sw && Math.abs(pos - near) < 0.02;
+      const arrived = sw && Math.abs(pos - near) < (sw.near || 0.02);
       if (!arrived) {
         if (swapSlide) {
           // leaving: fade back (the slide's own opacities take over, eased by the transition)
@@ -909,10 +920,12 @@ window.World = (function () {
         const go = () => { swapped = true; crossfadeNodes(nodes[sw.from], nodes[sw.to]); };
         if (!img) return go();
         // start the animation over: a fresh copy of the image, shown once it has loaded
-        const src = actors[sw.to].src + "?play=" + Date.now();
-        const pre = new Image();
-        pre.onload = pre.onerror = () => { img.src = src; go(); };
-        pre.src = src;
+        const show = (src) => { img.onload = img.onerror = () => { img.onload = img.onerror = null; go(); }; img.src = src; };
+        Promise.resolve(swapArt[actors[sw.to].src]).then((text) => {
+          if (swapUrl) URL.revokeObjectURL(swapUrl);
+          swapUrl = text ? URL.createObjectURL(new Blob([text], { type: "image/svg+xml" })) : null;
+          show(swapUrl || actors[sw.to].src + "?play=" + Date.now());
+        });
       }, reduce ? 0 : sw.after);
     }
 
