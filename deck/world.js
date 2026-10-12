@@ -133,7 +133,7 @@ window.World = (function () {
     ".part-hair-ellipse-3", ".part-ellipse-10", ".part-eye-white-left", ".part-eye-white-right", ".group-eye-left",
     ".group-eye-right", ".part-nose", ".part-nose-tip", ".part-mouth", ".part-mouth-corner", ".part-ellipse-16-left",
     ".part-ellipse-16-right", ".part-ellipse-24", ".part-ellipse-25", ".part-ellipse-28", ".part-pigtail-left",
-    ".part-pigtail-right", ".part-smile-teeth"].join(", ");
+    ".part-pigtail-right", ".part-smile-teeth", ".part-eye-shut"].join(", ");
 
   const kinds = {
     img(def, layer) {
@@ -188,6 +188,15 @@ window.World = (function () {
         const mouth = frame.querySelector(".part-mouth");
         const smile = frame.querySelector(".part-smile-teeth");
         const straight = frame.querySelectorAll(".part-mouth, .part-mouth-corner");
+        // Closed eyes (the nod): a straight line across each eye, in the pupils' colour, shown
+        // only while the eyes are shut
+        ["left", "right"].forEach((side) => {
+          const white = window.CHARACTER_PARTS[who].find((p) => p.id === "eye-white-" + side);
+          const shut = el("div", "part-eye-shut part-eye-shut-" + side, frame);
+          shut.style.cssText = `position:absolute;left:${white.x + 3}px;top:${white.y + white.h / 2 - 3.5}px;` +
+            `width:${white.w - 6}px;height:7px;border-radius:3.5px;background:#3D3D3D;opacity:0`;
+          frame.querySelector(".group-eye-" + side).after(shut);
+        });
         // Mula's scarf tail lies over her sleeve. In a reaction her arms go in front of it, and
         // this copy, drawn above the arms, fades it back over them (scarf-over track), so the
         // layers never swap in a single frame where they overlap
@@ -364,7 +373,7 @@ window.World = (function () {
       // back up, twice. Added on top of the breathing, so it never fights the idle loop.
       // On each dip the head also flattens a little (squashes toward the chin), and their eyes
       // stay closed through both nods, shutting like a blink.
-      const NOD = { dip: 16, flat: 0.07, chin: 311, eyesShut: 0.08, duration: 1100 };
+      const NOD = { dip: 16, flat: 0.07, chin: 311, duration: 1100 };
       const heads = members.flatMap((m) => [...m.frame.querySelectorAll(":scope > :is(" + HEAD_PARTS + ")")]);
       const EYES = ".part-eye-white-left, .part-eye-white-right, .group-eye-left, .group-eye-right";
       const track = (keys, t) => {
@@ -376,7 +385,9 @@ window.World = (function () {
         return keys[keys.length - 1][1];
       };
       const DIPS = [[0, 0], [0.22, 1], [0.48, 0], [0.72, 1], [1, 0]];
-      const LIDS = [[0, 1], [0.12, NOD.eyesShut], [0.88, NOD.eyesShut], [1, 1]];
+      // the eyes shrink shut and the line takes over for the last sliver (and the reverse)
+      const LIDS = [[0, 1], [0.12, 0], [0.88, 0], [1, 1]];
+      const LINE = [{ opacity: 0 }, { opacity: 0, offset: 0.07 }, { opacity: 1, offset: 0.11 }, { opacity: 1, offset: 0.89 }, { opacity: 0, offset: 0.93 }, { opacity: 0 }];
       const NOD_AT = [0, 0.12, 0.22, 0.35, 0.48, 0.6, 0.72, 0.88, 1];
       let nodded = null;
       function nod() {
@@ -396,6 +407,7 @@ window.World = (function () {
               easing: "ease-in-out" // per beat
             };
           }), { duration: NOD.duration, composite: "add" });
+          if (h.matches(".part-eye-shut")) h.animate(LINE, { duration: NOD.duration });
         });
       }
 

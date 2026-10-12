@@ -407,7 +407,7 @@ body {
 }
 .character.idle > :is(.part-face, .part-ear-left, .part-ear-right, .part-hair-back, .part-hair-tuft,
   .part-hair-crown, .part-bun-left, .part-bun-right, .part-hair-ellipse-4, .part-hair-ellipse-26,
-  .part-hair-ellipse-3, .part-ellipse-10, .part-eye-white-left, .part-eye-white-right, .group-eye-left,
+  .part-hair-ellipse-3, .part-ellipse-10, .part-eye-white-left, .part-eye-white-right, .group-eye-left, .part-eye-shut,
   .group-eye-right, .part-nose, .part-nose-tip, .part-mouth, .part-mouth-corner, .part-ellipse-16-left,
   .part-ellipse-16-right, .part-ellipse-24, .part-ellipse-25, .part-ellipse-28, .part-pigtail-left,
   .part-pigtail-right) {
