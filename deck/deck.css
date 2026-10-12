@@ -189,6 +189,11 @@ body {
 .lb-girl { left: 0; top: 331px; width: 864px; height: 749px; }
 .lb-circle { left: 1648px; top: 593px; width: 562px; height: 562px; border-radius: 50%; background: #8A38F5; }
 .lb-wave { left: 0; top: 0; width: 1829px; height: 462px; }
+.lb-wave img { display: block; width: 100%; height: 100%; }
+/* past the canvas: above it the full width of the wave, left of it down to where the wave meets x = 0 */
+.lb-wave::before, .lb-wave::after { content: ""; position: absolute; background: #8A38F5; }
+.lb-wave::before { left: 0; bottom: 100%; width: 1826px; height: 2000px; }
+.lb-wave::after { right: 100%; bottom: calc(100% - 397px); width: 2000px; height: 2397px; }
 
 .stage .lb-title {
   left: 1176px;

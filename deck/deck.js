@@ -82,7 +82,11 @@
       const status = el("p", "board-status");
       // the girl rises in with the sign (the wave and circle are already there on the finale)
       // the girl, circle and wave rise in as the QR shrinks onto the sign
-      canvas.append(reveal(img("girl.svg", "lb-girl")), reveal(el("div", "lb-circle")), reveal(img("wave.svg", "lb-wave")), list,
+      // the wave carries on past the canvas, so no yellow shows above it on screens taller (or
+      // wider) than 16:9
+      const wave = el("div", "lb-wave");
+      wave.append(img("wave.svg"));
+      canvas.append(reveal(img("girl.svg", "lb-girl")), reveal(el("div", "lb-circle")), reveal(wave), list,
         reveal(el("h2", "lb-title", slide.heading || "[TBD]")));
       if (slide.qr) {
         // The QR sits on the sign but outside it, so it can glide over from the previous
