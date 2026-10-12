@@ -51,7 +51,8 @@ export function render(q, ctx) {
     if (ok) {
       for (const t of tiles.values()) t.disabled = true;
       for (const s of slots) s.classList.add("is-correct");
-      ctx.complete({ animationSlot: row, detail: q.answerMeaning || null });
+      // The slot row alone is too short for an animation, so it plays over the slots and the bank
+      ctx.complete({ animationSlot: root, detail: q.answerMeaning || null });
     } else {
       for (const s of slots) s.classList.add("is-wrong");
       ctx.wrong(() => {

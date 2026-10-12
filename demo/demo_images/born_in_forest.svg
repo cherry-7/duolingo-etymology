@@ -1,0 +1,72 @@
+<svg width="480" height="250" viewBox="0 0 480 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A forest grows up and a lion walks through it">
+<style>
+  .rise{transform-box:fill-box;transform-origin:50% 100%;animation:rise .55s cubic-bezier(.3,1.5,.5,1) both}
+  .mtn{transform-box:fill-box;transform-origin:50% 100%;animation:rise .6s cubic-bezier(.3,1.4,.5,1) both}
+  .scroll{animation:scroll 2.0s linear 1.0s infinite}
+  .enter{animation:enter 1.0s cubic-bezier(.2,.7,.4,1) both}
+  .bob{animation:bob 0.25s ease-in-out infinite}
+  .legA,.legB{transform-box:fill-box;transform-origin:50% 0;animation:legA 0.5s ease-in-out infinite}
+  .legB{animation-name:legB}
+  .tail{transform-box:view-box;transform-origin:-52px -58px;animation:tail 1.0s ease-in-out infinite}
+  .head{animation:nod 0.25s ease-in-out infinite}
+  .blink{transform-box:fill-box;transform-origin:center;animation:blink 2.0s infinite}
+  @keyframes rise{0%{transform:scale(1,0)}100%{transform:scale(1,1)}}
+  @keyframes scroll{to{transform:translateX(-300px)}}
+  @keyframes enter{0%{transform:translateX(-330px)}100%{transform:translateX(0)}}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.5px)}}
+  @keyframes legA{0%,100%{transform:rotate(24deg)}50%{transform:rotate(-24deg)}}
+  @keyframes legB{0%,100%{transform:rotate(-24deg)}50%{transform:rotate(24deg)}}
+  @keyframes tail{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(10deg)}}
+  @keyframes nod{0%,100%{transform:translateY(0)}50%{transform:translateY(1.5px)}}
+  @keyframes blink{0%,80%,88%,100%{transform:scaleY(1)}84%{transform:scaleY(.1)}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+<!-- far hills and cloud stay put -->
+<g class="mtn" style="animation-delay:0s"><path d="M250 222L318 112Q330 94 342 112L420 222Z" fill="#D4EDFB"/><path d="M330 222L392 136Q402 122 412 136L478 222Z" fill="#D4EDFB"/></g>
+<g fill="#D4EDFB"><circle cx="96" cy="44" r="12"/><circle cx="112" cy="36" r="15"/><circle cx="127" cy="45" r="10"/><rect x="84" y="44" width="54" height="12" rx="6"/></g>
+<!-- forest and grass scroll left one pattern width per loop, so the lion seems to keep walking -->
+<g class="scroll"><g class="rise" style="animation-delay:0.05s">
+  <rect x="46" y="120" width="8" height="104" rx="4" fill="#3F3C3C"/>
+  <path d="M50 54Q56 54 60 64L84 124Q88 136 76 136H24Q12 136 16 124L40 64Q44 54 50 54Z" fill="#48C204"/>
+  <path d="M50 96L90 166Q94 174 84 174H16Q6 174 10 166Z" fill="#48C204"/>
+</g><g class="rise" style="animation-delay:0.3s"><circle cx="128" cy="214" r="13" fill="#48C204"/><circle cx="144" cy="210" r="16" fill="#48C204"/><circle cx="160" cy="216" r="11" fill="#48C204"/></g><g class="rise" style="animation-delay:0.15s">
+  <rect x="215" y="150" width="10" height="74" rx="4" fill="#3F3C3C"/>
+  <circle cx="220" cy="128" r="30" fill="#48C204"/><circle cx="198" cy="146" r="20" fill="#48C204"/><circle cx="242" cy="146" r="20" fill="#48C204"/><circle cx="220" cy="100" r="20" fill="#48C204"/>
+</g><g class="rise" style="animation-delay:0.15000000000000002s">
+  <rect x="346" y="120" width="8" height="104" rx="4" fill="#3F3C3C"/>
+  <path d="M350 54Q356 54 360 64L384 124Q388 136 376 136H324Q312 136 316 124L340 64Q344 54 350 54Z" fill="#48C204"/>
+  <path d="M350 96L390 166Q394 174 384 174H316Q306 174 310 166Z" fill="#48C204"/>
+</g><g class="rise" style="animation-delay:0.3s"><circle cx="428" cy="214" r="13" fill="#48C204"/><circle cx="444" cy="210" r="16" fill="#48C204"/><circle cx="460" cy="216" r="11" fill="#48C204"/></g><g class="rise" style="animation-delay:0.15s">
+  <rect x="515" y="150" width="10" height="74" rx="4" fill="#3F3C3C"/>
+  <circle cx="520" cy="128" r="30" fill="#48C204"/><circle cx="498" cy="146" r="20" fill="#48C204"/><circle cx="542" cy="146" r="20" fill="#48C204"/><circle cx="520" cy="100" r="20" fill="#48C204"/>
+</g><g class="rise" style="animation-delay:0.05s">
+  <rect x="646" y="120" width="8" height="104" rx="4" fill="#3F3C3C"/>
+  <path d="M650 54Q656 54 660 64L684 124Q688 136 676 136H624Q612 136 616 124L640 64Q644 54 650 54Z" fill="#48C204"/>
+  <path d="M650 96L690 166Q694 174 684 174H616Q606 174 610 166Z" fill="#48C204"/>
+</g><g class="rise" style="animation-delay:0.3s"><circle cx="728" cy="214" r="13" fill="#48C204"/><circle cx="744" cy="210" r="16" fill="#48C204"/><circle cx="760" cy="216" r="11" fill="#48C204"/></g><g class="rise" style="animation-delay:0.15s">
+  <rect x="815" y="150" width="10" height="74" rx="4" fill="#3F3C3C"/>
+  <circle cx="820" cy="128" r="30" fill="#48C204"/><circle cx="798" cy="146" r="20" fill="#48C204"/><circle cx="842" cy="146" r="20" fill="#48C204"/><circle cx="820" cy="100" r="20" fill="#48C204"/>
+</g></g>
+<rect x="0" y="222" width="480" height="28" rx="0" fill="#48C204"/>
+<g class="scroll"><path d="M10 228l4 -9l3 7l4 -10l3 12Z" fill="#FCD103"/><path d="M60 228l4 -9l3 7l4 -10l3 12Z" fill="#FCD103"/><path d="M110 228l4 -9l3 7l4 -10l3 12Z" fill="#FCD103"/><path d="M160 228l4 -9l3 7l4 -10l3 12Z" fill="#FCD103"/><path d="M210 228l4 -9l3 7l4 -10l3 12Z" fill="#FCD103"/><path d="M260 228l4 -9l3 7l4 -10l3 12Z" fill="#FCD103"/><path d="M310 228l4 -9l3 7l4 -10l3 12Z" fill="#FCD103"/><path d="M360 228l4 -9l3 7l4 -10l3 12Z" fill="#FCD103"/><path d="M410 228l4 -9l3 7l4 -10l3 12Z" fill="#FCD103"/><path d="M460 228l4 -9l3 7l4 -10l3 12Z" fill="#FCD103"/><path d="M510 228l4 -9l3 7l4 -10l3 12Z" fill="#FCD103"/><path d="M560 228l4 -9l3 7l4 -10l3 12Z" fill="#FCD103"/><path d="M610 228l4 -9l3 7l4 -10l3 12Z" fill="#FCD103"/><path d="M660 228l4 -9l3 7l4 -10l3 12Z" fill="#FCD103"/><path d="M710 228l4 -9l3 7l4 -10l3 12Z" fill="#FCD103"/><path d="M760 228l4 -9l3 7l4 -10l3 12Z" fill="#FCD103"/><path d="M810 228l4 -9l3 7l4 -10l3 12Z" fill="#FCD103"/><path d="M860 228l4 -9l3 7l4 -10l3 12Z" fill="#FCD103"/></g>
+<!-- lion: walks in during the intro, then walks on the spot while the forest passes -->
+<g transform="translate(212 222)"><g class="enter"><g class="bob"><g class="tail"><path d="M-52 -58C-72 -60 -82 -80 -74 -96" fill="none" stroke="#EDBD00" stroke-width="7" stroke-linecap="round"/><circle cx="-74" cy="-99" r="8" fill="#E87E00"/></g>
+<g class="legA"><rect x="-41" y="-42" width="14" height="42" rx="7" fill="#EDBD00"/></g><g class="legB"><rect x="21" y="-42" width="14" height="42" rx="7" fill="#EDBD00"/></g>
+<g class="body">
+  <rect x="-58" y="-74" width="106" height="44" rx="22" fill="#FCD103"/>
+</g>
+<g class="legB"><rect x="-53" y="-42" width="14" height="42" rx="7" fill="#FCD103"/></g><g class="legA"><rect x="9" y="-42" width="14" height="42" rx="7" fill="#FCD103"/></g>
+<g class="head" >
+  <g transform="translate(46 -84)">
+    <circle r="32" fill="#FF9600"/><circle cx="30.0" cy="0.0" r="12" fill="#FF9600"/><circle cx="21.2" cy="21.2" r="12" fill="#FF9600"/><circle cx="0.0" cy="30.0" r="12" fill="#FF9600"/><circle cx="-21.2" cy="21.2" r="12" fill="#FF9600"/><circle cx="-30.0" cy="0.0" r="12" fill="#FF9600"/><circle cx="-21.2" cy="-21.2" r="12" fill="#FF9600"/><circle cx="-0.0" cy="-30.0" r="12" fill="#FF9600"/><circle cx="21.2" cy="-21.2" r="12" fill="#FF9600"/>
+    <circle cx="-14" cy="-19" r="7" fill="#FCD103"/><circle cx="16" cy="-19" r="7" fill="#FCD103"/>
+    <circle cx="-14" cy="-19" r="3.4" fill="#E87E00"/><circle cx="16" cy="-19" r="3.4" fill="#E87E00"/>
+    <circle cx="2" cy="0" r="23" fill="#FCD103"/>
+    <ellipse cx="6" cy="9" rx="13" ry="9" fill="#FFF1B8"/>
+    <g class="blink"><circle cx="-6" cy="-5" r="3.3" fill="#3F3C3C"/><circle cx="13" cy="-5" r="3.3" fill="#3F3C3C"/></g>
+    <circle cx="-5" cy="-6.2" r="1.1" fill="#FFFFFF"/><circle cx="14" cy="-6.2" r="1.1" fill="#FFFFFF"/>
+    <path d="M2 2H10Q11 2 10 4L7 7Q6 8 5 7L2 4Q1 2 2 2Z" fill="#3F3C3C"/>
+    <path d="M1 11Q6 16 11 11" fill="none" stroke="#3F3C3C" stroke-width="2" stroke-linecap="round"/>
+  </g>
+</g></g></g></g>
+</svg>
