@@ -1,12 +1,13 @@
 // Every visible string in the demo. Replace [TBD] values once copy is approved.
 // Functional labels (start, continue, check, next…) are placeholders too.
 export const STRINGS = {
-  nicknameTitle: "[TBD: nickname screen title]",
-  nicknameLabel: "[TBD: nickname label]",
-  nicknamePlaceholder: "[TBD]",
+  nicknameTitle: "Morphology Demo",
+  nicknameLabel: "Enter a nickname to play",
+  nicknamePlaceholder: "Duo Keyshauna Renee Lingo",
   start: "Start",
 
-  greeting: "Hi, {name}!", // shown under the avatar; {name} = the player's nickname
+  greeting: "Hi, {name}!",
+  greetingNext: "Let's begin.", // under the greeting, not bold // shown under the avatar; {name} = the player's nickname
   continue: "Continue",
   check: "Check",
   tryAgain: "Got it",
@@ -17,15 +18,16 @@ export const STRINGS = {
   gotIt: "Got it",
 
 
-  swipeToNext: "[Swipe to next language]",
+  swipeToNext: "Swipe to the next language!", // the twins say this between languages
   nextLanguage: "[TBD: next language button]",
 
   finishTitle: "You did it!",
-  finishBubble: "We're so proud of you!", // the twins say this on the finish screen
-  statFirstTry: "Great job!",
+  finishBubble: "Great job! We're so proud of you!", // the twins say this on the finish screen
+  finishPlace: "You're {place} place!", // under the score when the player is in the deck's top 4
+  finishOnBoard: "You're on the leaderboard!", // under the score otherwise
   submitting: "[TBD: sending score…]",
-  submitted: "[TBD: score is on the leaderboard]",
-  submitFailed: "[TBD: couldn't reach the leaderboard]",
+  submitted: "Check the leaderboard for your name!",
+  submitFailed: "Something went wrong with the leaderboard.",
 
   bannerDummy: "[TBD: dummy question — questions.json missing]",
   bannerMismatch: "[TBD: content mismatch]"

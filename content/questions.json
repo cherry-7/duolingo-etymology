@@ -39,7 +39,6 @@
     "type": "radical",
     "language": "Chinese",
     "animationId": "mom",
-    "prompt": "Build the character for “mom”\nStart with 马 (mǎ), which contribute to the pronunciation of the character. add the radical for “mom”. Parentheses show the meaning of the semantic radicals.",
     "character": "妈 (mā): mom",
     "root": "马",
     "rootImage": "ma-horse.svg",
@@ -56,7 +55,6 @@
     "type": "choice",
     "language": "Chinese",
     "animationId": "mom",
-    "prompt": "Choose the right meaning for this character:\nClick the correct the answer block.",
     "word": "妈",
     "options": [
       { "text": "Mom", "isCorrect": true },
@@ -69,7 +67,7 @@
     "type": "choice",
     "language": "Chinese",
     "animationId": "mom",
-    "prompt": "Which part of the character indicate the __gender__ of 妈?\nClick the correct the answer block.",
+    "prompt": "Which part of the character indicates the __gender__ of 妈?\nClick the correct answer block.",
     "word": "妈",
     "options": [
       { "text": "女 Semantic Radical · Meaning: Female · Pronunciation: nǚ", "image": "radical-nv.svg", "title": "Semantic Radical", "lines": ["Meaning: Female", "Pronunciation: nǚ"], "isCorrect": true },
@@ -80,7 +78,7 @@
     "type": "choice",
     "language": "Chinese",
     "animationId": "mom",
-    "prompt": "Which part of the character indicate the __pronunciation__ of 妈 (mā)?\nClick the correct the answer block.",
+    "prompt": "Which part of the character indicates the __pronunciation__ of 妈 (mā)?\nClick the correct answer block.",
     "word": "妈",
     "options": [
       { "text": "女 Semantic Radical · Meaning: Female · Pronunciation: nǚ", "image": "radical-nv.svg", "title": "Semantic Radical", "lines": ["Meaning: Female", "Pronunciation: nǚ"], "isCorrect": false },
