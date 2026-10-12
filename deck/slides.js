@@ -723,9 +723,9 @@ window.SLIDES = [
     ref: "Who is he",
     bg: C.orange,
     pace: 0.5,
-    // the silhouette fades out slowly (1.2s), then 0.5s later the yin-yang comes in and plays
-    // from its first frame (Michelle)
-    swap: { from: "twinsShadow", to: "yinyang", after: 0, near: 0.5, fadeOut: 1200, gap: 500 },
+    // the silhouette fades out (0.8s), then 0.5s later the yin-yang comes in and plays from its
+    // first frame (Michelle)
+    swap: { from: "twinsShadow", to: "yinyang", after: 0, near: 0.5, fadeOut: 800, gap: 500 },
     actors: Object.assign({}, WHO, {
       twinsShadow: { x: 1323, y: 660, w: 285.28 },
       yinyang: { x: 1325.6, y: 663.4, w: 252.4, opacity: 0 }
