@@ -203,3 +203,4 @@ Work queue for the deck and demo.
 
   The background turns blue while the palette's blue wave covers the screen. No entrance was given, so everything fades in (the deck's default).
 - [ ] APPROVED (2026-10-12, Michelle in chat): "Change the hindi text on the flashcard to Vidyalaya (School)", clarified as "It's alaya instead of laya". The Hindi card reads "Vidya | alaya" (Knowledge | Home); the pair moved left to stay centred on the card. The side label stays "Vidyalaya (School)".
+- [ ] APPROVED (2026-10-12, Michelle in chat: "merge it"): Merge deck/ui-scenario (updated UI scenario screens, Iterations slide after the color palette, Hindi card "Vidya | alaya") into main.
