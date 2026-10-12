@@ -312,6 +312,8 @@ window.SLIDES = [
   {
     id: "learner",
     layout: "scene",
+    // Character step 4: once they've run in, Mula and Dulo high-five (Michelle's pick)
+    react: "correct",
     ref: "User Story-1",
     bg: C.yellow,
     pace: 0.3,
@@ -406,8 +408,6 @@ window.SLIDES = [
   {
     id: "characters",
     layout: "scene",
-    // Character step 4: they high-five once they've landed. [TBD: Michelle to confirm the slide]
-    react: "correct",
     ref: "Character Default",
     bg: C.orange,
     bgAt: [0.58, 0.6], // swaps while the bloom covers the screen (a blue-to-orange fade goes brown)
