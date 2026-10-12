@@ -264,10 +264,12 @@ function initNickname() {
     const name = input.value.trim().slice(0, CONFIG.nicknameMaxLength);
     if (!name) return;
     input.blur();
+    start.disabled = true; // no second submit while the screen slides
     state.name = name;
     const pool = CONFIG.characters;
     state.avatar = pool[Math.floor(Math.random() * pool.length)];
-    revealAvatar();
+    // same slide as between questions: the form slides out left, the greeting in from the right
+    slideOut($("nick-form"), revealAvatar);
   });
 }
 
@@ -283,6 +285,7 @@ function revealAvatar() {
     h("p", { class: "greeting-next" }, STRINGS.greetingNext)
   );
   reveal.hidden = false;
+  slideIn(reveal);
   const btn = $("nick-continue");
   btn.textContent = STRINGS.continue;
   btn.hidden = false;
@@ -474,11 +477,11 @@ function showBoundary(nxt) {
     h(
       "div",
       { class: "boundary" },
-      // the twins (thinking) tell the player to swipe
+      // the twins (talking) tell the player to swipe
       h(
         "div",
         { class: "twins-row boundary-twins" },
-        h("div", { class: "twins-stage" }, h("img", { class: "twins-img", src: CONFIG.twinsAnimations.idle.src, alt: "", draggable: "false" })),
+        h("div", { class: "twins-stage" }, h("img", { class: "twins-img", src: CONFIG.twinsAnimations.talking.src, alt: "", draggable: "false" })),
         // only the first word ("Swipe") is bold
         h("div", { class: "speech" }, h("p", { class: "speech-line is-regular" },
           h("strong", {}, STRINGS.swipeToNext.split(" ")[0]), STRINGS.swipeToNext.slice(STRINGS.swipeToNext.indexOf(" "))))
