@@ -589,6 +589,27 @@ window.World = (function () {
       };
     },
 
+    // Darkness with a flashlight: a black layer over the whole window with a soft circle of light
+    // at (x, y). s.reveal runs 0 -> 1: the light switches on and opens to radius w first
+    // (def.light: [start, end] of that), then the black fades away (def.fade)
+    spotlight(def, layer) {
+      const node = el("div", "actor actor-spotlight", layer);
+      node.style.cssText = "left:-1200px;top:-1200px;width:4320px;height:3480px;pointer-events:none";
+      const [l0, l1] = def.light || [0, 0.45];
+      const [f0, f1] = def.fade || [0.55, 1];
+      return (s) => {
+        const r = s.w * soft(clamp((s.reveal - l0) / (l1 - l0), 0, 1));
+        const dark = 1 - soft(clamp((s.reveal - f0) / (f1 - f0), 0, 1));
+        node.style.opacity = s.opacity * dark;
+        node.style.visibility = s.opacity * dark > 0 ? "visible" : "hidden";
+        const cx = s.x + 1200;
+        const cy = s.y + 1200;
+        node.style.background = r > 0
+          ? `radial-gradient(circle ${r}px at ${cx}px ${cy}px, rgba(0,0,0,0) 0, rgba(0,0,0,0) 78%, #000 100%)`
+          : "#000";
+      };
+    },
+
     // Solid rectangle (panels, dividers); can grow from any edge by animating w/h
     rect(def, layer) {
       const node = el("div", "actor actor-rect", layer);
