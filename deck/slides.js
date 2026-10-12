@@ -602,6 +602,24 @@ window.SLIDES = [
     }
   },
   {
+    id: "characters-research",
+    layout: "scene",
+    ref: "Character Color Research",
+    bg: C.blue,
+    bgAt: [0.3, 0.7], // changes behind the growing wave
+    pace: 0.3,
+    actors: {
+      // The cards are dealt up from below, one after another, then the title rises in
+      research1: dealUp(153, 113, -8, 0.3),
+      research2: dealUp(719, 113, 6, 0.36),
+      research3: dealUp(1285, 113, -5, 0.42),
+      research4: dealUp(153, 549, 7, 0.48),
+      research5: dealUp(719, 549, -6, 0.54),
+      research6: dealUp(1285, 549, 5, 0.6),
+      titleResearch: { x: 564, y: 725, size: 280, color: C.yellow, text: "Research", enter: { dy: 500, at: [0.6, 1] } }
+    }
+  },
+  {
     id: "characters-color",
     layout: "scene",
     ref: "Character Color",
@@ -624,24 +642,6 @@ window.SLIDES = [
       swatchOrange: popIn(1532.1, 502.64, 0.6),
       swatchJeans: popIn(1063, 759.89, 0.65),
       swatchBlue: popIn(1532.1, 759.89, 0.7)
-    }
-  },
-  {
-    id: "characters-research",
-    layout: "scene",
-    ref: "Character Color Research",
-    bg: C.blue,
-    bgAt: [0.3, 0.7], // changes behind the growing wave
-    pace: 0.3,
-    actors: {
-      // The cards are dealt up from below, one after another, then the title rises in
-      research1: dealUp(153, 113, -8, 0.3),
-      research2: dealUp(719, 113, 6, 0.36),
-      research3: dealUp(1285, 113, -5, 0.42),
-      research4: dealUp(153, 549, 7, 0.48),
-      research5: dealUp(719, 549, -6, 0.54),
-      research6: dealUp(1285, 549, 5, 0.6),
-      titleResearch: { x: 564, y: 725, size: 280, color: C.yellow, text: "Research", enter: { dy: 500, at: [0.6, 1] } }
     }
   },
   {
