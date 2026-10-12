@@ -238,10 +238,9 @@ window.CHARACTER_REACTIONS = {
       rot: [[0, 0], [0.12, 4], [0.25, 3], [0.9, 0]],
       sx: [[0, 1], [0.08, 0.86], [0.18, 1], [0.9, 1], [0.94, 1.06], [1.02, 1]],
       sy: [[0.9, 1], [0.94, 0.94], [1.02, 1]],
-      "arm-right": [[0, 55], [0.25, 55], [0.5, -76.6], [0.9, -105.5], [1.3, -105.5], [1.6, 55], [3.5, 55]],
+      "arm-right": [[0, 55], [0.25, 55], [0.5, -76.6], [0.9, -15], [1.3, -15], [1.6, 55], [3.5, 55]],
+      // top arm in a mirrored L for the high five: upper arm out level toward Dulo, forearm straight up
       "elbow-arm-right": [[0.5, 0], [0.9, -90], [1.3, -90], [1.6, 0]],
-      // the top arm turns over (upside down) on the way up, so the high five flows; back on landing
-      "flip-arm-right": [[0.55, 1], [0.85, -1], [1.3, -1], [1.6, 1]],
       "arm-left": [[0, -6], [0.25, -6], [0.5, 124], [0.9, -82.5], [1.3, -82.5], [1.65, 109], [3.0, 109], [3.5, -6]], // proud: up and out, clear of her face
       "stretch-arm-left": [[0.8, 1], [0.9, 1.25], [1.3, 1.25], [1.45, 1]],
       "leg-left": [[0.25, 0], [0.5, -16], [0.6, -8], [0.9, 10], [1.3, 10], [1.5, 0], [1.6, -10], [1.75, 0]],
