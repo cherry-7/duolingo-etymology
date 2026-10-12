@@ -143,8 +143,10 @@ window.WORLD_ACTORS = {
     meaning("(Not)", 596, 621, 72), meaning("(Happy)", 1017, 621, 72)
   ]),
   cardHindi: flashcard(26, [
-    word("Vidya", 551, 365, 160), word("laya", 1059, 365, 160),
-    meaning("Knowledge", 582, 605, 72), meaning("Home", 1123, 605, 72)
+    // "alaya" (Michelle), not Figma's "laya": the pair moves left by half the extra "a" (~43)
+    // so it stays centred on the card, each meaning staying centred under its word
+    word("Vidya", 508, 365, 160), word("alaya", 1016, 365, 160),
+    meaning("Knowledge", 539, 605, 72), meaning("Home", 1123, 605, 72)
   ]),
   cardChinese: flashcard(25, [
     word("n\u01DA", 687, 289, 100), word("m\u01CE", 1097, 289, 100), // pinyin nǚ, mǎ
