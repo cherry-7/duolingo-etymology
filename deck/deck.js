@@ -58,8 +58,11 @@
       (slide.characters || []).forEach((c) => row.append(reveal(slot(c))));
       stage.append(row);
     },
-    finale(stage, slide) {
-      stage.append(slot(slide.owl, "owl"), qrBlock(slide.line));
+    // A very enlarged QR builds over "Who are they?": its black tiles click in one by one
+    // (Michelle; Duo no longer flies off, and there's no white). The next slide shrinks it onto
+    // the sign.
+    finale(stage) {
+      stage.append(qrBlock(null, true));
     },
     // Live scores from the demo; streaming lives in leaderboard.js. Laid out on Figma's
     // 1920 x 1080 "Leaderboard" frame (scaled to the stage): the girl holds up the QR sign
@@ -77,12 +80,21 @@
       sign.append(img("sign-board.svg", "lb-board"), img("sign-stick.svg", "lb-stick"));
       const list = el("ol", "board");
       const status = el("p", "board-status");
-      canvas.append(img("girl.svg", "lb-girl"), el("div", "lb-circle"), img("wave.svg", "lb-wave"), list,
+      // the girl rises in with the sign (the wave and circle are already there on the finale)
+      // the girl, circle and wave rise in as the QR shrinks onto the sign
+      // the wave carries on past the canvas, so no yellow shows above it on screens taller (or
+      // wider) than 16:9
+      const wave = el("div", "lb-wave");
+      wave.append(img("wave.svg"));
+      canvas.append(reveal(img("girl.svg", "lb-girl")), reveal(el("div", "lb-circle")), reveal(wave), list,
         reveal(el("h2", "lb-title", slide.heading || "[TBD]")));
       if (slide.qr) {
         // The QR sits on the sign but outside it, so it can glide over from the previous
         // slide (qr-handoff) while the sign and its line rise in around it
+        // just black tiles here too (the sign's white board is behind them), so nothing white
+        // zooms in from the finale
         const qr = qrBlock(slide.line);
+        qr.querySelector(".qr-code").innerHTML = qrTiles(config.demoUrl || "");
         const line = qr.querySelector("p");
         line.className = "lb-scan";
         canvas.append(reveal(line), reveal(sign), slide.transition === "qr-handoff" ? qr : reveal(qr));
@@ -95,20 +107,48 @@
       const fit = () => { canvas.style.transform = `scale(${stage.clientWidth / 1920})`; };
       if (window.ResizeObserver) new ResizeObserver(fit).observe(stage);
       fit();
+      canvas.fit = fit; // the QR handoff refits before it measures (the observer may not have run yet)
       if (window.Leaderboard) window.Leaderboard.mount(list, slide, status);
       else list.append(placeholder("[TBD: leaderboard unavailable]"));
     }
   };
 
   // QR code to the demo, with its line underneath
-  function qrBlock(line) {
+  function qrBlock(line, tiles) {
     const qr = el("div", "qr");
     const code = el("div", "qr-code");
     code.setAttribute("role", "img");
     code.setAttribute("aria-label", "QR code for " + config.demoUrl);
-    code.innerHTML = qrSvg(config.demoUrl || "");
-    qr.append(code, el("p", null, line || "[TBD]"));
+    code.innerHTML = tiles ? qrTiles(config.demoUrl || "") : qrSvg(config.demoUrl || "");
+    qr.append(code);
+    if (!tiles) qr.append(el("p", null, line || "[TBD]")); // the built-up QR has no line of its own
     return qr;
+  }
+
+  // The same code as qrSvg, with every cell its own square (the light ones and the quiet-zone
+  // border too, as "qr-light"), so the tiles can click in one by one (random order, over
+  // QR_BUILD ms) and the light ones can open up as gaps. Light tiles are black like the rest;
+  // where they're hidden (the default), it's an ordinary QR.
+  const QR_BUILD = 1600;
+  function qrTiles(text) {
+    const qr = qrcode(0, "M");
+    qr.addData(text);
+    qr.make();
+    const n = qr.getModuleCount();
+    const cell = 4;
+    const quiet = 2; // cells of border
+    const size = (n + 2 * quiet) * cell;
+    let tiles = "";
+    for (let r = -quiet; r < n + quiet; r++) {
+      for (let c = -quiet; c < n + quiet; c++) {
+        const dark = r >= 0 && c >= 0 && r < n && c < n && qr.isDark(r, c);
+        const delay = Math.round(Math.random() * QR_BUILD);
+        tiles += `<rect class="qr-tile${dark ? "" : " qr-light"}" x="${(c + quiet) * cell}" y="${(r + quiet) * cell}" width="${cell + 0.05}" height="${cell + 0.05}" style="transition-delay:${delay}ms"/>`;
+      }
+    }
+    // just the black tiles, no white square behind them (Michelle)
+    return `<svg viewBox="0 0 ${size} ${size}" preserveAspectRatio="xMinYMin meet" xmlns="http://www.w3.org/2000/svg">` +
+      `<g fill="black">${tiles}</g></svg>`;
   }
 
   function qrSvg(text) {
@@ -139,26 +179,22 @@
   // The continuous world behind the scene slides (deck/world.js)
   const world = window.World ? window.World.mount(document.body, slides, window.WORLD_ACTORS || {}) : null;
 
-  // Final-slide sequence: owl flies off, then the QR fades in. Replays on each visit.
-  // Timing comes from the owl's CSS transition (0s under reduced motion).
+  // Final-slide sequence: the QR's tiles fade in one by one (CSS, delays set per tile), then
+  // the line. Replays on each visit.
   function playFinale(stage) {
-    if (stage.classList.contains("owl-gone")) return;
-    stage.classList.add("owl-gone");
-    const owl = stage.querySelector(".owl");
-    const ms = parseFloat(getComputedStyle(owl).transitionDuration) * 1000 || 0;
-    stage.qrTimer = setTimeout(() => stage.classList.add("show-qr"), ms);
+    if (stage.classList.contains("show-qr")) return;
+    stage.classList.remove("qr-built");
+    stage.classList.add("show-qr");
   }
 
   function resetFinale(stage) {
-    clearTimeout(stage.qrTimer);
-    stage.classList.remove("owl-gone", "show-qr");
+    stage.classList.remove("show-qr", "qr-built");
   }
 
-  // Jump straight to the end of the sequence (owl gone, QR showing), e.g. when the
-  // deck opens on the slide after it, so going back finds the finale already finished
+  // Jump straight to the end of the sequence (the QR built), e.g. when the deck opens on the
+  // slide after it, so going back finds the finale already finished
   function finishFinale(stage) {
-    clearTimeout(stage.qrTimer);
-    stage.classList.add("owl-gone", "show-qr");
+    stage.classList.add("show-qr", "qr-built");
   }
 
   // Does slide i take its QR over from the slide before it?
@@ -217,8 +253,14 @@
     const fromCode = prev && prev.querySelector(".qr-code");
     const rows = section.querySelectorAll(".board-row, .board-empty, .board-slot");
     const status = section.querySelector(".board-status");
+    // the leaderboard's yellow fades in over "Who are they?" as the QR shrinks; the finale's own
+    // copy hides while this one moves, so the code never shows twice
+    section.style.background = t >= 1 ? "" : `rgba(255, 200, 0, ${soft(clamp(t / 0.5, 0, 1))})`;
+    const prevQr = prev && prev.querySelector(".qr");
+    if (prevQr) prevQr.style.visibility = t > 0 && t < 1 && fromCode ? "hidden" : "";
     if (t >= 1 || !code || !fromCode) {
       if (qr) qr.style.transform = qr.style.opacity = "";
+      if (qr) qr.style.removeProperty("--light");
       rows.forEach((row) => { row.style.transform = row.style.opacity = ""; });
       if (status) status.style.opacity = "";
       return;
@@ -226,16 +268,30 @@
 
     // The QR travels first
     const q = soft(clamp((t - 0.1) / 0.7, 0, 1));
+    const canvas = section.querySelector(".lb");
+    if (canvas && canvas.fit) canvas.fit();
     qr.style.transform = "";
     const to = code.getBoundingClientRect();
     const from = fromCode.getBoundingClientRect();
     const box = qr.getBoundingClientRect();
-    const k = from.width / to.width;
+    // compare true sizes: the sign's code is tilted, so its box is wider than the code itself
+    const tiltRad = ((parseFloat(getComputedStyle(code).rotate) || 0) * Math.PI) / 180;
+    const k = from.width / (to.width / (Math.abs(Math.cos(tiltRad)) + Math.abs(Math.sin(tiltRad))));
     const scale = k + (1 - k) * q;
-    const fullDx = from.left + from.width / 2 - (to.left + to.width / 2);
-    const fullDy = from.top + from.height / 2 - (to.top + to.height / 2);
-    qr.style.transformOrigin = `${to.left + to.width / 2 - box.left}px ${to.top + to.height / 2 - box.top}px`;
-    qr.style.transform = `translate(${fullDx * (1 - q)}px, ${fullDy * (1 - q)}px) scale(${scale})`;
+    // the QR lives in the leaderboard's 1920-wide canvas, which is scaled to the screen: screen
+    // distances are turned into canvas units (u per screen px)
+    const u = canvas ? 1920 / canvas.getBoundingClientRect().width : 1;
+    const fullDx = (from.left + from.width / 2 - (to.left + to.width / 2)) * u;
+    const fullDy = (from.top + from.height / 2 - (to.top + to.height / 2)) * u;
+    qr.style.transformOrigin = `${(to.left + to.width / 2 - box.left) * u}px ${(to.top + to.height / 2 - box.top) * u}px`;
+    // ...and clicks into place on the sign: a quick press down and back once it lands
+    const click = Math.sin(Math.PI * clamp((t - 0.8) / 0.12, 0, 1));
+    // the code on the sign is tilted: it starts straight (like the finale's) and tilts as it goes
+    const tilt = parseFloat(getComputedStyle(code).rotate) || 0;
+    qr.style.transform = `translate(${fullDx * (1 - q)}px, ${fullDy * (1 - q)}px) rotate(${-tilt * (1 - q)}deg) scale(${scale * (1 - 0.08 * click)})`;
+    // it starts as the finale's black screen (every cell black) and the light cells open up
+    // into gaps as it shrinks, so the black turns into the code on the sign
+    qr.style.setProperty("--light", prev.querySelector(".layout-finale") ? 1 - soft(clamp((t - 0.05) / 0.6, 0, 1)) : 0);
     // If the QR hadn't appeared on the previous slide yet, fade it in on the way
     const shown = prev.querySelector(".show-qr") || !prev.querySelector(".layout-finale");
     qr.style.opacity = shown ? "" : q;
@@ -282,10 +338,19 @@
     if (world) world.render(pos);
   }
 
+  // ms from arriving on the finale to moving on: the build (QR_BUILD + the last tile's 0.25s
+  // click) and the background's fade to black (1.6s + 0.3s), then a moment of black
+  const FINALE_HOLD = 2300;
+  let autoTimer = null;
+
   function settle() {
     const index = Math.round(pos);
     history.replaceState(null, "", "#" + sections[index].id);
     if (finaleOf(index)) playFinale(finaleOf(index));
+    // Once the tiles have turned the screen black, it zooms out into the leaderboard on its
+    // own (Michelle), unless the presenter has already moved on
+    clearTimeout(autoTimer);
+    if (finaleOf(index) && handsOff(index + 1)) autoTimer = setTimeout(() => { if (rest === index) go(index + 1); }, FINALE_HOLD);
     if (handsOff(index) && finaleOf(index - 1)) finishFinale(finaleOf(index - 1));
   }
 

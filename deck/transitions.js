@@ -23,6 +23,13 @@ window.TRANSITIONS = {
     leave: () => ({})
   },
 
+  // Nothing moves: the slide appears over the one before, which stays as it is (the finale's
+  // QR builds over "Who are they?")
+  stay: {
+    enter: () => ({}),
+    leave: () => ({})
+  },
+
   // The next chapter rises from below while this one sinks back into the distance
   rise: {
     enter: (t) => ({

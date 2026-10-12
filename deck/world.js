@@ -155,6 +155,8 @@ window.World = (function () {
     // ([x, y, w, h] in pair units); s.w is the shown width of that box.
     pair(def, layer) {
       const node = el("div", "actor actor-pair", layer);
+      // def.silhouette: drawn all black (a mystery pair, e.g. before "Who are they?")
+      if (def.silhouette) node.style.filter = "brightness(0)";
       const [bx, by, bw, bh] = def.box;
       // slotAspect: the height/width of the art this replaces, so the feet stay where they were
       const drop = def.slotAspect ? def.slotAspect - bh / bw : 0;
@@ -235,11 +237,12 @@ window.World = (function () {
 
       // Running (step 3): w blends from standing into the run at the start of the move and back at
       // the end; the legs cycle with the distance covered, so scrolling back plays it in reverse.
-      function runPose(move) {
-        const t = clamp(move.t, 0, 1);
-        const w = soft(clamp(t / 0.2, 0, 1)) * soft(clamp((1 - t) / 0.2, 0, 1));
-        const dir = move.dir > 0 ? "right" : "left";
-        const phase = (t * move.dist) / run.stride; // steps taken
+      // loop: { phase } runs in place (fully into the run, legs at that step), e.g. the Walking oval
+      function runPose(move, loop) {
+        const t = loop ? 0.5 : clamp(move.t, 0, 1);
+        const w = loop ? 1 : soft(clamp(t / 0.2, 0, 1)) * soft(clamp((1 - t) / 0.2, 0, 1));
+        const dir = loop || move.dir > 0 ? "right" : "left";
+        const phase = loop ? loop.phase : (t * move.dist) / run.stride; // steps taken
         const swing = Math.sin(phase * Math.PI) * w; // -1..1, one leg forward per step
         const bob = Math.abs(Math.sin(phase * Math.PI)) * run.bob * w;
         members.forEach((m) => {
@@ -337,6 +340,8 @@ window.World = (function () {
         }
       }
       const REACT_PAUSE = 500; // ms they stand still between arriving and reacting
+      let reactLoopGap = null; // ms between plays on a slide with reactLoop
+      let reactLoopTimer = 0;
       let pendingReact = null;
       let pendingTimer = 0;
       let reacting = null;
@@ -354,7 +359,15 @@ window.World = (function () {
         reactStart = performance.now();
         const tick = (now) => {
           const t = (now - reactStart) / 1000;
-          if (t >= R.duration) { finishReaction(); return; }
+          if (t >= R.duration) {
+            finishReaction();
+            // a slide with reactLoop plays it again after that pause, while it's still up
+            if (reactLoopGap != null) {
+              clearTimeout(reactLoopTimer);
+              reactLoopTimer = setTimeout(() => { if (reacting === name && reactLoopGap != null) { reacting = null; react(name); } }, reactLoopGap);
+            }
+            return;
+          }
           pose(R, Math.floor(t * R.fps) / R.fps); // held frames: R.fps per second
           reactFrame = requestAnimationFrame(tick);
         };
@@ -417,9 +430,35 @@ window.World = (function () {
         });
       }
 
+      // Running in place on a slide with runLoop (steps per second as in the walk across)
+      const LOOP_STEPS = 2.4;
+      let loopFrame = 0;
+      let loopStart = 0;
+      function loopRun(on) {
+        if (on === !!loopFrame) return;
+        cancelAnimationFrame(loopFrame);
+        loopFrame = 0;
+        if (!on) { stand(); return; }
+        const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (reduce) return;
+        loopStart = performance.now();
+        const tick = (now) => {
+          runPose(null, { phase: ((now - loopStart) / 1000) * LOOP_STEPS });
+          loopFrame = requestAnimationFrame(tick);
+        };
+        loopFrame = requestAnimationFrame(tick);
+      }
+
       stand();
       return (s) => {
         node.style.opacity = s.opacity;
+        loopRun(!!s.loopRun);
+        if (s.loopRun) {
+          node.style.transform = `translate(${s.x}px, ${s.y + s.w * drop}px) scale(${s.w / bw}) rotate(${s.rotate || 0}deg)`;
+          return;
+        }
+        reactLoopGap = s.react ? s.reactLoop ?? null : null;
+        if (!s.react) clearTimeout(reactLoopTimer);
         if (s.nod !== nodded) {
           nodded = s.nod;
           if (s.nod && !reacting) nod();
@@ -493,8 +532,11 @@ window.World = (function () {
         const img = el("img", null, node);
         img.src = def.src;
         img.alt = def.label || "";
+        // def.fit: the image's share of the slot, so the oval's curve doesn't clip it
+        if (def.fit) img.style.width = img.style.height = def.fit * 100 + "%";
         img.onerror = () => { img.remove(); el("span", "slot-label", node).textContent = def.label; };
-      } else {
+      } else if (!def.blank) {
+        // def.blank: an empty slot for something drawn over it (e.g. the pair in the Correct oval)
         el("span", "slot-label", node).textContent = def.label || "[TBD]";
       }
       return (s) => {
@@ -642,8 +684,10 @@ window.World = (function () {
       return (s) => {
         node.style.opacity = s.opacity;
         node.style.transform = `translate(${s.x}px, ${s.y}px) rotate(${s.rotate || 0}deg) scale(${s.scale ?? 1})`;
+        // one after another, the last finishing as the card lands (any number of words)
         words.forEach((w, i) => {
-          const k = soft(clamp((s.reveal - 0.88 - i * 0.025) / 0.1, 0, 1));
+          const start = 0.86 + (words.length > 1 ? (i / (words.length - 1)) * 0.04 : 0);
+          const k = soft(clamp((s.reveal - start) / 0.1, 0, 1));
           w.style.opacity = k;
           w.style.transform = k < 1 ? `translateY(${(1 - k) * 50}px)` : "";
         });
@@ -885,6 +929,7 @@ window.World = (function () {
     let swapSlide = null; // the slide whose swap is pending or done
     let swapTimer = 0;
     let swapped = false;
+    let fadingOut = false; // a swap's slow fade-out is under way
     function crossfadeNodes(out, inn) {
       [out, inn].forEach((n) => { n.style.transition = `opacity ${SWAP_FADE}ms ease-in-out`; });
       out.style.opacity = 0;
@@ -893,7 +938,8 @@ window.World = (function () {
     }
     function swapFor(pos) {
       const near = Math.round(pos);
-      const slide = slides[near];
+      // a slide that keeps the scene before it showing (holdScene) keeps that scene's swap too
+      const slide = slides[near] && slides[near].holdScene ? slides[near - 1] : slides[near];
       const sw = slide && slide.swap;
       const arrived = sw && Math.abs(pos - near) < (sw.near || 0.02);
       if (!arrived) {
@@ -907,25 +953,42 @@ window.World = (function () {
           clearTimeout(swapTimer);
           swapSlide = null;
           swapped = false;
+          fadingOut = false;
         }
         return;
       }
       if (swapSlide === slide) return;
       swapSlide = slide;
       swapped = false;
+      fadingOut = false;
       clearTimeout(swapTimer);
       const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
       swapTimer = setTimeout(() => {
         const img = nodes[sw.to].querySelector("img");
-        const go = () => { swapped = true; crossfadeNodes(nodes[sw.from], nodes[sw.to]); };
-        if (!img) return go();
+        // fadeOut + gap (ms): `from` fades out slowly first, then after the gap `to` comes in
+        const go = () => {
+          swapped = true;
+          if (!sw.fadeOut) return crossfadeNodes(nodes[sw.from], nodes[sw.to]);
+          nodes[sw.to].style.opacity = 1;
+          nodes[sw.to].style.transition = `opacity ${SWAP_FADE}ms ease-in-out`;
+          setTimeout(() => { nodes[sw.to].style.transition = ""; }, SWAP_FADE + 50);
+        };
+        const begin = (start) => {
+          if (!sw.fadeOut) return start();
+          const out = nodes[sw.from];
+          out.style.transition = `opacity ${sw.fadeOut}ms ease-in-out`;
+          out.style.opacity = 0;
+          fadingOut = true;
+          swapTimer = setTimeout(() => { out.style.transition = ""; start(); }, reduce ? 0 : sw.fadeOut + (sw.gap || 0));
+        };
+        if (!img) return begin(go);
         // start the animation over: a fresh copy of the image, shown once it has loaded
         const show = (src) => { img.onload = img.onerror = () => { img.onload = img.onerror = null; go(); }; img.src = src; };
-        Promise.resolve(swapArt[actors[sw.to].src]).then((text) => {
+        begin(() => Promise.resolve(swapArt[actors[sw.to].src]).then((text) => {
           if (swapUrl) URL.revokeObjectURL(swapUrl);
           swapUrl = text ? URL.createObjectURL(new Blob([text], { type: "image/svg+xml" })) : null;
           show(swapUrl || actors[sw.to].src + "?play=" + Date.now());
-        });
+        }));
       }, reduce ? 0 : sw.after);
     }
 
@@ -974,7 +1037,10 @@ window.World = (function () {
       let t = pos - i;
       // Next to a regular slide, the world just holds the scene slide's resting state
       if (isScene(i) && !isScene(i + 1)) t = 0;
-      if (!isScene(i) && isScene(i + 1)) { i += 1; t = 0; }
+      // a regular slide with holdScene keeps the scene before it showing behind it (and on the
+      // way to the slide after it)
+      else if (!isScene(i) && slides[i] && slides[i].holdScene && isScene(i - 1)) { i -= 1; t = 0; }
+      else if (!isScene(i) && isScene(i + 1)) { i += 1; t = 0; }
       const A = isScene(i) ? slides[i] : null;
       const B = isScene(i + 1) && t > 0 ? slides[i + 1] : null;
       world.style.visibility = A ? "visible" : "hidden";
@@ -997,7 +1063,8 @@ window.World = (function () {
           const lt = local(t, pb.at || (actors[key].type === "bubble" ? BUBBLE_AT : null));
           s = walk(mix(pa, pb, lt), pb, lt);
           s.raw = t; // text fades follow the whole move
-          if (actors[key].type === "pair") s.move = running(pb.x - pa.x, lt);
+          // pb.glide: the pair slides/scales to its spot without running
+          if (actors[key].type === "pair" && !pb.glide) s.move = running(pb.x - pa.x, lt);
         } else if (pa && B) {
           // Exits: from its spot toward its exit offset
           const lt = local(t, pa.exit && pa.exit.at, [0, 0.5]);
@@ -1022,17 +1089,67 @@ window.World = (function () {
         if (actors[key].type === "pair") {
           const near = Math.round(pos);
           s.react = slides[near] && slides[near].react && slides[near].actors[key] ? slides[near].react : null;
+          s.reactLoop = s.react ? slides[near].reactLoop : null;
           // ...and nods once a slide with nod: true has arrived (its bubble is up)
           const here = slides[near] && slides[near].nod && slides[near].actors[key] && Math.abs(pos - near) < 0.02;
           s.nod = here ? slides[near].id : null;
+          // ...and runs in place on a slide that lists it in runLoop
+          s.loopRun = !!(slides[near] && slides[near].runLoop && slides[near].runLoop.includes(key) && slides[near].actors[key]);
         }
         draw[key](s);
         // a swap that has happened keeps its actors where it left them while the deck stays
         const sw = swapSlide && swapSlide.swap;
-        if (swapped && sw && key === sw.from) nodes[key].style.opacity = 0;
+        if ((swapped || fadingOut) && sw && key === sw.from) nodes[key].style.opacity = 0;
         if (swapped && sw && key === sw.to) nodes[key].style.opacity = 1;
       });
       swapFor(pos);
+      restartFor(pos);
+    }
+
+    // A slide's restart: [actor keys]. Their images start their animations over when the slide
+    // arrives (from the copies fetched up front), e.g. the yin-yang oval plays as it drops in
+    let restartSlide = null;
+    const restartUrls = {};
+    slides.forEach((slide) => (slide.restart || []).forEach((key) => {
+      const src = actors[key] && actors[key].src;
+      if (src && !swapArt[src] && window.fetch) swapArt[src] = fetch(src).then((r) => (r.ok ? r.text() : null)).catch(() => null);
+    }));
+    // A slide's restartEvery: { key: ms }. Those images start over every ms while slides that
+    // list them are up (a quick fade covers the jump back to the first frame)
+    const loops = {};
+    function restartImg(key, fade) {
+      const img = nodes[key] && nodes[key].querySelector("img");
+      const src = actors[key].src;
+      if (!img) return;
+      Promise.resolve(swapArt[src]).then((text) => {
+        const swap = () => {
+          if (restartUrls[key]) URL.revokeObjectURL(restartUrls[key]);
+          restartUrls[key] = text ? URL.createObjectURL(new Blob([text], { type: "image/svg+xml" })) : null;
+          img.src = restartUrls[key] || src + "?play=" + Date.now();
+          img.style.opacity = 1;
+        };
+        if (!fade) return swap();
+        img.style.transition = "opacity 0.25s";
+        img.style.opacity = 0;
+        setTimeout(swap, 250);
+      });
+    }
+    function loopFor(slide) {
+      const want = (slide && slide.restartEvery) || {};
+      Object.keys(loops).forEach((key) => { if (!want[key]) { clearInterval(loops[key]); delete loops[key]; } });
+      Object.entries(want).forEach(([key, ms]) => { if (!loops[key]) loops[key] = setInterval(() => restartImg(key, true), ms); });
+    }
+    slides.forEach((slide) => Object.keys(slide.restartEvery || {}).forEach((key) => {
+      const src = actors[key] && actors[key].src;
+      if (src && !swapArt[src] && window.fetch) swapArt[src] = fetch(src).then((r) => (r.ok ? r.text() : null)).catch(() => null);
+    }));
+    function restartFor(pos) {
+      const near = Math.round(pos);
+      const slide = slides[near];
+      loopFor(slide);
+      if (slide === restartSlide) return;
+      restartSlide = slide;
+      (slide && slide.restart || []).forEach((key) => restartImg(key, false));
     }
 
     // A pair moving sideways runs (character step 3); dir is the way it goes on screen, which

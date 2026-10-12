@@ -126,33 +126,32 @@ body {
   border-radius: 12%;
 }
 
-/* Layout: finale (owl exits, then QR appears) */
+/* Layout: finale (over "Who are they?", giant black tiles click in everywhere until the screen
+   is black: the QR at a size that covers the whole slide, every cell black) */
+.slide-finale { background: transparent; }
+.slide-finale:has(.show-qr) { background: #000; transition: background 0.3s 1.6s; } /* the window's edges too */
+.slide-finale:has(.qr-built) { transition: none; }
+.layout-finale .qr-code { width: 100cqw; } /* wider than the slide is tall, so it covers it all */
 .layout-finale {
   place-items: center;
-}
-
-/* Transitions only run on the way in; leaving the slide resets instantly. */
-.layout-finale .owl {
-  position: absolute;
-  inset: 25% 35%;
-}
-
-.layout-finale.owl-gone .owl {
-  transform: translate(100cqw, -100cqw);
-  transition: transform 0.5s ease-in;
+  padding: 0;
 }
 
 .layout-finale .qr {
   display: grid;
   justify-items: center;
-  gap: var(--space);
-  opacity: 0;
+  position: relative; /* over the backdrop */
 }
 
-.layout-finale.show-qr .qr {
-  opacity: 1;
-  transition: opacity 0.4s;
-}
+/* Transitions only run on the way in; leaving the slide resets instantly. Each tile clicks in:
+   it fades in as it settles from a little larger to its size */
+.layout-finale .qr-tile { opacity: 0; transform-box: fill-box; transform-origin: center; scale: 1.6; }
+/* light cells: black while the QR is a black screen (--light 1), gaps otherwise */
+.qr-light { opacity: var(--light, 0); }
+.layout-finale .qr-light { opacity: 0; }
+.layout-finale.show-qr .qr-light { opacity: 1; }
+.layout-finale.show-qr .qr-tile { opacity: 1; scale: 1; transition: opacity 0.25s ease-out, scale 0.25s cubic-bezier(.3, 1.6, .5, 1); }
+.layout-finale.qr-built .qr-tile { transition: none; }
 
 .qr-code {
   width: 25cqw;
@@ -190,6 +189,11 @@ body {
 .lb-girl { left: 0; top: 331px; width: 864px; height: 749px; }
 .lb-circle { left: 1648px; top: 593px; width: 562px; height: 562px; border-radius: 50%; background: #8A38F5; }
 .lb-wave { left: 0; top: 0; width: 1829px; height: 462px; }
+.lb-wave img { display: block; width: 100%; height: 100%; }
+/* past the canvas: above it the full width of the wave, left of it down to where the wave meets x = 0 */
+.lb-wave::before, .lb-wave::after { content: ""; position: absolute; background: #8A38F5; }
+.lb-wave::before { left: 0; bottom: 100%; width: 1826px; height: 2000px; }
+.lb-wave::after { right: 100%; bottom: calc(100% - 397px); width: 2000px; height: 2397px; }
 
 .stage .lb-title {
   left: 1176px;
@@ -287,8 +291,7 @@ body {
 .stage .board-status { left: 805px; top: 930px; margin: 0; font-size: 28px; color: #fff; min-height: 1em; }
 
 @media (prefers-reduced-motion: reduce) {
-  .layout-finale.owl-gone .owl,
-  .layout-finale.show-qr .qr { transition: none; }
+  .layout-finale.show-qr .qr-tile { transition: none; }
 }
 
 /* ---------- World: the continuous layer behind scene slides (deck/world.js) ---------- */

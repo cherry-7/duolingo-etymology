@@ -50,12 +50,12 @@ const C = {
   lilac: "#CE82FF",
   purple: "#8A38F5",
   blue: "#1CB0F6",
-  meaning: "#A9CBED", // pale blue word meanings on the cards
+  meaning: "#FFFFFF", // word meanings on the cards: white like the words (Michelle; Figma had pale blue #A9CBED)
   ink2: "#363135", // twins' dark (palette and swatch labels)
   shadowOnSquiggle: "#CA8A00",
   navy: "#18529C", // "CHARACTER POSES" on the blue bar
   glow: "#AA6401", // the dark glow behind the twins (Character Default, second version)
-  cream: "#FFEA9C" // the twins' tile on "Who is he?"
+  cream: "#FFEA9C" // the twins' tile on "Who are they?"
 };
 
 // Flashcard helpers: text positions are Figma's (stage coordinates); the card's top-left is (446, 204)
@@ -67,7 +67,7 @@ function word(text, x, y, size) {
   return { text, x, y, size, color: "#FFFFFF" };
 }
 function meaning(text, x, y, size) {
-  return { text, x, y, size, color: "#A9CBED" };
+  return { text, x, y, size, color: C.meaning };
 }
 
 // Character Color swatches
@@ -109,6 +109,10 @@ window.WORLD_ACTORS = {
   // (same x, y and width, feet on the same line). They stand closer than in Figma (Mula 0,
   // Dulo 520): each moved 65 inward, so the gap between them is halved and the pair stays centred. box: the pair's outline in character units.
   twins: { type: "pair", members: [{ who: "mula", dx: 65 }, { who: "dulo", dx: 455 }], box: [95, 60, 950, 666], slotAspect: 944 / 1262, z: 5 },
+  // the same pair as a black silhouette (the second Character Default slide, before the reveal)
+  twinsShadow: { type: "pair", silhouette: true, members: [{ who: "mula", dx: 65 }, { who: "dulo", dx: 455 }], box: [95, 60, 950, 666], slotAspect: 944 / 1262, z: 5 },
+  // a second pair, for the Walking oval (the first is in the Correct oval on the slide before)
+  twinsWalk: { type: "pair", members: [{ who: "mula", dx: 65 }, { who: "dulo", dx: 455 }], box: [95, 60, 950, 666], slotAspect: 944 / 1262, z: 5 },
   bubble: { type: "bubble", z: 6 },
   // Mula and Dulo chatting (assets/deck/talking: arms gesturing, mouths moving; a looping SVG)
   talking: { type: "img", src: DECK_ART + "talking/talking.svg", w: 1217, h: 1112, z: 5 },
@@ -198,22 +202,31 @@ window.WORLD_ACTORS = {
   research6: researchCardFromExport("card6-from-export.png"),
   titleResearch: { type: "text", font: "heading", z: 8 },
 
-  // Character Poses (Figma "Character Poses"): three purple waves behind six white circles,
-  // which hold the pose images once they exist
+  // Character Poses (Figma "Character Poses"): three purple waves behind six white circles
+  // holding the six avatars (the demo's player avatars, design/demo/avatars)
   posesWave1: { type: "path", shape: "posesWave1", stroke: C.purple, width: 80, z: 1 },
   posesWave2: { type: "path", shape: "posesWave2", stroke: C.purple, width: 80, z: 1 },
   posesWave3: { type: "path", shape: "posesWave3", stroke: C.purple, width: 80, z: 1 },
-  pose1: { type: "slot", color: C.white, label: "[TBD: pose 1]", z: 3 },
-  pose2: { type: "slot", color: C.white, label: "[TBD: pose 2]", z: 3 },
-  pose3: { type: "slot", color: C.white, label: "[TBD: pose 3]", z: 3 },
-  pose4: { type: "slot", color: C.white, label: "[TBD: pose 4]", z: 3 },
-  pose5: { type: "slot", color: C.white, label: "[TBD: pose 5]", z: 3 },
-  pose6: { type: "slot", color: C.white, label: "[TBD: pose 6]", z: 3 },
+  pose1: { type: "slot", color: C.white, src: "../assets/characters/frameone.png", label: "Mula and Dulo avatar 1", z: 3 },
+  pose2: { type: "slot", color: C.white, src: "../assets/characters/frametwo.png", label: "Mula and Dulo avatar 2", z: 3 },
+  pose3: { type: "slot", color: C.white, src: "../assets/characters/framethree.png", label: "Mula and Dulo avatar 3", z: 3 },
+  pose4: { type: "slot", color: C.white, src: "../assets/characters/framefive.png", label: "Mula and Dulo avatar 4", z: 3 },
+  pose5: { type: "slot", color: C.white, src: "../assets/characters/framesix.png", label: "Mula and Dulo avatar 5", z: 3 },
+  pose6: { type: "slot", color: C.white, src: "../assets/characters/frameseven.png", label: "Mula and Dulo avatar 6", z: 3 },
   // Character Poses Animation: three ovals for the pose GIFs, their labels, and the blue bar
   // on the right (which then widens into the blue of the UI slide)
-  gifWrong: { type: "slot", color: C.white, label: "[TBD: wrong answer GIF]", z: 3 },
-  gifCorrect: { type: "slot", color: C.white, label: "[TBD: correct answer GIF]", z: 3 },
-  gifFinished: { type: "slot", color: C.white, label: "[TBD: curriculum finished GIF]", z: 3 },
+  // the animations, in their ovals (Michelle): scared, the high five (the pair, drawn over its
+  // oval), the yin-yang; on the second slide thinking, walking (a second pair, running in place)
+  // and talking
+  gifWrong: { type: "slot", color: C.white, src: DECK_ART + "scared/scared.svg", fit: 0.92, label: "Mula and Dulo, scared", z: 3 },
+  gifCorrect: { type: "slot", color: C.white, blank: true, z: 3 },
+  gifFinished: { type: "slot", color: C.white, src: DECK_ART + "yin-yang/yin-yang.svg", fit: 0.92, label: "Mula and Dulo, yin-yang", z: 3 },
+  gifThinking: { type: "slot", color: C.white, src: DECK_ART + "idle-think/idle-think.svg", fit: 0.92, label: "Mula and Dulo, thinking", z: 3 },
+  gifWalking: { type: "slot", color: C.white, blank: true, z: 3 },
+  gifTalking: { type: "slot", color: C.white, src: DECK_ART + "talking/talking.svg", fit: 0.92, label: "Mula and Dulo, talking", z: 3 },
+  labelThinking: { type: "text", font: "one", lineHeight: 1.2, z: 3 },
+  labelWalking: { type: "text", font: "one", lineHeight: 1.2, z: 3 },
+  labelTalking: { type: "text", font: "one", lineHeight: 1.2, z: 3 },
   labelWrong: { type: "text", font: "one", lineHeight: 1.2, z: 3 },
   labelCorrect: { type: "text", font: "one", lineHeight: 1.2, z: 3 },
   labelFinished: { type: "text", font: "one", lineHeight: 1.2, z: 3 },
@@ -294,20 +307,50 @@ const OVALS = {
   posesBar: { x: 1763, y: -600, w: 154, h: 2280, color: C.blue, enter: { dx: 154, at: [0.3, 0.8] } },
   posesBarText: { x: 1883, y: 540, rotate: 90, align: "center", size: 72, color: C.navy, text: "CHARACTER POSES", enter: { dx: 154, at: [0.3, 0.8] } }
 };
+// the second Poses Animation slide: the same ovals and bar, with thinking, walking, talking
+const OVALS_2 = {
+  gifThinking: Object.assign({}, OVALS.gifWrong),
+  gifWalking: Object.assign({}, OVALS.gifCorrect),
+  gifTalking: Object.assign({}, OVALS.gifFinished),
+  posesBar: OVALS.posesBar,
+  posesBarText: OVALS.posesBarText
+};
+// the pairs in their ovals: as big as the drawings in the other ovals, feet on the same line (y 547)
+const PAIR_IN_OVAL = (ovalX) => ({ x: ovalX + 8, y: 248, w: 400, enter: { opacity: 0, at: [0.6, 0.95] }, exit: { opacity: 0, at: [0, 0.3] } });
 const LABEL_RISE = { dy: 120, opacity: 0, at: [0, 1] };
 const POSE_LABELS = {
   labelWrong: { x: 348, y: 753, align: "center", size: 72, color: C.white, text: "Wrong\nAnswer" },
   labelCorrect: { x: 895, y: 753, align: "center", size: 72, color: C.white, text: "Correct\nAnswer" },
-  labelFinished: { x: 1441.5, y: 753, align: "center", size: 72, color: C.white, text: "Curriculum\nFinished" }
+  labelFinished: { x: 1441.5, y: 753, align: "center", size: 72, color: C.white, text: "Curriculum\nFinished" },
+  labelThinking: { x: 348, y: 753, align: "center", size: 72, color: C.white, text: "Thinking" },
+  labelWalking: { x: 895, y: 753, align: "center", size: 72, color: C.white, text: "Walking" },
+  labelTalking: { x: 1441.5, y: 753, align: "center", size: 72, color: C.white, text: "Talking" }
 };
 // One step of the Poses Animation slide: the ovals and bar, plus the labels shown so far
 // (the newest one rises in)
-function posesStep(id, labels) {
-  const actors = Object.assign({}, OVALS);
+function posesStep(id, labels, second) {
+  const actors = Object.assign({}, second ? OVALS_2 : OVALS);
   labels.forEach((key, i) => {
     actors[key] = Object.assign({}, POSE_LABELS[key], i === labels.length - 1 ? { enter: LABEL_RISE } : null);
   });
-  return { id, layout: "scene", ref: "Character Poses Animation", bg: C.purple, pace: 0.6, actors };
+  const slide = { id, layout: "scene", ref: "Character Poses Animation", bg: C.purple, pace: 0.6, actors };
+  if (second) {
+    // walking: the second pair runs in place in the middle oval. Running, Mula dashes ahead with
+    // her arm out, so the pair sits 370 wide and further left to stay centred in the oval
+    actors.twinsWalk = Object.assign(PAIR_IN_OVAL(OVALS.gifCorrect.x), { x: 667, y: 270, w: 370 });
+    slide.runLoop = ["twinsWalk"];
+  } else {
+    // correct answer: the pair in the middle oval high-fives once the slide arrives; the
+    // yin-yang starts over as its oval drops in
+    actors.twins = PAIR_IN_OVAL(OVALS.gifCorrect.x);
+    slide.react = "correct";
+    // both loop while the slide is up (Michelle): the high five again 1.5s after it ends, the
+    // yin-yang over every 5s (hug, a hold, then a quick fade into the next one)
+    slide.reactLoop = 1500;
+    slide.restartEvery = { gifFinished: 5000 };
+    if (!labels.length) slide.restart = ["gifFinished"];
+  }
+  return slide;
 }
 // Twin Characters in UI Scenario: each screen swipes in from the right, one after another
 function swipeIn(x, y, w, start) {
@@ -368,6 +411,17 @@ const OPENING = {
   }
 };
 
+// "Who are they?": the heading and the ten Duolingo characters rise in one after another, then the
+// twins' tile
+const WHO = Object.assign({
+  titleWho: riseIn({ x: 129, y: 68, size: 100, color: C.white, text: "Who are they?" }, 0, 12),
+  twinsTile: riseIn({ x: 1267, y: 646, w: 387, h: 248, color: C.cream }, 11, 12)
+}, ...[
+  ["whoDuo", 127, 272], ["whoBea", 410, 273], ["whoEddy", 693, 272], ["whoJunior", 975, 272],
+  ["whoLily", 1258, 272], ["whoLin", 1541, 272], ["whoLucy", 127, 643], ["whoOscar", 410, 643],
+  ["whoVikram", 693, 643], ["whoZari", 975, 643]
+].map(([key, x, y], k) => ({ [key]: riseIn({ x, y, w: 251 }, k + 1, 12) })));
+
 window.SLIDES = [
   {
     // A completely black screen to start
@@ -403,8 +457,8 @@ window.SLIDES = [
     pace: 0.25, // a long, cinematic move
     actors: Object.assign({}, storyActors, {
       bubble: {
-        x: 794.67, y: 165, w: 835.33, h: 266, size: 100, color: C.ink,
-        text: "Hi! My name is Saissha.",
+        x: 794.67, y: 165, size: 100, auto: true, color: C.ink,
+        text: "WAIT GUYS....", // Michelle
         enter: { scale: 0, pop: true, at: [0.6, 1] }
       }
     })
@@ -417,7 +471,7 @@ window.SLIDES = [
     bg: C.yellow,
     pace: 0.5,
     actors: Object.assign({}, storyActors, {
-      bubble: { x: 794.67, y: 165, size: 80, auto: true, text: "I am learning English right now." }
+      bubble: { x: 794.67, y: 165, size: 80, auto: true, text: "I have my anatomy\nmidterm tomorrow!" } // Michelle (on one line it touched the frame)
     })
   },
   {
@@ -430,7 +484,7 @@ window.SLIDES = [
     actors: Object.assign({}, storyActors, {
       bubble: {
         x: 794.67, y: 165, size: 80, auto: true,
-        text: "I can memorise new words, but\nI wish I understood how their\nparts create meaning."
+        text: "Do you guys know any better\nways to learn the vocab?" // Michelle
       }
     })
   },
@@ -449,8 +503,8 @@ window.SLIDES = [
       // pair fades out and the talking pair fades in, same height and feet line as the pair here
       talking: { x: 895.5, y: 246.5, w: 866, enter: { opacity: 0, at: [0.15, 0.55] }, exit: { opacity: 0, at: [0, 0.3] } },
       bubble: {
-        x: 181, y: 198, w: 1061.83, h: 195, size: 80, tail: 1, padX: 61, // Figma's text starts with a space
-        text: "That's the learner we're teaching for.",
+        x: 181, y: 198, size: 80, tail: 1, auto: true,
+        text: "That's where we come in.", // Michelle (the twins)
         exit: { scale: 0, at: [0, 0.3] }
       }
     }
@@ -614,6 +668,11 @@ window.SLIDES = [
   posesStep("poses-animation-wrong", ["labelWrong"]),
   posesStep("poses-animation-correct", ["labelWrong", "labelCorrect"]),
   posesStep("poses-animation-finished", ["labelWrong", "labelCorrect", "labelFinished"]),
+  // ...and a second one for the other three animations (Michelle)
+  posesStep("poses-animation-2", [], true),
+  posesStep("poses-animation-thinking", ["labelThinking"], true),
+  posesStep("poses-animation-walking", ["labelThinking", "labelWalking"], true),
+  posesStep("poses-animation-talking", ["labelThinking", "labelWalking", "labelTalking"], true),
   {
     id: "ui-scenario",
     layout: "scene",
@@ -639,33 +698,45 @@ window.SLIDES = [
     bgAt: [0.1, 0.6],
     pace: 0.3,
     actors: {
-      // The glow fades up and the twins drop in and bounce, as on the first Character Default slide
+      // The glow fades up and the twins drop in and bounce, as on the first Character Default slide,
+      // but as a black silhouette (Michelle); on to "Who are they?" it shrinks into the twins' tile
       glow: { x: 581, y: 192, w: 727, h: 727, color: C.glow, enter: { opacity: 0, at: [0.2, 0.8] } },
-      twins: { x: 538.03, y: 200, w: 847.63, enter: { dy: -1500, ease: "bounce", at: [0.4, 1] } }
+      twinsShadow: { x: 538.03, y: 200, w: 847.63, enter: { dy: -1500, ease: "bounce", at: [0.4, 1] } }
     }
   },
   {
+    // The silhouette shrinks into the twins' tile as the rows rise in (no walking)...
     id: "who-is-he",
     layout: "scene",
     ref: "Who is he",
     bg: C.orange,
     pace: 0.3,
-    actors: Object.assign({
-      // The twins shrink into their tile at the end of the rows as it rises in
-      twins: { x: 1323, y: 660, w: 285.28, at: [0.45, 1] },
-      titleWho: riseIn({ x: 129, y: 68, size: 100, color: C.white, text: "Who is he?" }, 0, 12),
-      twinsTile: riseIn({ x: 1267, y: 646, w: 387, h: 248, color: C.cream }, 11, 12)
-    }, ...[
-      ["whoDuo", 127, 272], ["whoBea", 410, 273], ["whoEddy", 693, 272], ["whoJunior", 975, 272],
-      ["whoLily", 1258, 272], ["whoLin", 1541, 272], ["whoLucy", 127, 643], ["whoOscar", 410, 643],
-      ["whoVikram", 693, 643], ["whoZari", 975, 643]
-    ].map(([key, x, y], k) => ({ [key]: riseIn({ x, y, w: 251 }, k + 1, 12) })))
+    actors: Object.assign({}, WHO, {
+      twinsShadow: { x: 1323, y: 660, w: 285.28, glide: true, at: [0.45, 1] }
+    })
+  },
+  {
+    // ...then, on the next click, it fades out and the yin-yang plays in the tile (Michelle), at
+    // the scale it has against the pair on the title slide
+    id: "who-is-he-reveal",
+    layout: "scene",
+    ref: "Who is he",
+    bg: C.orange,
+    pace: 0.5,
+    // the silhouette fades out (0.5s), then 0.2s later the yin-yang comes in and plays from its
+    // first frame (Michelle)
+    swap: { from: "twinsShadow", to: "yinyang", after: 0, near: 0.5, fadeOut: 500, gap: 200 },
+    actors: Object.assign({}, WHO, {
+      twinsShadow: { x: 1323, y: 660, w: 285.28 },
+      yinyang: { x: 1325.6, y: 663.4, w: 252.4, opacity: 0 }
+    })
   },
   {
     id: "finale",
     layout: "finale",
-    transition: "window",
-    owl: { src: CHARACTERS + "duo.png", label: "Duo" },
+    // the QR builds over "Who are they?", which stays showing behind it (Michelle)
+    transition: "stay",
+    holdScene: true,
     line: "Go ahead, scan" // from SPEC.md
   },
   {
