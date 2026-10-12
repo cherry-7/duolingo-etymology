@@ -190,3 +190,4 @@ Work queue for the deck and demo.
 - [ ] APPROVED (2026-10-12, Michelle in chat): "Make the empty leaderboard just show empty bars." With no scores yet, the leaderboard shows all its bars empty (as in the Figma design) instead of the "[TBD: no scores yet]" text.
 - [ ] APPROVED (2026-10-12, Michelle in chat: "merge it"): Merge deck/empty-board (empty leaderboard shows just the empty bars) into main.
 - [ ] APPROVED (2026-10-12, Michelle in chat): "Add an animation where when the leaderboard is empty, and a user's score appears, there is a click in/pop in animation." A score landing on an empty bar: the bar clicks (presses in to 94%, springs to 103%, settles; 0.45s) while its rank, avatar, name and score pop in one after another. A newcomer pushing into a full board keeps the existing pop-in.
+- [ ] APPROVED (2026-10-12, Michelle in chat: "Delete it and merge it"): Merge deck/board-pop (empty bar click-in / pop-in) into main.
