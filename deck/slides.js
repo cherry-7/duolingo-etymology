@@ -143,8 +143,10 @@ window.WORLD_ACTORS = {
     meaning("(Not)", 596, 621, 72), meaning("(Happy)", 1017, 621, 72)
   ]),
   cardHindi: flashcard(26, [
-    word("Vidya", 551, 365, 160), word("laya", 1059, 365, 160),
-    meaning("Knowledge", 582, 605, 72), meaning("Home", 1123, 605, 72)
+    // "alaya" (Michelle), not Figma's "laya": the pair moves left by half the extra "a" (~43)
+    // so it stays centred on the card, each meaning staying centred under its word
+    word("Vidya", 508, 365, 160), word("alaya", 1016, 365, 160),
+    meaning("Knowledge", 539, 605, 72), meaning("Home", 1123, 605, 72)
   ]),
   cardChinese: flashcard(25, [
     word("n\u01DA", 687, 289, 100), word("m\u01CE", 1097, 289, 100), // pinyin nǚ, mǎ
@@ -235,9 +237,29 @@ window.WORLD_ACTORS = {
   // Twin Characters in UI Scenario: four phone screens (phone 1 is its own frame; 2-4 are cut
   // from the Figma image that sits over the other three frames)
   phone1: { type: "img", src: DECK_ART + "ui/phone-1.png", w: 401, h: 860, z: 10 },
-  phone2: { type: "img", src: DECK_ART + "ui/phone-2.png", w: 399, h: 881, z: 10 },
-  phone3: { type: "img", src: DECK_ART + "ui/phone-3.png", w: 415, h: 867, z: 10 },
-  phone4: { type: "img", src: DECK_ART + "ui/phone-4.png", w: 405, h: 863, z: 10 },
+  phone2: { type: "img", src: DECK_ART + "ui/phone-2.png", w: 401, h: 860, z: 10 },
+  phone3: { type: "img", src: DECK_ART + "ui/phone-3.png", w: 401, h: 860, z: 10 },
+  phone4: { type: "img", src: DECK_ART + "ui/phone-4.png", w: 401, h: 860, z: 10 },
+  // Iterations (Figma "Character Color Research", Duolingo Design Board): the vertical title, the
+  // sketches, eight earlier versions of the twins, the face close-ups, the swatches and the final
+  // pair on a soft panel (its soft-light white worked out over the blue: #2CBBF7)
+  iterTitle: { type: "text", font: "heading", z: 8 },
+  iterSketches: { type: "img", src: DECK_ART + "iterations/sketches.png", w: 523, h: 392, z: 7 },
+  iter1: { type: "img", src: DECK_ART + "iterations/iteration-1.png", w: 208.28, h: 266.9, z: 7 },
+  iter2: { type: "img", src: DECK_ART + "iterations/iteration-2.png", w: 210.47, h: 269.71, z: 7 },
+  iter3: { type: "img", src: DECK_ART + "iterations/iteration-3.png", w: 208.28, h: 266.9, z: 7 },
+  iter4: { type: "img", src: DECK_ART + "iterations/iteration-4.png", w: 208.28, h: 266.9, z: 7 },
+  iter5: { type: "img", src: DECK_ART + "iterations/iteration-5.png", w: 220.68, h: 282.8, z: 7 },
+  iter6: { type: "img", src: DECK_ART + "iterations/iteration-6.png", w: 211.57, h: 271.12, z: 7 },
+  iter7: { type: "img", src: DECK_ART + "iterations/iteration-7.png", w: 264.69, h: 270.88, z: 7 },
+  iter8: { type: "img", src: DECK_ART + "iterations/iteration-8.png", w: 198.55, h: 254.44, z: 7 },
+  iterFaces: { type: "img", src: DECK_ART + "iterations/faces.png", w: 471, h: 374, z: 7 },
+  iterSwatches: { type: "img", src: DECK_ART + "iterations/swatches.png", w: 338, h: 382, z: 7 },
+  iterPanel: { type: "rect", radius: 30, z: 6.9 },
+  iterPatchA: { type: "rect", z: 6.95 },
+  iterPatchB: { type: "rect", z: 6.95 },
+  iterMula: { type: "img", src: DECK_ART + "iterations/final-mula.png", w: 375, h: 492, z: 7 },
+  iterDulo: { type: "img", src: DECK_ART + "iterations/final-dulo.png", w: 370, h: 491, z: 7 },
   // Character Default (second version): a dark blurred glow behind the twins
   glow: { type: "ellipse", blur: 150, z: 2.8 },
   // Who is he?: the ten Duolingo characters (tiles cut from the Figma screenshots), and the
@@ -645,6 +667,34 @@ window.SLIDES = [
     }
   },
   {
+    id: "characters-iterations",
+    layout: "scene",
+    ref: "Character Color Research", // the "Iterations" frame in the Duolingo Design Board
+    bg: C.blue,
+    bgAt: [0.55, 0.6], // swaps while the palette's blue wave covers the screen
+    pace: 0.3,
+    actors: {
+      // Michelle gave no entrance for this frame: everything fades in (the deck's default)
+      iterTitle: { x: 239, y: 539.5, rotate: 89.75, align: "center", size: 180, color: C.yellow, text: "Iterations" },
+      iterSketches: { x: 299, y: 66, w: 523 },
+      iter1: { x: 189, y: 458, w: 208.28 },
+      iter2: { x: 384.76, y: 458, w: 210.47 },
+      iter3: { x: 573.14, y: 458, w: 208.28 },
+      iter4: { x: 771.36, y: 458, w: 208.28 },
+      iter5: { x: 189, y: 715.32, w: 220.68 },
+      iter6: { x: 384.76, y: 727.63, w: 211.57 },
+      iter7: { x: 771.38, y: 736.23, w: 264.69 },
+      iter8: { x: 585.45, y: 743.64, w: 198.55 },
+      iterFaces: { x: 876, y: 106, w: 471 },
+      iterSwatches: { x: 1420, y: 92, w: 338 },
+      iterPanel: { x: 1076, y: 619, w: 688, h: 292, color: "#2CBBF7" },
+      iterPatchA: { x: 1181, y: 597, w: 109, h: 76, color: C.white },
+      iterPatchB: { x: 1570, y: 619, w: 110, h: 76, color: C.white },
+      iterMula: { x: 1051, y: 511, w: 375 },
+      iterDulo: { x: 1426, y: 504, w: 370 }
+    }
+  },
+  {
     id: "poses",
     layout: "scene",
     ref: "Character Poses",
@@ -684,10 +734,11 @@ window.SLIDES = [
       // The blue bar from the last slide sweeps across the whole screen
       posesBar: { x: -600, y: -600, w: 3120, h: 2280, color: C.blue, at: [0, 0.5], exit: { opacity: 0, at: [0, 0.05] } },
       // The screens swipe in from the right, one by one
+      // Figma's updated frame (Duolingo Design Board): four evenly spaced iPhone 16 screens
       phone1: swipeIn(79, 114, 401, 0.45),
-      phone2: swipeIn(527, 108, 399, 0.53),
-      phone3: swipeIn(981, 109, 415, 0.61),
-      phone4: swipeIn(1444, 111, 405, 0.69)
+      phone2: swipeIn(535, 114, 401, 0.53),
+      phone3: swipeIn(991, 114, 401, 0.61),
+      phone4: swipeIn(1447, 114, 401, 0.69)
     }
   },
   {

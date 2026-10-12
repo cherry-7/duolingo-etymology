@@ -193,3 +193,14 @@ Work queue for the deck and demo.
 - [ ] APPROVED (2026-10-12, Michelle in chat: "Delete it and merge it"): Merge deck/board-pop (empty bar click-in / pop-in) into main.
 - [ ] APPROVED (2026-10-12, Michelle in chat): "Add in an option where clicking goes onto the next part." Clicking (or tapping) anywhere on the deck moves to the next step, like the → key. Shift+click goes back. Links and form controls keep their own clicks, and selecting text doesn't advance.
 - [ ] APPROVED (2026-10-12, Michelle in chat: "Merge it"): Merge deck/click-next (click or tap for the next step) into main.
+- [ ] APPROVED (2026-10-12, Michelle in chat): "Add this frame into the slide, and place it right after the character poses" (Figma "Twin Characters in UI Scenario", node 169:2562 in Duolingo Design Board (Copy)(Copy)). The deck already had a slide built from an older version of this frame, right after the character poses. It now shows the frame's updated screens: Medical terminology path; "Split the word into its meaningful parts" with transport; "5 in a row!" chat; "Perfect lesson!". The four phones are evenly spaced as in the frame (x 79, 535, 991, 1447; y 114). The entrance is unchanged: the phones swipe in one by one.
+- [ ] APPROVED (2026-10-12, Michelle in chat): "Add this slide in right after the color palette for the twins slide" (Figma "Character Color Research", node 124:10 in Duolingo Design Board (Copy)(Copy), titled "Iterations"). New slide after Character Color, before Character Poses. It copies the frame as designed:
+  - The vertical yellow "Iterations" title.
+  - The sketches.
+  - Eight earlier versions of the twins.
+  - The face close-ups and the swatches with their hex labels.
+  - The final pair on the frame's soft panel: its 30% soft-light white works out to #2CBBF7 over the blue.
+
+  The background turns blue while the palette's blue wave covers the screen. No entrance was given, so everything fades in (the deck's default).
+- [ ] APPROVED (2026-10-12, Michelle in chat): "Change the hindi text on the flashcard to Vidyalaya (School)", clarified as "It's alaya instead of laya". The Hindi card reads "Vidya | alaya" (Knowledge | Home); the pair moved left to stay centred on the card. The side label stays "Vidyalaya (School)".
+- [ ] APPROVED (2026-10-12, Michelle in chat: "merge it"): Merge deck/ui-scenario (updated UI scenario screens, Iterations slide after the color palette, Hindi card "Vidya | alaya") into main.
