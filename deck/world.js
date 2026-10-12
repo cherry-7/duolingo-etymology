@@ -70,9 +70,11 @@ window.World = (function () {
 
   // A group's turn at its pivot: angle (degrees from its Figma pose), and flip, the scale across
   // the arm's own length (-1 mirrors it along the line at p.mirror degrees, 1 is as drawn)
-  function groupTransform(p, angle, flip) {
-    const m = p.mirror || 0;
-    return `rotate(${angle}deg)` + (flip === 1 ? "" : ` rotate(${m}deg) scaleY(${flip}) rotate(${-m}deg)`);
+  // stretch: length along the arm's own axis (1 = as drawn), for squash and stretch
+  function groupTransform(p, angle, flip, stretch = 1) {
+    const m = p.mirror ?? p.axis ?? 0;
+    if (flip === 1 && stretch === 1) return `rotate(${angle}deg)`;
+    return `rotate(${angle}deg) rotate(${m}deg) scale(${stretch}, ${flip}) rotate(${-m}deg)`;
   }
 
   // One character part from deck/characters.js: an outer box at x, y; inside it, an iw x ih box
@@ -99,6 +101,8 @@ window.World = (function () {
     const box = document.createElement("div");
     box.className = "part part-" + p.id;
     box.style.cssText = `position:absolute;left:${p.x}px;top:${p.y}px;width:${p.w}px;height:${p.h}px`;
+    // clip: a polygon in character units (half a sleeve, for the elbow)
+    if (p.clip) box.style.clipPath = `polygon(${p.clip.map(([x, y]) => `${x - p.x}px ${y - p.y}px`).join(", ")})`;
     const iw = p.iw ?? p.w;
     const ih = p.ih ?? p.h;
     const turn = document.createElement("div");
@@ -151,7 +155,7 @@ window.World = (function () {
       const run = window.CHARACTER_RUN;
       const members = def.members.map(({ who, dx }) => {
         const frame = el("div", "character character-" + who, inner);
-        frame.style.cssText = `position:absolute;left:0;top:0;width:604px;height:774px;transform-origin:302px 0`;
+        frame.style.cssText = `position:absolute;left:0;top:0;width:604px;height:774px;transform-origin:302px 723px`;
         const defs = {};
         const collect = (list) => list.forEach((p) => { if (p.group) { defs[p.group] = p; collect(p.parts); } });
         collect(window.CHARACTER_PARTS[who]);
@@ -172,7 +176,11 @@ window.World = (function () {
         };
         const hair = (run.hair[who] || []).map((h) => [hold(h.id, h.origin), h]).filter(([el]) => el);
         const finger = partAt.finger ? hold("finger", run.finger.knuckle) : null;
-        return { who, dx, frame, groups, defs, pupils, soles, hair, finger };
+        const eyes = frame.querySelectorAll(":scope > :is(.part-eye-white-left, .part-eye-white-right, .group-eye-left, .group-eye-right)");
+        const mouth = frame.querySelector(".part-mouth");
+        const smile = frame.querySelector(".part-smile-teeth");
+        const straight = frame.querySelectorAll(".part-mouth, .part-mouth-corner");
+        return { who, dx, frame, groups, defs, pupils, soles, hair, finger, eyes, mouth, smile, straight };
       });
       let wasRunning = null;
 
@@ -228,6 +236,7 @@ window.World = (function () {
             const p = m.defs[name];
             if (!p.pivot) continue;
             if (legs[name] != null) { g.style.transform = `rotate(${legs[name]}deg)`; continue; }
+            if (!(name in run.arms[m.who])) continue; // knees stay straight while running
             const target = run.arms[m.who][name];
             const rest = p.rest || 0;
             const restFlip = p.mirror != null ? -1 : 1;
@@ -241,19 +250,89 @@ window.World = (function () {
         });
       }
 
-      // Reactions (step 4, "correct"): a CSS sequence played once on arrival, then back to idle
+      // Reactions (step 4, "correct"): pose tracks from CHARACTER_REACTIONS, played once on
+      // arrival at their own frame rate, then back to idle
+      const lines = el("div", "pair-lines", inner);
+      lines.style.cssText = "position:absolute;left:0;top:0;opacity:0;pointer-events:none;z-index:3";
+      lines.innerHTML = [0, 1].map(() => `<svg width="120" height="120" viewBox="-60 -60 120 120" style="position:absolute;overflow:visible">` +
+        [[-48, -30], [-50, 8], [48, -30], [50, 8]].map(([x, y]) =>
+          `<line x1="${x * 0.55}" y1="${y * 0.55}" x2="${x}" y2="${y}" stroke="#3D3D3D" stroke-width="9" stroke-linecap="round"/>`).join("") +
+        "</svg>").join("");
+      const at = (track, t, fallback) => {
+        if (!track || !track.length) return fallback;
+        if (t <= track[0][0]) return track[0][1];
+        for (let i = 1; i < track.length; i++) {
+          const [t1, v1] = track[i];
+          const [t0, v0] = track[i - 1];
+          if (t <= t1) return lerp(v0, v1, soft((t - t0) / (t1 - t0 || 1)));
+        }
+        return track[track.length - 1][1];
+      };
+      function pose(R, t) {
+        members.forEach((m) => {
+          const k = R[m.who] || {};
+          const v = (name, fallback) => at(k[name], t, fallback);
+          const x = m.dx + v("x", 0);
+          m.frame.style.transform = `translate(${x}px, ${v("y", 0)}px) rotate(${v("rot", 0)}deg) scale(${v("sx", 1)}, ${v("sy", 1)})`;
+          m.frame.style.zIndex = v("z", 0) ? 1 : "";
+          for (const [name, g] of Object.entries(m.groups)) {
+            const p = m.defs[name];
+            if (!p.pivot) continue;
+            const arm = name.replace("finger", "arm"); // Dulo's fingers move with her arms
+            const flip = p.mirror != null ? -1 : 1;
+            g.style.transform = groupTransform(p, v(arm, p.rest || 0), flip, v("stretch-" + arm, 1));
+            if (arm.startsWith("arm")) g.style.zIndex = v("front", 0) ? 1 : "";
+          }
+          m.pupils.forEach((p) => { p.style.translate = `${v("lookX", 0)}px ${v("lookY", 0)}px`; });
+          m.eyes.forEach((e) => { e.style.scale = v("eyes", 1); });
+          if (m.mouth) m.mouth.style.scale = v("mouth", 1);
+          if (m.smile) {
+            const sm = v("smile", 0);
+            m.smile.style.opacity = sm;
+            m.smile.style.scale = 0.7 + 0.3 * sm;
+            m.straight.forEach((e) => { e.style.opacity = 1 - sm; });
+          }
+        });
+        const fx = R.effects;
+        if (fx) {
+          const o = at(fx.lines, t, 0);
+          lines.style.opacity = o;
+          [...lines.children].forEach((svg, i) => {
+            const [px, py] = fx.points[i];
+            svg.style.transform = `translate(${px - 60}px, ${py - 60}px) scale(${0.6 + 0.6 * o})`;
+          });
+        }
+      }
       let reacting = null;
-      let reactTimer = 0;
+      let reactStart = 0;
+      let reactFrame = 0;
       function react(name) {
         if (name === reacting) return;
-        clearTimeout(reactTimer);
-        members.forEach((m) => m.frame.classList.remove("react-" + reacting));
+        cancelAnimationFrame(reactFrame);
         reacting = name;
-        if (!name) { members.forEach((m) => m.frame.classList.add("idle")); return; }
-        members.forEach((m) => { m.frame.classList.remove("idle"); m.frame.classList.add("react-" + name); });
-        reactTimer = setTimeout(() => {
-          members.forEach((m) => { m.frame.classList.remove("react-" + name); m.frame.classList.add("idle"); });
-        }, 3400);
+        const R = name && window.CHARACTER_REACTIONS[name];
+        const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (!R || reduce) { finishReaction(); return; }
+        members.forEach((m) => { m.frame.classList.remove("idle"); m.frame.classList.add("reacting"); });
+        reactStart = performance.now();
+        const tick = (now) => {
+          const t = (now - reactStart) / 1000;
+          if (t >= R.duration) { finishReaction(); return; }
+          pose(R, Math.floor(t * R.fps) / R.fps); // held frames: R.fps per second
+          reactFrame = requestAnimationFrame(tick);
+        };
+        reactFrame = requestAnimationFrame(tick);
+      }
+      function finishReaction() {
+        members.forEach((m) => {
+          m.frame.classList.remove("reacting");
+          m.eyes.forEach((e) => { e.style.scale = ""; });
+          if (m.mouth) m.mouth.style.scale = "";
+          if (m.smile) { m.smile.style.opacity = ""; m.smile.style.scale = ""; m.straight.forEach((e) => { e.style.opacity = ""; }); }
+          for (const g of Object.values(m.groups)) g.style.zIndex = "";
+        });
+        lines.style.opacity = 0;
+        stand();
       }
 
       stand();

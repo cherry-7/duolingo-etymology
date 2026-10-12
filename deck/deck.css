@@ -420,9 +420,9 @@ body {
 @keyframes breathe-arm-right { 0%, 100% { translate: 0 0; rotate: 0deg; } 45% { translate: 0 -7px; rotate: -3deg; } }
 @keyframes breathe-arm-left { 0%, 100% { translate: 0 0; rotate: 0deg; } 45% { translate: 0 -7px; rotate: 3deg; } }
 
-/* The sole under both boots is one bar; while they run each foot carries its own half */
-.character:not(.running) :is(.part-sole-left, .part-sole-right),
-.character.running .part-sole { visibility: hidden; }
+/* The sole under both boots is one bar; while they run or react each foot carries its own half */
+.character:not(.running, .reacting) :is(.part-sole-left, .part-sole-right),
+.character:is(.running, .reacting) .part-sole { visibility: hidden; }
 
 /* Both: they blink now and then (Mula every 4.2s, Dulo every 5.3s, so never together). The eye
    whites and pupils squeeze shut about each eye's centre; Dulo's brows stay put. */
@@ -488,109 +488,11 @@ body {
   83%, 100% { rotate: 0deg; }
 }
 
-/* ---- Correct answer (character step 4), played once when the deck arrives on a slide with
-   react: "correct". Spec: Mula shocked -> smile, fast 3-frame clap, hands back down; Dulo fast
-   3-frame clap, instant snap into crossed arms, 1-degree lip twitch; pose: jumping high five.
-   Arm angles are added to each arm's idle (arms-down) angle at the shoulder. 3.4s:
-     0-16% Mula startled (eyes wide, mouth small, little hop), then her smile comes back
-     16-46% they lean in and Mula jumps: high five between their heads (both look at the hands)
-     46-64% three claps, each snapped in frames (open, together, open)
-     64-74% Mula's hands go back down; 64.5% Dulo snaps into crossed arms (in front of her
-     scarf), 78% her lip twitches up, 90-100% she eases back to idle */
-.character.react-correct > *, .character.react-correct :is(.group-eye-left, .group-eye-right) > * {
-  animation-duration: 3.4s; animation-fill-mode: both; animation-timing-function: ease-in-out;
-}
-.character-mula.react-correct .part-finger { visibility: hidden; } /* open hand, no pointing */
-
-/* Mula */
-.character-mula.react-correct { animation: mula-correct-body 3.4s ease-in-out both, mula-correct-front 3.4s step-end both; }
-@keyframes mula-correct-body {
-  0% { translate: 0 0; }
-  5% { translate: -8px -18px; }
-  10%, 16% { translate: 0 0; }
-  24% { translate: 83px -40px; }
-  36% { translate: 83px -40px; }
-  46%, 100% { translate: 0 0; }
-}
-/* in front of Dulo while their hands meet */
-.character-mula.react-correct { z-index: 0; }
-@keyframes mula-correct-front { 0%, 17% { z-index: 0; } 18%, 44% { z-index: 1; } 45%, 100% { z-index: 0; } }
-.character-mula.react-correct > :is(.part-eye-white-left, .part-eye-white-right, .group-eye-left, .group-eye-right) { animation-name: mula-correct-eyes; }
-@keyframes mula-correct-eyes { 0% { scale: 1; } 4%, 9% { scale: 1.18; } 14%, 100% { scale: 1; } }
-.character-mula.react-correct > .part-mouth { animation-name: mula-correct-mouth; }
-@keyframes mula-correct-mouth { 0% { scale: 1; } 4%, 9% { scale: 0.45; } 15%, 100% { scale: 1; } }
-.character-mula.react-correct :is(.group-eye-left, .group-eye-right) > * { animation-name: mula-correct-look; }
-@keyframes mula-correct-look { 0%, 18% { translate: 0 0; } 24%, 36% { translate: 7px -7px; } 44%, 100% { translate: 0 0; } }
-.character-mula.react-correct > .group-arm-right { animation-name: mula-correct-arm-right; }
-.character-mula.react-correct > .group-arm-left { animation-name: mula-correct-arm-left; }
-@keyframes mula-correct-arm-right {
-  0%, 16% { rotate: 0deg; }
-  24%, 36% { rotate: -104deg; }
-  46% { rotate: 17deg; animation-timing-function: step-end; }
-  49% { rotate: 35deg; animation-timing-function: step-end; }
-  52% { rotate: 17deg; animation-timing-function: step-end; }
-  55% { rotate: 35deg; animation-timing-function: step-end; }
-  58% { rotate: 17deg; animation-timing-function: step-end; }
-  61% { rotate: 35deg; animation-timing-function: step-end; }
-  64% { rotate: 17deg; }
-  72%, 100% { rotate: 0deg; }
-}
-@keyframes mula-correct-arm-left {
-  0%, 36% { rotate: 0deg; }
-  46% { rotate: -18deg; animation-timing-function: step-end; }
-  49% { rotate: -36deg; animation-timing-function: step-end; }
-  52% { rotate: -18deg; animation-timing-function: step-end; }
-  55% { rotate: -36deg; animation-timing-function: step-end; }
-  58% { rotate: -18deg; animation-timing-function: step-end; }
-  61% { rotate: -36deg; animation-timing-function: step-end; }
-  64% { rotate: -18deg; }
-  72%, 100% { rotate: 0deg; }
-}
-
-/* Dulo */
-.character-dulo.react-correct { animation: dulo-correct-body 3.4s ease-in-out both; }
-@keyframes dulo-correct-body { 0%, 16% { translate: 0 0; } 24%, 36% { translate: -120px 0; } 46%, 100% { translate: 0 0; } }
-.character-dulo.react-correct :is(.group-eye-left, .group-eye-right) > * { animation-name: dulo-correct-look; }
-@keyframes dulo-correct-look { 0%, 18% { translate: 0 0; } 24%, 36% { translate: -7px -7px; } 44%, 100% { translate: 0 0; } }
-.character-dulo.react-correct > :is(.group-arm-left, .group-finger-left) { animation-name: dulo-correct-arm-left; }
-.character-dulo.react-correct > :is(.group-arm-right, .group-finger-right) { animation-name: dulo-correct-arm-right; }
-@keyframes dulo-correct-arm-left {
-  0%, 16% { rotate: 0deg; z-index: 0; }
-  16.5% { z-index: 1; } /* in front of her hair and scarf while it's doing something */
-  24%, 36% { rotate: 124deg; z-index: 1; }
-  46% { rotate: -18deg; z-index: 1; animation-timing-function: step-end; }
-  49% { rotate: -36deg; z-index: 1; animation-timing-function: step-end; }
-  52% { rotate: -18deg; z-index: 1; animation-timing-function: step-end; }
-  55% { rotate: -36deg; z-index: 1; animation-timing-function: step-end; }
-  58% { rotate: -18deg; z-index: 1; animation-timing-function: step-end; }
-  61% { rotate: -36deg; z-index: 1; animation-timing-function: step-end; }
-  64% { rotate: -18deg; z-index: 1; animation-timing-function: step-end; }
-  64.5%, 90% { rotate: -73deg; z-index: 1; }
-  99.5% { z-index: 1; }
-  100% { rotate: 0deg; z-index: 0; }
-}
-@keyframes dulo-correct-arm-right {
-  0%, 36% { rotate: 0deg; z-index: 0; }
-  45.5% { z-index: 0; }
-  46% { rotate: 18deg; z-index: 2; animation-timing-function: step-end; }
-  49% { rotate: 37deg; z-index: 2; animation-timing-function: step-end; }
-  52% { rotate: 18deg; z-index: 2; animation-timing-function: step-end; }
-  55% { rotate: 37deg; z-index: 2; animation-timing-function: step-end; }
-  58% { rotate: 18deg; z-index: 2; animation-timing-function: step-end; }
-  61% { rotate: 37deg; z-index: 2; animation-timing-function: step-end; }
-  64% { rotate: 18deg; z-index: 2; animation-timing-function: step-end; }
-  64.5%, 90% { rotate: 74deg; z-index: 2; }
-  99.5% { z-index: 2; }
-  100% { rotate: 0deg; z-index: 0; }
-}
-.character-dulo.react-correct > :is(.part-mouth, .part-mouth-corner) { animation-name: dulo-correct-lip; }
-/* the twitch lifts the mouth's far end (and the corner with it), about its near end (272, 274) */
-.character-dulo .part-mouth { transform-origin: 0 50%; }
-.character-dulo .part-mouth-corner { transform-origin: -45px 4px; }
-@keyframes dulo-correct-lip { 0%, 76% { rotate: 0deg; } 78%, 90% { rotate: -1deg; } 100% { rotate: 0deg; } }
+/* ---- Reactions (character step 4) are played from deck/characters.js by world.js. */
+.character .part-smile-teeth { opacity: 0; } /* Dulo's broad smile, only while reacting */
+.character.reacting .part-finger { visibility: hidden; } /* open palms for the high five */
 
 @media (prefers-reduced-motion: reduce) {
-  .character.react-correct, .character.react-correct * { animation: none !important; }
   .character.idle *, .character.idle > * { animation: none !important; }
 }
 
