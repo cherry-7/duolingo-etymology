@@ -118,3 +118,9 @@ Work queue for the deck and demo.
 - [ ] APPROVED (2026-10-11, Michelle in chat): Daniel's new formats follow the earlier rules: split/odd/construction prompts bold only the first sentence; radical questions get tap-to-place, the missing radical sits left of the given part (as in 明) and the pieces merge into the finished character. The hint line is removed from the first-mistake sheet (no hints).
 - [ ] APPROVED (2026-10-11, Michelle in chat): Player avatars are randomized among the six PNGs in design/demo/avatars ("Frame 1, 2, 3, 5, 6, 7.png"), copied to assets/characters/frame*.png. They replace the Duolingo character avatars.
 - [ ] APPROVED (2026-10-11, Michelle in chat: "Merge it"): Merge PR #16 (deck/idle-think: Idle thinking, nod, closer stance, yin-yang, scared animations) into main.
+- [ ] APPROVED (2026-10-11, Michelle in chat): Twins in the demo, in steps:
+  1. Every question: the twins (idle/thinking animation) at the top left with a speech bubble pointing at them that asks the question (the prompt moves into the bubble). Replaces the "[TBD: twins encouragement – first question]" box.
+  2. The feedback sheets (Correct / Not quite! / Incorrect) no longer have a twins box or encouragement line.
+  3. Reactions play in the top-left twins: wrong → scared animation, right → high five, back to idle after "Got it".
+  4. Finish screen: the twins high-five with a bubble saying "We're so proud of you!" (there is no clapping animation; Michelle: it's the high five).
+  The high five is the deck's own react: "correct" (Michelle's call), played by the deck engine (deck/characters.js + deck/world.js) in demo/twins.html, shown in a small frame.

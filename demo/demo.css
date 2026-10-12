@@ -191,6 +191,21 @@ body.is-dragging { -webkit-user-select: none; user-select: none; }
 .prompt-rest { display: block; margin-top: 6px; font-size: 18px; font-weight: 400; line-height: 1.35; }
 .word { font-size: 32px; font-weight: 700; text-align: center; margin: 8px 0 16px; }
 
+/* Twins (top left) with a speech bubble pointing at them, Duolingo-style */
+.twins-row { display: flex; align-items: center; gap: 14px; margin: 4px 0 16px; }
+.lesson-body + .twins-row, #twins-row { flex: none; }
+.twins-stage { position: relative; width: 140px; height: 112px; flex: none; overflow: hidden; }
+.twins-img { display: block; width: 100%; height: 100%; object-fit: contain; }
+/* the deck's twins (16:9 stage) centred in the box; shown only for the high five */
+.twins-frame { position: absolute; top: 0; left: 50%; width: 200px; height: 112px; border: 0; transform: translateX(-50%); visibility: hidden; pointer-events: none; background: transparent; }
+.twins-stage.is-high-five .twins-img { visibility: hidden; }
+.twins-stage.is-high-five .twins-frame { visibility: visible; }
+.speech { position: relative; flex: 1; min-width: 0; padding: 12px 14px; border: 2px solid var(--gray-200); border-radius: 16px; background: var(--white); }
+.speech::before { content: ""; position: absolute; left: -9px; top: 50%; width: 14px; height: 14px; background: var(--white); border-left: 2px solid var(--gray-200); border-bottom: 2px solid var(--gray-200); transform: translateY(-50%) rotate(45deg); }
+.speech .prompt { margin: 0; font-size: 18px; }
+.speech .prompt-rest { font-size: 16px; }
+.speech-line { margin: 0; font-size: 18px; font-weight: 700; }
+.finish-body .twins-row { width: 100%; text-align: left; }
 .twins-bubble { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
 .twins-bubble p { margin: 0; padding: 10px 12px; border: 2px solid var(--gray-200); border-radius: 14px; font-size: 14px; flex: 1; }
 .twins { width: 64px; height: 64px; flex: none; }
