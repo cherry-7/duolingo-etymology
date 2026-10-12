@@ -96,3 +96,4 @@ Work queue for the deck and demo.
 - [ ] APPROVED (2026-10-11, Michelle in chat): Mula and Dulo's clothing colours change to #87D2FB (light blue, replacing #F2B866) and #638CD9 (dark blue, replacing #CB6539); their hair changes to #6E4533 (brown). Everywhere they appear, including Idle, thinking and the Color Palette swatches.
 - [ ] APPROVED (2026-10-11, Michelle in chat): Remove the user quotes and expert quote slides (Interviews). Spanish now goes straight to Character Default.
 - [ ] APPROVED (2026-10-11, Michelle in chat): The correct-answer high five plays on the "That's the learner we're teaching for" slide (moved from Character Default).
+- [ ] APPROVED (2026-10-11, Michelle in chat): The learner-slide high five starts immediately (as soon as the deck is heading onto the slide), not after the move settles.

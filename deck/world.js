@@ -314,6 +314,7 @@ window.World = (function () {
         const R = name && window.CHARACTER_REACTIONS[name];
         const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
         if (!R || reduce) { finishReaction(); return; }
+        stand(); // clear anything the run left behind (mirroring, hair, soles, eyes)
         members.forEach((m) => { m.frame.classList.remove("idle"); m.frame.classList.add("reacting"); });
         reactStart = performance.now();
         const tick = (now) => {
@@ -340,11 +341,14 @@ window.World = (function () {
       return (s) => {
         node.style.opacity = s.opacity;
         node.style.transform = `translate(${s.x}px, ${s.y + s.w * drop}px) scale(${s.w / bw}) rotate(${s.rotate || 0}deg)`;
+        // A reaction takes over as soon as the deck is heading onto its slide (it doesn't wait
+        // for the move or the run to finish); otherwise they run while moving, or stand
+        if (s.react) { react(s.react); wasRunning = null; return; }
+        react(null);
         const running = !!s.move && s.move.t > 0 && s.move.t < 1;
         if (running) runPose(s.move);
         else if (wasRunning !== false) stand();
         wasRunning = running;
-        react(running ? null : s.react || null);
       };
     },
 
@@ -807,10 +811,11 @@ window.World = (function () {
         } else {
           s = { opacity: 0, x: -9999, y: 0, w: 1, h: 1, draw: 0, width: 0, size: 1, scale: 1, tail: 0, padX: 0, textA: "" };
         }
-        // A pair reacts (e.g. the correct-answer high five) once the deck has arrived on its slide
+        // A pair reacts (e.g. the correct-answer high five) as soon as the deck is past halfway to
+        // its slide, so it starts right away instead of after the move settles
         if (actors[key].type === "pair") {
           const near = Math.round(pos);
-          s.react = Math.abs(pos - near) < 0.02 && slides[near] && slides[near].react && slides[near].actors[key] ? slides[near].react : null;
+          s.react = slides[near] && slides[near].react && slides[near].actors[key] ? slides[near].react : null;
         }
         draw[key](s);
       });
