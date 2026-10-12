@@ -6,8 +6,11 @@ import * as drag from "./formats/drag.js";
 import * as choice from "./formats/choice.js";
 import * as match from "./formats/match.js";
 import * as order from "./formats/order.js";
+import * as split from "./formats/split.js";
+import * as odd from "./formats/odd.js";
+import * as construction from "./formats/construction.js";
 
-const FORMATS = { drag, choice, match, order };
+const FORMATS = { drag, choice, match, order, split, odd, construction };
 
 // Sends one score to the live leaderboard (Firebase Realtime Database, REST).
 // One request and no open connection, so a big audience stays under the free-plan limit.
@@ -120,6 +123,13 @@ function validate(q, n) {
   } else if (type === "order") {
     if (!Array.isArray(q.parts) || q.parts.filter((p) => typeof p.order === "number").length < 2)
       errs.push("parts (2+ with numeric order)");
+  } else if (type === "split" || type === "odd") {
+    if (!isStr(q.word) && type === "split") errs.push("word");
+    if (!Array.isArray(q.options) || q.options.length < 2 || q.options.filter((o) => o.isCorrect === true).length !== 1)
+      errs.push("options (2+, exactly one correct)");
+  } else if (type === "construction") {
+    if (!Array.isArray(q.pairs) || q.pairs.length < 2 || q.pairs.some((p) => !isStr(p.word) || !isStr(p.construction)))
+      errs.push("pairs (2+ with word and construction)");
   }
   if (errs.length) console.error(`questions.json item ${n}: invalid ${errs.join(", ")}`, q);
   return errs.length === 0;

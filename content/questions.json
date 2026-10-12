@@ -1,71 +1,37 @@
 [
   {
-    "type": "match",
+    "type": "split",
     "language": "English (Latin roots)",
-    "prompt": "A morpheme is a meaningful word part. In transport and portable, match each part to its job.",
+    "prompt": "Split the word into its meaningful parts.",
+    "word": "transport",
+    "options": [
+      { "text": "trans + port", "isCorrect": true },
+      { "text": "tran + sport", "isCorrect": false },
+      { "text": "transp + ort", "isCorrect": false }
+    ],
+    "answerMeaning": "Transport: trans- (across) + port (carry)."
+  },
+  {
+    "type": "odd",
+    "language": "English (Latin roots)",
+    "prompt": "Two words use a prefix or suffix to build on a root. Which word is the odd one out?",
+    "options": [
+      { "text": "transport = trans- + port", "isCorrect": false },
+      { "text": "portable = port + -able", "isCorrect": false },
+      { "text": "airport = air + port", "isCorrect": true }
+    ],
+    "answerMeaning": "Airport is a compound: air + port. The other two use an affix with port."
+  },
+  {
+    "type": "construction",
+    "language": "English (Latin roots)",
+    "prompt": "Match each English word to the way its meaningful parts are constructed.",
     "pairs": [
-      {
-        "part": "port",
-        "meaning": "Root: supplies the core meaning 'carry'"
-      },
-      {
-        "part": "trans-",
-        "meaning": "Prefix: adds 'across' before the root"
-      },
-      {
-        "part": "-able",
-        "meaning": "Suffix: adds 'able to be' after the root"
-      }
-    ]
-  },
-  {
-    "type": "order",
-    "language": "English (Latin roots)",
-    "prompt": "Build the word meaning 'carry across': put the prefix before the root. Leave out the extra tile.",
-    "parts": [
-      {
-        "text": "port",
-        "meaning": "Carry",
-        "order": 2
-      },
-      {
-        "text": "able",
-        "meaning": "Able to be",
-        "order": null
-      },
-      {
-        "text": "trans",
-        "meaning": "Across",
-        "order": 1
-      }
+      { "word": "transport", "construction": "prefix + root: trans- + port" },
+      { "word": "portable", "construction": "root + suffix: port + -able" },
+      { "word": "airport", "construction": "compound: air + port" }
     ],
-    "answerMeaning": "Transport: trans- (across) + port (carry). The prefix adds meaning before the root."
-  },
-  {
-    "type": "drag",
-    "language": "English (Latin roots)",
-    "prompt": "The root port means 'carry'. Add a suffix after it to form an adjective meaning 'able to be carried'.",
-    "root": "port",
-    "parts": [
-      {
-        "text": "less",
-        "meaning": "Without",
-        "isCorrect": false
-      },
-      {
-        "text": "able",
-        "meaning": "Able to be",
-        "isCorrect": true
-      },
-      {
-        "text": "ful",
-        "meaning": "Full of",
-        "isCorrect": false
-      }
-    ],
-    "answerMeaning": "Portable: port (carry) + -able (able to be). The suffix helps form an adjective.",
-    "rootImage": "english-portable-root.png",
-    "completeImage": "english-portable-complete.png"
+    "answerMeaning": "Words can be built with prefixes, suffixes, or compounds."
   },
   {
     "type": "match",
@@ -201,7 +167,7 @@
   {
     "type": "choice",
     "language": "Sanskrit",
-    "prompt": "Replace जल (jala, water) with वन (vana, forest), keeping -ज (-ja, born). How does the literal meaning change?",
+    "prompt": "Component replacement: replace जल (jala, water) with वन (vana, forest), keeping -ज (-ja, born). How does the meaning change?",
     "word": "जलज → वनज (jalaja → vanaja)",
     "options": [
       {
