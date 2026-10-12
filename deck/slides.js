@@ -20,7 +20,7 @@
 //      exit     the same, for disappearing when the next slide doesn't have it
 //      walk     hop height (px) while it travels, so characters look like they walk
 //
-// 2. Regular slides (lineup, finale, leaderboard): one full-screen card each, using the
+// 2. Regular slides (finale, leaderboard): one full-screen card each, using the
 //    fields below and the transitions in transitions.js. These get rebuilt as scenes in
 //    later steps.
 //      layout      "lineup" | "finale" | "leaderboard"
@@ -52,7 +52,10 @@ const C = {
   blue: "#1CB0F6",
   meaning: "#A9CBED", // pale blue word meanings on the cards
   ink2: "#363135", // twins' dark (palette and swatch labels)
-  shadowOnSquiggle: "#CA8A00"
+  shadowOnSquiggle: "#CA8A00",
+  navy: "#18529C", // "CHARACTER POSES" on the blue bar
+  glow: "#AA6401", // the dark glow behind the twins (Character Default, second version)
+  cream: "#FFEA9C" // the twins' tile on "Who is he?"
 };
 
 // Flashcard helpers: text positions are Figma's (stage coordinates); the card's top-left is (446, 204)
@@ -185,7 +188,53 @@ window.WORLD_ACTORS = {
   research5: researchCard([68, 59, 249, 398], "card5-character", [329, 84],
     ["#C67962", "#3D3D3D", "#CD348E", "#AB0464", "#0084C2", "#00468E"],
     [["C67962", 355, 159], ["3D3D3D", 505, 159], ["CD348E", 401, 291], ["AB0464", 557, 291], ["0084C2", 401, 399], ["00468E", 557, 399]]),
-  titleResearch: { type: "text", font: "heading", z: 8 }
+  // card 6 isn't in the layer export either, so it's cut from the Figma card like card 1
+  research6: researchCardFromExport("card6-from-export.png"),
+  titleResearch: { type: "text", font: "heading", z: 8 },
+
+  // Character Poses (Figma "Character Poses"): three purple waves behind six white circles,
+  // which hold the pose images once they exist
+  posesWave1: { type: "path", shape: "posesWave1", stroke: C.purple, width: 80, z: 1 },
+  posesWave2: { type: "path", shape: "posesWave2", stroke: C.purple, width: 80, z: 1 },
+  posesWave3: { type: "path", shape: "posesWave3", stroke: C.purple, width: 80, z: 1 },
+  pose1: { type: "slot", color: C.white, label: "[TBD: pose 1]", z: 3 },
+  pose2: { type: "slot", color: C.white, label: "[TBD: pose 2]", z: 3 },
+  pose3: { type: "slot", color: C.white, label: "[TBD: pose 3]", z: 3 },
+  pose4: { type: "slot", color: C.white, label: "[TBD: pose 4]", z: 3 },
+  pose5: { type: "slot", color: C.white, label: "[TBD: pose 5]", z: 3 },
+  pose6: { type: "slot", color: C.white, label: "[TBD: pose 6]", z: 3 },
+  // Character Poses Animation: three ovals for the pose GIFs, their labels, and the blue bar
+  // on the right (which then widens into the blue of the UI slide)
+  gifWrong: { type: "slot", color: C.white, label: "[TBD: wrong answer GIF]", z: 3 },
+  gifCorrect: { type: "slot", color: C.white, label: "[TBD: correct answer GIF]", z: 3 },
+  gifFinished: { type: "slot", color: C.white, label: "[TBD: curriculum finished GIF]", z: 3 },
+  labelWrong: { type: "text", font: "one", lineHeight: 1.2, z: 3 },
+  labelCorrect: { type: "text", font: "one", lineHeight: 1.2, z: 3 },
+  labelFinished: { type: "text", font: "one", lineHeight: 1.2, z: 3 },
+  posesBar: { type: "rect", z: 9.5 },
+  posesBarText: { type: "text", font: "expanded", lineHeight: 1.2, z: 9.6 },
+  // Twin Characters in UI Scenario: four phone screens (phone 1 is its own frame; 2-4 are cut
+  // from the Figma image that sits over the other three frames)
+  phone1: { type: "img", src: DECK_ART + "ui/phone-1.png", w: 401, h: 860, z: 10 },
+  phone2: { type: "img", src: DECK_ART + "ui/phone-2.png", w: 399, h: 881, z: 10 },
+  phone3: { type: "img", src: DECK_ART + "ui/phone-3.png", w: 415, h: 867, z: 10 },
+  phone4: { type: "img", src: DECK_ART + "ui/phone-4.png", w: 405, h: 863, z: 10 },
+  // Character Default (second version): a dark blurred glow behind the twins
+  glow: { type: "ellipse", blur: 150, z: 2.8 },
+  // Who is he?: the ten Duolingo characters (tiles cut from the Figma screenshots), and the
+  // twins in their own tile
+  titleWho: { type: "text", font: "heading semibold", z: 8 },
+  twinsTile: { type: "rect", radius: 30, z: 4.8 },
+  whoDuo: { type: "img", src: DECK_ART + "who/duo.png", w: 251, h: 251, z: 9 },
+  whoBea: { type: "img", src: DECK_ART + "who/bea.png", w: 251, h: 250, z: 9 },
+  whoEddy: { type: "img", src: DECK_ART + "who/eddy.png", w: 251, h: 251, z: 9 },
+  whoJunior: { type: "img", src: DECK_ART + "who/junior.png", w: 251, h: 249, z: 9 },
+  whoLily: { type: "img", src: DECK_ART + "who/lily.png", w: 251, h: 251, z: 9 },
+  whoLin: { type: "img", src: DECK_ART + "who/lin.png", w: 251, h: 251, z: 9 },
+  whoLucy: { type: "img", src: DECK_ART + "who/lucy.png", w: 251, h: 251, z: 9 },
+  whoOscar: { type: "img", src: DECK_ART + "who/oscar.png", w: 251, h: 250, z: 9 },
+  whoVikram: { type: "img", src: DECK_ART + "who/vikram.png", w: 251, h: 250, z: 9 },
+  whoZari: { type: "img", src: DECK_ART + "who/zari.png", w: 251, h: 251, z: 9 }
 };
 
 // The lilac circle, fully open: centred on the stage, big enough to cover the corners
@@ -225,6 +274,45 @@ function dealUp(x, y, rotate, start) {
   return { x, y, w: 481, enter: { dy: 1300, rotate, ease: "back", at: [start, Math.min(1, start + 0.4)] } };
 }
 
+
+// Character Poses: the circles drop in from above, one after another
+function dropIn(x, y, size, start) {
+  return { x, y, w: size, h: size, enter: { dy: -1400, ease: "back", at: [start, Math.min(1, start + 0.35)] } };
+}
+// Character Poses Animation: the three ovals drop in together; each label rises on its own step
+const OVALS = {
+  gifWrong: { x: 140, y: 154, w: 417, h: 515, enter: { dy: -1400, ease: "back", at: [0.3, 0.85] } },
+  gifCorrect: { x: 686, y: 154, w: 417, h: 515, enter: { dy: -1400, ease: "back", at: [0.3, 0.85] } },
+  gifFinished: { x: 1232, y: 154, w: 417, h: 515, enter: { dy: -1400, ease: "back", at: [0.3, 0.85] } },
+  // The bar runs past the top and bottom so it reaches the window edges on taller screens
+  posesBar: { x: 1763, y: -600, w: 154, h: 2280, color: C.blue, enter: { dx: 154, at: [0.3, 0.8] } },
+  posesBarText: { x: 1883, y: 540, rotate: 90, align: "center", size: 72, color: C.navy, text: "CHARACTER POSES", enter: { dx: 154, at: [0.3, 0.8] } }
+};
+const LABEL_RISE = { dy: 120, opacity: 0, at: [0, 1] };
+const POSE_LABELS = {
+  labelWrong: { x: 348, y: 753, align: "center", size: 72, color: C.white, text: "Wrong\nAnswer" },
+  labelCorrect: { x: 895, y: 753, align: "center", size: 72, color: C.white, text: "Correct\nAnswer" },
+  labelFinished: { x: 1441.5, y: 753, align: "center", size: 72, color: C.white, text: "Curriculum\nFinished" }
+};
+// One step of the Poses Animation slide: the ovals and bar, plus the labels shown so far
+// (the newest one rises in)
+function posesStep(id, labels) {
+  const actors = Object.assign({}, OVALS);
+  labels.forEach((key, i) => {
+    actors[key] = Object.assign({}, POSE_LABELS[key], i === labels.length - 1 ? { enter: LABEL_RISE } : null);
+  });
+  return { id, layout: "scene", ref: "Character Poses Animation", bg: C.purple, pace: 0.6, actors };
+}
+// Twin Characters in UI Scenario: each screen swipes in from the right, one after another
+function swipeIn(x, y, w, start) {
+  return { x, y, w, enter: { dx: 1900, at: [start, Math.min(1, start + 0.3)] } };
+}
+// Who is he?: like the draft lineup slide, the heading and tiles rise in one after another
+// (starts spread over 0.25-0.65, each takes 0.35)
+function riseIn(placement, k, count) {
+  const start = 0.25 + (k / count) * 0.4;
+  return Object.assign({ enter: { dy: 90, opacity: 0, at: [start, start + 0.35] } }, placement);
+}
 
 // Morphology 2 and 3 share the split background (design/slides/Morphology 2.png)
 // They run past the top and bottom of the slide so they reach the window edges on screens
@@ -460,32 +548,85 @@ window.SLIDES = [
     pace: 0.3,
     actors: {
       // The cards are dealt up from below, one after another, then the title rises in
-      research1: dealUp(83, 112, -8, 0.3),
-      research2: dealUp(645, 112, 6, 0.37),
-      research3: dealUp(1207, 112, -5, 0.44),
-      research4: dealUp(83, 540, 7, 0.51),
-      research5: dealUp(645, 540, -6, 0.58),
-      titleResearch: { x: 600, y: 755, size: 280, color: C.yellow, text: "Research", enter: { dy: 500, at: [0.6, 1] } }
+      research1: dealUp(153, 113, -8, 0.3),
+      research2: dealUp(719, 113, 6, 0.36),
+      research3: dealUp(1285, 113, -5, 0.42),
+      research4: dealUp(153, 549, 7, 0.48),
+      research5: dealUp(719, 549, -6, 0.54),
+      research6: dealUp(1285, 549, 5, 0.6),
+      titleResearch: { x: 564, y: 725, size: 280, color: C.yellow, text: "Research", enter: { dy: 500, at: [0.6, 1] } }
     }
   },
   {
-    id: "lineup",
-    layout: "lineup",
-    transition: "rise",
-    heading: "[TBD]",
-    characters: [
-      { src: CHARACTERS + "duo.png", label: "Duo" },
-      { src: CHARACTERS + "bea.png", label: "Bea" },
-      { src: CHARACTERS + "eddy.png", label: "Eddy" },
-      { src: CHARACTERS + "junior.png", label: "Junior" },
-      { src: CHARACTERS + "lily.png", label: "Lily" },
-      { src: CHARACTERS + "lin.png", label: "Lin" },
-      { src: CHARACTERS + "lucy.png", label: "Lucy" },
-      { src: CHARACTERS + "oscar.png", label: "Oscar" },
-      { src: CHARACTERS + "vikram.png", label: "Vikram" },
-      { src: CHARACTERS + "zari.png", label: "Zari" },
-      { src: null, label: "[TBD: twins]", wide: true }
-    ]
+    id: "poses",
+    layout: "scene",
+    ref: "Character Poses",
+    bg: C.lilac,
+    pace: 0.3,
+    actors: {
+      // The waves draw themselves along their paths, then the circles drop in one by one
+      posesWave1: { x: 0, y: 0, enter: { draw: 0, at: [0.1, 0.8] }, exit: { draw: 0, at: [0, 0.5] } },
+      posesWave2: { x: 0, y: 0, enter: { draw: 0, at: [0.15, 0.85] }, exit: { draw: 0, at: [0, 0.5] } },
+      posesWave3: { x: 0, y: 0, enter: { draw: 0, at: [0.2, 0.9] }, exit: { draw: 0, at: [0, 0.5] } },
+      pose1: dropIn(192, 135, 350, 0.35),
+      pose2: dropIn(772, 135, 350, 0.42),
+      pose3: dropIn(1352, 135, 350, 0.49),
+      pose4: dropIn(192, 595, 350, 0.56),
+      pose5: dropIn(772, 595, 350, 0.63),
+      pose6: dropIn(1352, 595, 350, 0.65)
+    }
+  },
+  // Character Poses Animation: the ovals drop in together, then each click/scroll raises one label
+  posesStep("poses-animation", []),
+  posesStep("poses-animation-wrong", ["labelWrong"]),
+  posesStep("poses-animation-correct", ["labelWrong", "labelCorrect"]),
+  posesStep("poses-animation-finished", ["labelWrong", "labelCorrect", "labelFinished"]),
+  {
+    id: "ui-scenario",
+    layout: "scene",
+    ref: "Twin Characters in UI Scenario",
+    bg: C.blue,
+    bgAt: [0.5, 0.55], // swaps once the bar has covered the screen
+    pace: 0.3,
+    actors: {
+      // The blue bar from the last slide sweeps across the whole screen
+      posesBar: { x: -600, y: -600, w: 3120, h: 2280, color: C.blue, at: [0, 0.5], exit: { opacity: 0, at: [0, 0.05] } },
+      // The screens swipe in from the right, one by one
+      phone1: swipeIn(79, 114, 401, 0.45),
+      phone2: swipeIn(527, 108, 399, 0.53),
+      phone3: swipeIn(981, 109, 415, 0.61),
+      phone4: swipeIn(1444, 111, 405, 0.69)
+    }
+  },
+  {
+    id: "characters-default",
+    layout: "scene",
+    ref: "Character Default-1",
+    bg: C.orange,
+    bgAt: [0.1, 0.6],
+    pace: 0.3,
+    actors: {
+      // The glow fades up and the twins drop in and bounce, as on the first Character Default slide
+      glow: { x: 581, y: 192, w: 727, h: 727, color: C.glow, enter: { opacity: 0, at: [0.2, 0.8] } },
+      twins: { x: 538.03, y: 200, w: 847.63, enter: { dy: -1500, ease: "bounce", at: [0.4, 1] } }
+    }
+  },
+  {
+    id: "who-is-he",
+    layout: "scene",
+    ref: "Who is he",
+    bg: C.orange,
+    pace: 0.3,
+    actors: Object.assign({
+      // The twins shrink into their tile at the end of the rows as it rises in
+      twins: { x: 1323, y: 660, w: 285.28, at: [0.45, 1] },
+      titleWho: riseIn({ x: 129, y: 68, size: 100, color: C.white, text: "Who is he?" }, 0, 12),
+      twinsTile: riseIn({ x: 1267, y: 646, w: 387, h: 248, color: C.cream }, 11, 12)
+    }, ...[
+      ["whoDuo", 127, 272], ["whoBea", 410, 273], ["whoEddy", 693, 272], ["whoJunior", 975, 272],
+      ["whoLily", 1258, 272], ["whoLin", 1541, 272], ["whoLucy", 127, 643], ["whoOscar", 410, 643],
+      ["whoVikram", 693, 643], ["whoZari", 975, 643]
+    ].map(([key, x, y], k) => ({ [key]: riseIn({ x, y, w: 251 }, k + 1, 12) })))
   },
   {
     id: "finale",
@@ -498,9 +639,9 @@ window.SLIDES = [
     id: "leaderboard",
     layout: "leaderboard",
     transition: "qr-handoff", // the QR glides over from the previous slide
-    heading: "[TBD: leaderboard title]",
-    limit: 5,
+    heading: "Leaderboard", // Figma "Leaderboard" frame
+    limit: 4, // Figma shows four score bars
     qr: true,
-    line: "Go ahead, scan" // from SPEC.md
+    line: "Go ahead, scan!" // Figma "Leaderboard" frame
   }
 ];

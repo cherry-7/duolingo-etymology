@@ -55,6 +55,8 @@
       );
       list.append(row);
     });
+    // The rest of the bars stay empty, as in the Figma design
+    for (let i = Math.max(top.length, 1); i < limit; i++) list.append(el("li", "board-slot"));
     if (animate && !reduceMotion.matches) {
       list.querySelectorAll(".board-row").forEach((row) => {
         const was = before.get(row.dataset.key);

@@ -61,20 +61,40 @@
     finale(stage, slide) {
       stage.append(slot(slide.owl, "owl"), qrBlock(slide.line));
     },
-    // Live scores from the demo; streaming lives in leaderboard.js
+    // Live scores from the demo; streaming lives in leaderboard.js. Laid out on Figma's
+    // 1920 x 1080 "Leaderboard" frame (scaled to the stage): the girl holds up the QR sign
+    // on the left, the scores sit in the orange bars on the right.
     leaderboard(stage, slide) {
-      stage.append(reveal(el("h2", null, slide.heading || "[TBD]")));
+      const art = "../assets/deck/leaderboard/";
+      const canvas = el("div", "lb");
+      const img = (src, className) => {
+        const node = el("img", className);
+        node.src = art + src;
+        node.alt = "";
+        return node;
+      };
+      const sign = el("div", "lb-sign");
+      sign.append(img("sign-board.svg", "lb-board"), img("sign-stick.svg", "lb-stick"));
       const list = el("ol", "board");
       const status = el("p", "board-status");
-      // The QR on the left so latecomers can still join, scores on the right
-      const body = el("div", "board-body");
+      canvas.append(img("girl.svg", "lb-girl"), el("div", "lb-circle"), img("wave.svg", "lb-wave"), list,
+        reveal(el("h2", "lb-title", slide.heading || "[TBD]")));
       if (slide.qr) {
+        // The QR sits on the sign but outside it, so it can glide over from the previous
+        // slide (qr-handoff) while the sign and its line rise in around it
         const qr = qrBlock(slide.line);
-        // With the handoff, the QR slides in from the previous slide instead of rising
-        body.append(slide.transition === "qr-handoff" ? qr : reveal(qr));
+        const line = qr.querySelector("p");
+        line.className = "lb-scan";
+        canvas.append(reveal(line), reveal(sign), slide.transition === "qr-handoff" ? qr : reveal(qr));
+      } else {
+        canvas.append(reveal(sign));
       }
-      body.append(list);
-      stage.append(body, status);
+      canvas.append(status);
+      stage.append(canvas);
+      // Scale the 1920-wide canvas to the stage
+      const fit = () => { canvas.style.transform = `scale(${stage.clientWidth / 1920})`; };
+      if (window.ResizeObserver) new ResizeObserver(fit).observe(stage);
+      fit();
       if (window.Leaderboard) window.Leaderboard.mount(list, slide, status);
       else list.append(placeholder("[TBD: leaderboard unavailable]"));
     }
@@ -100,7 +120,7 @@
 
   // Build slides
   const sections = slides.map((slide, i) => {
-    const section = el("section", "slide");
+    const section = el("section", "slide slide-" + (slide.layout || "basic"));
     section.id = slide.id || "slide-" + (i + 1);
     if (slide.layout === "scene") {
       // Drawn by the world layer (deck/world.js); the section stays empty and see-through
@@ -195,7 +215,7 @@
     const qr = section.querySelector(".qr");
     const code = qr && qr.querySelector(".qr-code");
     const fromCode = prev && prev.querySelector(".qr-code");
-    const rows = section.querySelectorAll(".board-row, .board-empty");
+    const rows = section.querySelectorAll(".board-row, .board-empty, .board-slot");
     const status = section.querySelector(".board-status");
     if (t >= 1 || !code || !fromCode) {
       if (qr) qr.style.transform = qr.style.opacity = "";

@@ -479,6 +479,29 @@ window.World = (function () {
         node.style.opacity = s.opacity;
         node.style.background = s.color;
         node.style.transform = `translate(${s.x}px, ${s.y}px) scale(${s.w / 100}, ${s.h / 100})`;
+        // def.blur: a soft glow (Figma layer blur), in stage px; undone from the scale above
+        if (def.blur) node.style.filter = `blur(${def.blur / Math.max(0.01, s.w / 100)}px)`;
+      };
+    },
+
+    // A round slot for art that isn't drawn yet (the white circles on the pose slides):
+    // the shape from Figma, with the image if there is one, otherwise a [TBD] label
+    slot(def, layer) {
+      const node = el("div", "actor actor-slot", layer);
+      node.style.background = def.color;
+      if (def.src) {
+        const img = el("img", null, node);
+        img.src = def.src;
+        img.alt = def.label || "";
+        img.onerror = () => { img.remove(); el("span", "slot-label", node).textContent = def.label; };
+      } else {
+        el("span", "slot-label", node).textContent = def.label || "[TBD]";
+      }
+      return (s) => {
+        node.style.opacity = s.opacity;
+        node.style.width = s.w + "px";
+        node.style.height = s.h + "px";
+        node.style.transform = `translate(${s.x}px, ${s.y}px) rotate(${s.rotate || 0}deg)`;
       };
     },
 
@@ -540,6 +563,7 @@ window.World = (function () {
     // def.kern: { letterIndex: em } nudges single letters to match the Figma spacing
     text(def, layer) {
       const node = el("div", "actor actor-text " + (def.font || ""), layer);
+      if (def.lineHeight) node.style.lineHeight = def.lineHeight; // Figma line height, when it isn't 150%
       const a = el("div", "text-a", node);
       const b = el("div", "text-b", node);
       let spans = [];
@@ -549,7 +573,8 @@ window.World = (function () {
         node.style.fontSize = s.size + "px";
         node.style.textAlign = s.align || "left";
         const shift = s.align === "center" ? "-50%" : s.align === "right" ? "-100%" : "0";
-        node.style.transform = `translate(${s.x}px, ${s.y}px) translateX(${shift})`;
+        // rotate turns the text around (x, y), e.g. the vertical "CHARACTER POSES"
+        node.style.transform = `translate(${s.x}px, ${s.y}px) rotate(${s.rotate || 0}deg) translateX(${shift})`;
         if (!def.letters) return crossfade(a, b, s);
         if (a.dataset.text !== s.textA) {
           a.dataset.text = s.textA;
@@ -572,6 +597,7 @@ window.World = (function () {
         node.style.background = s.color;
         node.style.width = Math.max(0, s.w) + "px";
         node.style.height = Math.max(0, s.h) + "px";
+        if (def.radius) node.style.borderRadius = def.radius + "px";
         node.style.transform = `translate(${s.x}px, ${s.y}px)`;
       };
     },
