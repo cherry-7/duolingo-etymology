@@ -2,6 +2,7 @@
   {
     "type": "split",
     "language": "English (Latin roots)",
+    "animationId": "transport",
     "prompt": "Split the word into its meaningful parts.",
     "word": "transport",
     "options": [
@@ -14,6 +15,7 @@
   {
     "type": "odd",
     "language": "English (Latin roots)",
+    "animationId": "airport",
     "prompt": "Two words use a prefix or suffix to build on a root. Which word is the odd one out?",
     "options": [
       { "text": "transport = trans- + port", "isCorrect": false },
@@ -25,6 +27,7 @@
   {
     "type": "construction",
     "language": "English (Latin roots)",
+    "animationId": "portable",
     "prompt": "Match each English word to the way its meaningful parts are constructed.",
     "pairs": [
       { "word": "transport", "construction": "prefix + root: trans- + port" },
@@ -36,6 +39,7 @@
   {
     "type": "radical",
     "language": "Chinese",
+    "animationId": "mom",
     "prompt": "Build the character for “mom”\nStart with 马 (mǎ), which contribute to the pronunciation of the character. add the radical for “mom”. Parentheses show the meaning of the semantic radicals.",
     "character": "妈 (mā): mom",
     "root": "马",
@@ -52,6 +56,7 @@
   {
     "type": "choice",
     "language": "Chinese",
+    "animationId": "mom",
     "prompt": "Choose the right meaning for this character:\nClick the correct the answer block.",
     "word": "妈",
     "options": [
@@ -64,6 +69,7 @@
   {
     "type": "choice",
     "language": "Chinese",
+    "animationId": "mom",
     "prompt": "Which part of the character indicate the __gender__ of 妈?\nClick the correct the answer block.",
     "word": "妈",
     "options": [
@@ -74,6 +80,7 @@
   {
     "type": "choice",
     "language": "Chinese",
+    "animationId": "mom",
     "prompt": "Which part of the character indicate the __pronunciation__ of 妈 (mā)?\nClick the correct the answer block.",
     "word": "妈",
     "options": [
@@ -84,6 +91,7 @@
   {
     "type": "choice",
     "language": "Sanskrit",
+    "animationId": "born_in_water",
     "prompt": "जल (jala) means water; compound-final -ज (-ja) means born or produced. Which split separates these meaningful parts?",
     "word": "जलज (jalaja): born in water",
     "options": [
@@ -104,6 +112,7 @@
   {
     "type": "order",
     "language": "Sanskrit",
+    "animationId": "born_in_water",
     "prompt": "Build 'born in water': put jala (water) before the ending -ja (born). Leave out the extra tile.",
     "parts": [
       {
@@ -127,6 +136,7 @@
   {
     "type": "choice",
     "language": "Sanskrit",
+    "animationId": "born_in_forest",
     "prompt": "Component replacement: replace जल (jala, water) with वन (vana, forest), keeping -ज (-ja, born). How does the meaning change?",
     "word": "जलज → वनज (jalaja → vanaja)",
     "options": [

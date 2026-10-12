@@ -77,7 +77,7 @@
         },
         "animationId": {
           "type": "string",
-          "description": "Optional id of the animation to play on correct assembly. File: /assets/animations/<animationId>.riv"
+          "description": "Optional id of the animation to play on a correct answer. File: /demo/demo_images/<animationId>.svg, else /assets/animations/<animationId>.riv"
         },
         "hint": { "$ref": "#/$defs/hint" },
         "correction": { "$ref": "#/$defs/correction" }
@@ -293,6 +293,7 @@
         "root": { "type": "string" },
         "rootImage": { "$ref": "#/$defs/image", "description": "Optional SVG of the given part, drawn instead of the root text." },
         "characterImage": { "$ref": "#/$defs/image", "description": "Optional SVG of the finished character, shown once the pieces merge." },
+        "animationId": { "type": "string" },
         "radicals": {
           "type": "array",
           "minItems": 2,

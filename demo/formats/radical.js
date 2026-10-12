@@ -48,7 +48,8 @@ export function render(q, ctx) {
     attached.append(tile);
     zone.classList.add("is-done", "is-hit");
     for (const item of tray.querySelectorAll(".part")) item.classList.add("is-locked");
-    ctx.complete({ animationSlot: compound, detail: q.answerMeaning });
+    // The pieces merge inside the compound, so the animation plays over the tray
+    ctx.complete({ animationSlot: tray, detail: q.answerMeaning });
     // After the green jump, the two pieces become one character
     setTimeout(() => {
       compound.classList.add("is-merged");

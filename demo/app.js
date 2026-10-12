@@ -554,7 +554,7 @@ function slideIn(el) {
   el.classList.add("slide-in");
 }
 
-/* ---------- completion animation (Rive or placeholder) ---------- */
+/* ---------- completion animation (SVG, Rive or placeholder) ---------- */
 
 let riveLoading = null;
 function loadRive() {
@@ -573,6 +573,10 @@ function animationUrl(q) {
   return q.animationId ? `${CONFIG.assets.animations}${q.animationId}.riv` : null;
 }
 
+function animationImageUrl(q) {
+  return q.animationId ? `${CONFIG.assets.animationImages}${q.animationId}.svg` : null;
+}
+
 function preloadAnimation(q) {
   const url = animationUrl(q);
   if (url) fileExists(url).then((ok) => ok && loadRive().catch(() => {}));
@@ -584,6 +588,15 @@ async function playAnimation(q, slot) {
   const url = animationUrl(q);
   const label = q.animationId ? `[TBD: animation ${q.animationId}]` : "[TBD: animation (none specified)]";
   slot.classList.add("has-anim");
+
+  // An animated SVG for this question wins over a Rive file
+  const image = animationImageUrl(q);
+  if (image && (await fileExists(image))) {
+    slot.append(h("div", { class: "anim-overlay" }, h("img", { class: "anim-image", src: image, alt: "", draggable: "false" })));
+    // The feedback sheet shortens the lesson body; keep the animation on screen
+    slot.scrollIntoView({ block: "nearest" });
+    return;
+  }
 
   if (!url || !(await fileExists(url))) {
     console.warn(q.animationId ? `Missing animation: ${q.animationId} (${url})` : "Missing animation: question has no animationId", q);

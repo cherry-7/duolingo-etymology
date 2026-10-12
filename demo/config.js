@@ -6,6 +6,7 @@ export const CONFIG = {
   assets: {
     questions: "../assets/questions/",   // images named in questions.json
     animations: "../assets/animations/", // <animationId>.riv
+    animationImages: "demo_images/",     // <animationId>.svg, played on a correct answer
     characters: "../assets/characters/", // <character id>.png
     twins: "../assets/twins/",           // <pose>.png
     sounds: "../assets/sounds/"
