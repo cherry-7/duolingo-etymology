@@ -167,7 +167,7 @@ window.CHARACTER_PARTS = {
 
 // Running together (character step 3, Entrance/Moving): Mula runs ahead pointing and pulls Dulo
 // along by the hand. Angles are added to each group's Figma pose at its pivot; x is each
-// character frame's left edge inside the pair while running (standing: Mula 0, Dulo 520).
+// character frame's left edge inside the pair while running (standing: Mula 65, Dulo 455).
 // Running right, Mula dashes past Dulo to the front; running left, both are mirrored.
 // Mula's back hand (86, 341) meets Dulo's front hand (479, 345), so Mula is 393 ahead of Dulo.
 window.CHARACTER_RUN = {
@@ -230,10 +230,10 @@ window.CHARACTER_REACTIONS = {
   correct: {
     fps: 24,
     duration: 3.5,
-    // Contact angles were solved against the rendered hands (Mula at +170, -70; Dulo at -95):
+    // Contact angles were solved against the rendered hands (Mula at 170, -70; Dulo at 425 in the pair; they now stand at 65 and 455):
     // upper palms meet at (594, 205), lower palms at (600, 395), in pair units
     mula: {
-      x: [[0, 0], [0.25, 0], [0.55, 20], [0.9, 170], [1.3, 170], [1.55, 165], [3.0, 165], [3.5, 0]],
+      x: [[0, 0], [0.25, 0], [0.55, 20], [0.9, 105], [1.3, 105], [1.55, 100], [3.0, 100], [3.5, 0]],
       y: [[0, 0], [0.25, 0], [0.5, 12], [0.6, 8], [0.9, -70], [1.3, -70], [1.5, 0], [1.6, 8], [1.75, 0]],
       rot: [[0, 0], [0.12, 4], [0.25, 3], [0.9, 0]],
       sx: [[0, 1], [0.08, 0.86], [0.18, 1], [0.9, 1], [0.94, 1.06], [1.02, 1]],
@@ -253,7 +253,7 @@ window.CHARACTER_REACTIONS = {
       mouth: [[0.2, 1], [0.3, 1.4], [3.0, 1.4], [3.3, 1]]
     },
     dulo: {
-      x: [[0, 0], [0.25, 0], [0.6, -95], [3.0, -95], [3.5, 0]],
+      x: [[0, 0], [0.25, 0], [0.6, -30], [3.0, -30], [3.5, 0]],
       z: [[0, 1], [3.5, 1]], // in front of Mula, so Mula's hands never disappear behind her
       rot: [[0, 0], [0.12, -4], [0.25, -3], [0.9, 0]],
       sx: [[0, 1], [0.08, 0.86], [0.18, 1], [0.9, 1], [0.94, 1.06], [1.02, 1]],

@@ -101,8 +101,9 @@ window.WORLD_ACTORS = {
   shadow: { type: "ellipse", z: 3 },
   saissha: { type: "img", src: DECK_ART + "saissha.png", w: 742, h: 963, z: 4, idle: "breathe" },
   // Mula (left) and Dulo (right), built from their Figma parts; they take the old twins.png slot
-  // (same x, y and width, feet on the same line). box: the pair's outline in character units.
-  twins: { type: "pair", members: [{ who: "mula", dx: 0 }, { who: "dulo", dx: 520 }], box: [95, 60, 950, 666], slotAspect: 944 / 1262, z: 5 },
+  // (same x, y and width, feet on the same line). They stand closer than in Figma (Mula 0,
+  // Dulo 520): each moved 65 inward, so the gap between them is halved and the pair stays centred. box: the pair's outline in character units.
+  twins: { type: "pair", members: [{ who: "mula", dx: 65 }, { who: "dulo", dx: 455 }], box: [95, 60, 950, 666], slotAspect: 944 / 1262, z: 5 },
   bubble: { type: "bubble", z: 6 },
   names: { type: "text", font: "condensed", z: 7 },
   frame: { type: "frame", z: 8 },
@@ -276,6 +277,7 @@ window.SLIDES = [
     id: "story",
     layout: "scene",
     ref: "User Story",
+    nod: true, // Mula and Dulo nod twice once the bubble is up
     bg: C.yellow,
     pace: 0.25, // a long, cinematic move
     actors: Object.assign({}, storyActors, {
@@ -290,6 +292,7 @@ window.SLIDES = [
     id: "story-learning",
     layout: "scene",
     ref: "Group 29",
+    nod: true, // Mula and Dulo nod twice once the bubble is up
     bg: C.yellow,
     pace: 0.5,
     actors: Object.assign({}, storyActors, {
@@ -300,6 +303,7 @@ window.SLIDES = [
     id: "story-wish",
     layout: "scene",
     ref: "Group 30",
+    nod: true, // Mula and Dulo nod twice once the bubble is up
     bg: C.yellow,
     pace: 0.5,
     actors: Object.assign({}, storyActors, {

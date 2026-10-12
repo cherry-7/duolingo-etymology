@@ -127,6 +127,14 @@ window.World = (function () {
   // ---- Actor renderers -----------------------------------------------------
   // Each takes a resolved state (numbers already interpolated) and draws it.
 
+  // Every part that moves with the head (same list as breathe-head in deck.css)
+  const HEAD_PARTS = [".part-face", ".part-ear-left", ".part-ear-right", ".part-hair-back", ".part-hair-tuft",
+    ".part-hair-crown", ".part-bun-left", ".part-bun-right", ".part-hair-ellipse-4", ".part-hair-ellipse-26",
+    ".part-hair-ellipse-3", ".part-ellipse-10", ".part-eye-white-left", ".part-eye-white-right", ".group-eye-left",
+    ".group-eye-right", ".part-nose", ".part-nose-tip", ".part-mouth", ".part-mouth-corner", ".part-ellipse-16-left",
+    ".part-ellipse-16-right", ".part-ellipse-24", ".part-ellipse-25", ".part-ellipse-28", ".part-pigtail-left",
+    ".part-pigtail-right", ".part-smile-teeth"].join(", ");
+
   const kinds = {
     img(def, layer) {
       // Outer layer travels; the image inside can have an idle loop (def.idle, e.g. "breathe")
@@ -184,7 +192,7 @@ window.World = (function () {
       });
       let wasRunning = null;
 
-      // Standing still: the Figma spots (Mula 0, Dulo 520) and the CSS idle loops
+      // Standing still: their spots (Mula 65, Dulo 455) and the CSS idle loops
       function stand() {
         members.forEach((m) => {
           m.frame.style.transform = `translate(${m.dx}px, 0)`;
@@ -340,9 +348,28 @@ window.World = (function () {
         stand();
       }
 
+      // Nod (Saissha's speech bubbles): once a bubble has appeared, both heads dip once and come
+      // back up, twice. Added on top of the breathing, so it never fights the idle loop.
+      const NOD = { dip: 16, duration: 1100 };
+      const heads = members.flatMap((m) => [...m.frame.querySelectorAll(":scope > :is(" + HEAD_PARTS + ")")]);
+      let nodded = null;
+      function nod() {
+        const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (reduce || !heads[0] || !heads[0].animate) return;
+        heads.forEach((h) => h.animate(
+          [{ translate: "0 0" }, { translate: `0 ${NOD.dip}px`, offset: 0.22 }, { translate: "0 0", offset: 0.48 },
+            { translate: `0 ${NOD.dip}px`, offset: 0.72 }, { translate: "0 0" }],
+          { duration: NOD.duration, easing: "ease-in-out", composite: "add" }
+        ));
+      }
+
       stand();
       return (s) => {
         node.style.opacity = s.opacity;
+        if (s.nod !== nodded) {
+          nodded = s.nod;
+          if (s.nod && !reacting) nod();
+        }
         node.style.transform = `translate(${s.x}px, ${s.y + s.w * drop}px) scale(${s.w / bw}) rotate(${s.rotate || 0}deg)`;
         const running = !!s.move && s.move.t > 0 && s.move.t < 1;
         // A reaction on this slide: they finish their run, stand for REACT_PAUSE, then react
@@ -830,6 +857,9 @@ window.World = (function () {
         if (actors[key].type === "pair") {
           const near = Math.round(pos);
           s.react = slides[near] && slides[near].react && slides[near].actors[key] ? slides[near].react : null;
+          // ...and nods once a slide with nod: true has arrived (its bubble is up)
+          const here = slides[near] && slides[near].nod && slides[near].actors[key] && Math.abs(pos - near) < 0.02;
+          s.nod = here ? slides[near].id : null;
         }
         draw[key](s);
       });
