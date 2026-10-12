@@ -188,13 +188,17 @@ window.World = (function () {
         const mouth = frame.querySelector(".part-mouth");
         const smile = frame.querySelector(".part-smile-teeth");
         const straight = frame.querySelectorAll(".part-mouth, .part-mouth-corner");
-        // Closed eyes (the nod): a straight line across each eye, in the pupils' colour, shown
-        // only while the eyes are shut
+        // Closed eyes (the nod): a U across each eye, in the pupils' colour, from the eye's
+        // centre line down, shown only while the eyes are shut
         ["left", "right"].forEach((side) => {
           const white = window.CHARACTER_PARTS[who].find((p) => p.id === "eye-white-" + side);
+          const w = white.w - 6;
+          const h = 18;
           const shut = el("div", "part-eye-shut part-eye-shut-" + side, frame);
           shut.style.cssText = `position:absolute;left:${white.x + 3}px;top:${white.y + white.h / 2 - 3.5}px;` +
-            `width:${white.w - 6}px;height:7px;border-radius:3.5px;background:#3D3D3D;opacity:0`;
+            `width:${w}px;height:${h}px;opacity:0`;
+          shut.innerHTML = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="overflow:visible;display:block">` +
+            `<path d="M3.5 3.5C3.5 ${h * 1.25} ${w - 3.5} ${h * 1.25} ${w - 3.5} 3.5" fill="none" stroke="#3D3D3D" stroke-width="7" stroke-linecap="round"/></svg>`;
           frame.querySelector(".group-eye-" + side).after(shut);
         });
         // Mula's scarf tail lies over her sleeve. In a reaction her arms go in front of it, and
@@ -376,6 +380,8 @@ window.World = (function () {
       const NOD = { dip: 16, flat: 0.07, chin: 311, duration: 1100 };
       const heads = members.flatMap((m) => [...m.frame.querySelectorAll(":scope > :is(" + HEAD_PARTS + ")")]);
       const EYES = ".part-eye-white-left, .part-eye-white-right, .group-eye-left, .group-eye-right";
+      const LIDS_DOWN = ".part-ellipse-16-left, .part-ellipse-16-right"; // Dulo's eyelids
+      const LID_CLOSED = 1.43; // stretched from their top edge down to the eye's centre line
       const track = (keys, t) => {
         for (let i = 1; i < keys.length; i++) {
           const [t0, v0] = keys[i - 1];
@@ -397,13 +403,14 @@ window.World = (function () {
           // each part scales about its own origin; shift it so the head squashes about the chin
           const originY = h.offsetTop + parseFloat(getComputedStyle(h).transformOrigin.split(" ")[1]);
           const eye = h.matches(EYES);
+          const lid = h.matches(LIDS_DOWN);
           h.animate(NOD_AT.map((t) => {
             const d = track(DIPS, t);
             const sy = 1 - NOD.flat * d;
             return {
               offset: t,
               translate: `0 ${NOD.dip * d + (1 - sy) * (NOD.chin - originY)}px`,
-              scale: `1 ${sy * (eye ? track(LIDS, t) : 1)}`,
+              scale: `1 ${sy * (eye ? track(LIDS, t) : lid ? lerp(LID_CLOSED, 1, track(LIDS, t)) : 1)}`,
               easing: "ease-in-out" // per beat
             };
           }), { duration: NOD.duration, composite: "add" });

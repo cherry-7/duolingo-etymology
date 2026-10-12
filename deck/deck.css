@@ -425,7 +425,7 @@ body {
 .character:is(.running, .reacting) .part-sole { visibility: hidden; }
 
 /* Both: they blink now and then (Mula every 4.2s, Dulo every 5.3s, so never together). The eye
-   whites and pupils squeeze shut about each eye's centre; Dulo's brows stay put. */
+   whites and pupils squeeze shut about each eye's centre. */
 .character.idle > :is(.part-eye-white-left, .part-eye-white-right, .group-eye-left, .group-eye-right) {
   animation: breathe-head 2.6s ease-in-out infinite, blink var(--blink-every) linear infinite;
 }
@@ -436,6 +436,17 @@ body {
 @keyframes blink {
   0%, 93% { scale: 1 1; }
   95.5% { scale: 1 0.08; }
+  98%, 100% { scale: 1 1; }
+}
+/* Dulo's eyelids close with her blinks: each stretches down from its top edge to the eye's
+   centre line as the eye squeezes shut */
+.character-dulo :is(.part-ellipse-16-left, .part-ellipse-16-right) { transform-origin: 50% 0; }
+.character-dulo.idle > :is(.part-ellipse-16-left, .part-ellipse-16-right) {
+  animation: breathe-head 2.6s ease-in-out infinite, blink-lid var(--blink-every) linear infinite;
+}
+@keyframes blink-lid {
+  0%, 93% { scale: 1 1; }
+  95.5% { scale: 1 1.43; }
   98%, 100% { scale: 1 1; }
 }
 
