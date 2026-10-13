@@ -428,8 +428,9 @@ const OPENING = {
   shadow: { x: 323, y: 944, w: 1158, h: 149, color: C.shadowOnOrange },
   twins: { x: 329, y: 119, w: 1261.65 },
   names: {
-    x: 1828, y: 666, align: "right", size: 48, color: C.white,
-    text: "Ame Wang,\nDaniel Thomas,\nMichelle Shen,\nNina Zhang,\nSaissha Jain",
+    // "Group 3" (Michelle) heads the names; the block moved up a line (72) so it still ends at 1026
+    x: 1828, y: 594, align: "right", size: 48, color: C.white,
+    text: "Group 3\nAme Wang,\nDaniel Thomas,\nMichelle Shen,\nNina Zhang,\nSaissha Jain",
     exit: { dx: 400, opacity: 0, at: [0, 0.4] }
   }
 };
